@@ -37,7 +37,7 @@ std::string get_time_as_string() {
   time_t current_time = std::chrono::system_clock::to_time_t(
       std::chrono::high_resolution_clock::now());
   std::string time_string = ctime(&current_time);
-  time_string[time_string.length() - 1] = 0;
+  time_string = time_string.substr(0, time_string.length() - 1);
   return time_string;
 }
 } // namespace Logger

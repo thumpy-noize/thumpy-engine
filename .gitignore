@@ -33,7 +33,6 @@
 
 # Build
 build/
-vcpkg/
 *.dump
 
 # VSCode

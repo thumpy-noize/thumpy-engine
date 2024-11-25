@@ -17,6 +17,8 @@ target_link_libraries(engine
   PRIVATE
     io
     logger
+
+    ${GLFW_LIBRARIES}
 )
 
 # Unit Testing
@@ -31,6 +33,7 @@ add_executable(engine_unit_test ${TEST_SOURCES})
 set_target_properties(engine_unit_test PROPERTIES LINKER_LANGUAGE CXX)
 
 include_directories(logger)
+
 target_link_libraries(
   engine_unit_test
   GTest::gtest_main

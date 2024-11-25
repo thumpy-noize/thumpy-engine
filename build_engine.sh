@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Remove Build
-[[ -d build ]] && rm -rf build 
+[[ -d build ]] && rm -rf build
 
 echo "Clang Formating..."
 clang-format -i -style=WebKit *.cpp *.hpp

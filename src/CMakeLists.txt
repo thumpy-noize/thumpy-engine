@@ -39,5 +39,3 @@ target_link_libraries(
 
   include(GoogleTest)
 gtest_discover_tests(engine_unit_test)
-
-

@@ -12,7 +12,6 @@ int term_log_vision = ALL;
 
 void log_to_terminal(const std::string &message, LogLevel level) {
   if ((level & term_log_vision) != 0) {
-    // std::cout << "\033[31 test" << std::endl;
     std::cout << terminal_color_from_level(level) << message << std::endl;
   }
 }

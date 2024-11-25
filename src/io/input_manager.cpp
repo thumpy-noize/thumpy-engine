@@ -2,7 +2,6 @@
 
 #include "logger.hpp"
 #include <input_manager.hpp>
-#include <iostream>
 #include <signal.h>
 
 namespace Thumpy {

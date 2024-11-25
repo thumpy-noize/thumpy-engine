@@ -34,7 +34,9 @@
 # Build
 build/
 vcpkg/
+*.dump
 
 # VSCode
 .cache/
 .vscode/
+

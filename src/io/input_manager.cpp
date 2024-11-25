@@ -19,7 +19,7 @@ static void finish(int sig) {
 
   // Shutdown
   Thumpy::Core::Logger::log("Shuting down...", Thumpy::Core::Logger::INFO);
-
+  Logger::close_logger();
   exit(0);
 }
 

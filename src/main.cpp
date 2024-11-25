@@ -2,7 +2,6 @@
 
 #include "logger_helper.hpp"
 #include <input_manager.hpp>
-#include <iostream>
 #include <logger.hpp>
 
 bool DEBUG_MODE = true;

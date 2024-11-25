@@ -10,6 +10,7 @@ target_sources(logger
 
   ${CMAKE_CURRENT_LIST_DIR}/logger.cpp
   ${CMAKE_CURRENT_LIST_DIR}/logger_helper.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/file_logger.cpp
   ${CMAKE_CURRENT_LIST_DIR}/term_logger.cpp
 
 

@@ -10,9 +10,6 @@ namespace Thumpy {
             // Poll input from hid devices
             void poll_input();
 
-            // Poll input from terminal
-            void poll_terminal_values();
-
         }
     }
 }

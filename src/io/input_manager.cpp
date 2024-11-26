@@ -4,6 +4,8 @@
 #include <input_manager.hpp>
 #include <signal.h>
 
+extern bool APPLICATION_RUNNING;
+
 namespace Thumpy {
 namespace Core {
 namespace IO {
@@ -17,9 +19,9 @@ void init() { (void)signal(SIGINT, finish); }
 static void finish(int sig) {
 
   // Shutdown
-  Thumpy::Core::Logger::log("Shuting down...", Thumpy::Core::Logger::INFO);
-  Logger::close_logger();
-  exit(0);
+  Thumpy::Core::Logger::log("Shuting down by exit signal...",
+                            Thumpy::Core::Logger::INFO);
+  APPLICATION_RUNNING = false;
 }
 
 #pragma endregion Signal Handling

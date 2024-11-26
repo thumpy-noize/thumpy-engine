@@ -1,12 +1,13 @@
 
 
-#include "logger_helper.hpp"
 #include <input_manager.hpp>
 #include <logger.hpp>
+#include <window_manager.hpp>
 
 bool DEBUG_MODE = true;
 
-bool APLICATION_RUNNING = true;
+bool APPLICATION_RUNNING = true;
+Thumpy::Core::Windows::WindowManager *window_manager;
 
 int main() {
   Thumpy::Core::Logger::init();
@@ -14,10 +15,17 @@ int main() {
 
   Thumpy::Core::IO::init();
 
-  while (APLICATION_RUNNING) {
+  window_manager = new Thumpy::Core::Windows::WindowManager();
 
-    Thumpy::Core::IO::poll_input();
-  }
+  // while (APPLICATION_RUNNING) {
+  //   Thumpy::Core::IO::poll_input();
+  // }
+
+  // Terminate systems
+  window_manager->terminate();
+
+  // Dump log file
+  Thumpy::Core::Logger::close_logger();
 
   return 0;
 }

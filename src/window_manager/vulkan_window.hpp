@@ -95,6 +95,8 @@ public:
       VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
 private:
+  const int MAX_FRAMES_IN_FLIGHT = 2;
+
   VkInstance instance_;
   VkSurfaceKHR surface_;
 
@@ -113,7 +115,12 @@ private:
   VkPipeline graphicsPipeline_;
 
   VkCommandPool commandPool_;
-  VkCommandBuffer commandBuffer_;
+  std::vector<VkCommandBuffer> commandBuffers_;
+
+  std::vector<VkSemaphore> imageAvailableSemaphores_;
+  std::vector<VkSemaphore> renderFinishedSemaphores_;
+  std::vector<VkFence> inFlightFences_;
+  uint32_t currentFrame_ = 0;
 
   VkSemaphore imageAvailableSemaphore_;
   VkSemaphore renderFinishedSemaphore_;

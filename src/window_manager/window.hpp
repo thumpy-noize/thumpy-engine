@@ -17,7 +17,7 @@ public:
   Window(std::string title);
   ~Window();
   void init_window();
-  void deconstruct_window();
+  virtual void deconstruct_window();
   void loop();
   bool should_close();
 

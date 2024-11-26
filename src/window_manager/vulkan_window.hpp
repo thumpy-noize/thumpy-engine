@@ -21,6 +21,7 @@ class VulkanWindow : public Window {
 public:
   VulkanWindow(std::string title);
   void init_vulkan();
+  void deconstruct_window();
 
   void createInstance();
   void setupDebugMessenger();

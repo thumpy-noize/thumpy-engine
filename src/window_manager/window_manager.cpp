@@ -67,7 +67,7 @@ void WindowManager::loop() {
 }
 
 void WindowManager::terminate() {
-  Logger::log("Terminating glfw...", Logger::DEBUG);
+  Logger::log("Terminating glfw...", Logger::INFO);
   glfwTerminate();
 }
 

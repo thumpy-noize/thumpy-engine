@@ -14,7 +14,7 @@ void init();
 void close_logger();
 
 // Log a message
-void log(const std::string &message, LogLevel level = DEBUG);
+void log(const std::string &message, LogLevel level = INFO);
 
 } // namespace Logger
 } // namespace Core

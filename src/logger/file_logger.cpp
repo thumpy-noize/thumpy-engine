@@ -1,7 +1,9 @@
 #include "file_logger.hpp"
 #include "logger.hpp"
 #include "logger_helper.hpp"
+#include <filesystem>
 #include <fstream>
+#include <string>
 
 namespace Thumpy {
 namespace Core {
@@ -21,7 +23,10 @@ void start_log_file() {
 void close_log_file() {
   // Close file
   if (log_file->is_open()) {
-    log("Dumping log to " + log_path, INFO);
+
+    log("Dumping log to " + std::filesystem::current_path().string() + "/" +
+            log_path,
+        DEBUG);
     log_file->close();
   }
 }

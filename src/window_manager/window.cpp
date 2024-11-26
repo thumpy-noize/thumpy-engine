@@ -1,7 +1,7 @@
 
 #include "window.hpp"
 #include "logger.hpp"
-
+#include "logger_helper.hpp"
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -14,7 +14,7 @@ Window::Window(std::string title) {
 Window::~Window() { deconstruct_window(); }
 
 void Window::init_window() {
-  Logger::log("Creating window...", Logger::DEBUG);
+  Logger::log("Creating window...", Logger::INFO);
   glfwInit();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -27,7 +27,7 @@ void Window::deconstruct_window() {
   if (window_ == NULL) {
     return;
   }
-  Logger::log("Destroying window - " + title_ + "", Logger::DEBUG);
+  Logger::log("Destroying window - " + title_ + "", Logger::INFO);
   glfwDestroyWindow(window_);
 }
 

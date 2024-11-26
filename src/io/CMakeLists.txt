@@ -11,3 +11,7 @@ target_include_directories(io
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
   )
+
+  target_link_libraries(io
+    logger
+  )

@@ -14,7 +14,7 @@ target_sources(logger
   ${CMAKE_CURRENT_LIST_DIR}/term_logger.cpp
 )
 
-target_include_directories(io
+target_include_directories(logger
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
   )

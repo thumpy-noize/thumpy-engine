@@ -11,12 +11,18 @@ set_target_properties(engine PROPERTIES LINKER_LANGUAGE CXX)
 
 add_subdirectory(io)
 add_subdirectory(logger)
-# add_subdirectory(testing)
+add_subdirectory(window_manager)
 
 target_link_libraries(engine
   PRIVATE
     io
     logger
+    window_manager
+
+    glfw
+    vulkan
+
+    ${GLFW_LIBRARIES}
 )
 
 # Unit Testing
@@ -31,6 +37,7 @@ add_executable(engine_unit_test ${TEST_SOURCES})
 set_target_properties(engine_unit_test PROPERTIES LINKER_LANGUAGE CXX)
 
 include_directories(logger)
+
 target_link_libraries(
   engine_unit_test
   GTest::gtest_main

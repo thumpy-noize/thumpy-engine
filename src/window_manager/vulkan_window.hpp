@@ -8,6 +8,13 @@
 namespace Thumpy {
 namespace Core {
 namespace Windows {
+
+const std::vector<const char *> validationLayers = {
+    "VK_LAYER_KHRONOS_validation"};
+
+const std::vector<const char *> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphicsFamily;
   std::optional<uint32_t> presentFamily;
@@ -17,37 +24,67 @@ struct QueueFamilyIndices {
   }
 };
 
+struct SwapChainSupportDetails {
+  VkSurfaceCapabilitiesKHR capabilities;
+  std::vector<VkSurfaceFormatKHR> formats;
+  std::vector<VkPresentModeKHR> presentModes;
+};
+
 class VulkanWindow : public Window {
 public:
   VulkanWindow(std::string title);
   void init_vulkan();
   void deconstruct_window();
 
-  void createInstance();
-  void setupDebugMessenger();
-  void createSurface();
-  void pickPhysicalDevice();
-  void createLogicalDevice();
+  void create_instance();
+  void setup_debug_messenger();
+  void create_surface();
 
-  bool isDeviceSuitable(VkPhysicalDevice device);
-  QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+#pragma region Devices
 
-  std::vector<const char *> getRequiredExtensions();
+  void pick_physical_device();
+  void create_logical_device();
+  /// Checks if device is usable
+  bool is_device_suitable(VkPhysicalDevice device);
 
-  bool checkValidationLayerSupport();
-  void populateDebugMessengerCreateInfo(
+#pragma region SwapChain
+  void create_swap_chain();
+  VkSurfaceFormatKHR choose_swap_surface_format(
+      const std::vector<VkSurfaceFormatKHR> &availableFormats);
+  VkPresentModeKHR choose_swap_present_mode(
+      const std::vector<VkPresentModeKHR> &availablePresentModes);
+  VkExtent2D choose_swap_extent(const VkSurfaceCapabilitiesKHR &capabilities);
+  /// Finds swapchain details
+  SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice device);
+#pragma endregion SwapChain
+
+  bool check_device_extension_support(VkPhysicalDevice device);
+  QueueFamilyIndices find_queue_families(VkPhysicalDevice device);
+
+#pragma endregion Devices
+
+  std::vector<const char *> get_required_extensions();
+
+  bool check_validation_layer_support();
+  void populate_debug_messenger_create_info(
       VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
-  VkInstance instance;
-  VkSurfaceKHR surface;
+private:
+  VkInstance instance_;
+  VkSurfaceKHR surface_;
 
-  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  VkDevice device;
+  VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
+  VkDevice device_;
 
-  VkQueue graphicsQueue;
-  VkQueue presentQueue;
+  VkSwapchainKHR swapChain_;
+  std::vector<VkImage> swapChainImages_;
+  VkFormat swapChainImageFormat_;
+  VkExtent2D swapChainExtent_;
 
-  VkDebugUtilsMessengerEXT debugMessenger;
+  VkQueue graphicsQueue_;
+  VkQueue presentQueue_;
+
+  VkDebugUtilsMessengerEXT debugMessenger_;
 };
 } // namespace Windows
 } // namespace Core

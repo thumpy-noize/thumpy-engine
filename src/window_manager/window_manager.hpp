@@ -18,7 +18,7 @@ public:
   // Create new window
   void create_new_window(
       RenderAPI api,
-      char *title = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+      std::string title = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
   // Run loop
   void loop();

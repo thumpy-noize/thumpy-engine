@@ -19,7 +19,7 @@ WindowManager::WindowManager() {
 
 WindowManager::~WindowManager() { terminate(); }
 
-void WindowManager::create_new_window(RenderAPI api, char *title) {
+void WindowManager::create_new_window(RenderAPI api, std::string title) {
   Window *window;
   switch (api) {
   case VULKAN: {

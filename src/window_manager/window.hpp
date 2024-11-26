@@ -18,7 +18,7 @@ public:
   ~Window();
   void init_window();
   virtual void deconstruct_window();
-  void loop();
+  virtual void loop();
   bool should_close();
 
 protected:

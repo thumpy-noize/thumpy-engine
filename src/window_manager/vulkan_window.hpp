@@ -34,13 +34,15 @@ class VulkanWindow : public Window {
 public:
   VulkanWindow(std::string title);
 
-#pragma region Setup
+#pragma region Core
 
   void init_vulkan();
   void create_instance();
   void deconstruct_window();
 
-#pragma endregion Setup
+  void loop();
+
+#pragma endregion Core
 
   void setup_debug_messenger();
   void create_surface();
@@ -72,6 +74,17 @@ public:
 #pragma region Image
 
   void create_image_views();
+  void create_graphics_pipeline();
+  VkShaderModule create_shader_module(const std::vector<char> &code);
+  void create_render_pass();
+  void create_framebuffers();
+  void create_command_pool();
+  void create_command_buffer();
+  void record_command_buffer(VkCommandBuffer commandBuffer,
+                             uint32_t imageIndex);
+  void draw_frame();
+
+  void create_sync_objects();
 
 #pragma endregion Image
 
@@ -92,8 +105,19 @@ private:
   std::vector<VkImage> swapChainImages_;
   VkFormat swapChainImageFormat_;
   VkExtent2D swapChainExtent_;
-
   std::vector<VkImageView> swapChainImageViews_;
+  std::vector<VkFramebuffer> swapChainFramebuffers_;
+
+  VkRenderPass renderPass_;
+  VkPipelineLayout pipelineLayout_;
+  VkPipeline graphicsPipeline_;
+
+  VkCommandPool commandPool_;
+  VkCommandBuffer commandBuffer_;
+
+  VkSemaphore imageAvailableSemaphore_;
+  VkSemaphore renderFinishedSemaphore_;
+  VkFence inFlightFence_;
 
   VkQueue graphicsQueue_;
   VkQueue presentQueue_;

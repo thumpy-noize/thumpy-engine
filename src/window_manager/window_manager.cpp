@@ -58,8 +58,14 @@ void WindowManager::loop() {
       // Resize i
       continue;
     }
+
+    // glfwMakeContextCurrent(windows_.at(i)); ??? maybe
+
     // run window loop
     windows_.at(i)->loop();
+
+    // // glClear(GL_COLOR_BUFFER_BIT);
+    // glfwSwapBuffers(windows_.at(i));
   } // get next window and repeat
 
   // Poll input events

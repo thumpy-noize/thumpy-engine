@@ -7,9 +7,11 @@
 bool DEBUG_MODE = true;
 
 bool APPLICATION_RUNNING = true;
+
 Thumpy::Core::Windows::WindowManager *window_manager;
 
 int main() {
+
   Thumpy::Core::Logger::init();
   Thumpy::Core::Logger::log("Starting Engine...", Thumpy::Core::Logger::INFO);
 

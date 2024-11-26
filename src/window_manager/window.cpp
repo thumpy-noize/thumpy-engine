@@ -32,9 +32,10 @@ void Window::deconstruct_window() {
 }
 
 void Window::loop() {
-  glfwMakeContextCurrent(window_);
-  // glClear(GL_COLOR_BUFFER_BIT);
-  glfwSwapBuffers(window_);
+  // glfwSwapBuffers(window_); ??? maybe
+
+  // glfwMakeContextCurrent(window_);
+  // // glClear(GL_COLOR_BUFFER_BIT);
 }
 
 bool Window::should_close() { return glfwWindowShouldClose(window_); };

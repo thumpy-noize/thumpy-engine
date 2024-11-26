@@ -2,11 +2,15 @@
 #pragma once
 
 #include "window.hpp"
+#include <memory>
 #include <vector>
 
 namespace Thumpy {
 namespace Core {
 namespace Windows {
+
+enum RenderAPI { NONE, VULKAN };
+
 class WindowManager {
 public:
   WindowManager();
@@ -14,6 +18,7 @@ public:
 
   // Create new window
   void create_new_window(
+      RenderAPI api,
       char *title = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
   // Run loop

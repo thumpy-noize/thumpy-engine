@@ -1,17 +1,13 @@
 
+#include "window.hpp"
+#include "logger.hpp"
+#include "logger_helper.hpp"
 #include <GL/gl.h>
-#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
+#include <GLFW/glfw3native.h>
 #include <cstdio>
 #include <iostream>
 #include <string>
-
-#include "logger.hpp"
-#include "logger_helper.hpp"
-#include "window.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -20,13 +16,12 @@ namespace Windows {
 Window::Window(std::string title) {
   title_ = title;
   init_window();
-  init_vulkan();
 }
 
 Window::~Window() { deconstruct_window(); }
 
 void Window::init_window() {
-  Logger::log("Creating window.", Logger::DEBUG);
+  Logger::log("Creating window...", Logger::DEBUG);
   glfwInit();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -34,8 +29,6 @@ void Window::init_window() {
 
   window_ = glfwCreateWindow(WIDTH, HEIGHT, title_.c_str(), nullptr, nullptr);
 }
-
-void Window::init_vulkan() {}
 
 void Window::deconstruct_window() {
   if (window_ == NULL) {

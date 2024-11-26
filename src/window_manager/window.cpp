@@ -1,13 +1,6 @@
 
 #include "window.hpp"
 #include "logger.hpp"
-#include "logger_helper.hpp"
-#include <GL/gl.h>
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
-#include <cstdio>
-#include <iostream>
-#include <string>
 
 namespace Thumpy {
 namespace Core {

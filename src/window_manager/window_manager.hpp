@@ -2,7 +2,6 @@
 #pragma once
 
 #include "window.hpp"
-#include <memory>
 #include <vector>
 
 namespace Thumpy {

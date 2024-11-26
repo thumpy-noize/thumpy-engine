@@ -1,15 +1,10 @@
 
-#include "logger.hpp"
-#include "logger_helper.hpp"
-#include "vulkan_window.hpp"
-#include "window.hpp"
-#include <memory>
-#include <vector>
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLFW_INCLUDE_VULKAN
+
 #include "window_manager.hpp"
+#include "logger.hpp"
+#include "vulkan_window.hpp"
 
 extern bool APPLICATION_RUNNING;
 

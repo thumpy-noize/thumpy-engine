@@ -1,12 +1,9 @@
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
-#include "logger.hpp"
 #include "vulkan_window.hpp"
-#include "window.hpp"
+#include "logger.hpp"
 #include <cstring>
 #include <stdexcept>
-#include <vulkan/vulkan_core.h>
 
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};

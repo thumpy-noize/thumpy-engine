@@ -3,7 +3,6 @@
 #include "window.hpp"
 #include <optional>
 #include <vector>
-#include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
 namespace Thumpy {
@@ -48,13 +47,6 @@ public:
   VkQueue presentQueue;
 
   VkDebugUtilsMessengerEXT debugMessenger;
-
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-  xcb_connection_t *connection;
-  xcb_screen_t *screen;
-  xcb_window_t window;
-  // xcb_intern_atom_reply_t *atom_wm_delete_window;
-#endif
 };
 } // namespace Windows
 } // namespace Core

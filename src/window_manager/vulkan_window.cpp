@@ -1,14 +1,13 @@
-#include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
-
-#include "logger.hpp"
 #include "vulkan_window.hpp"
+#include "logger.hpp"
 #include <algorithm> // Necessary for std::clamp
 #include <cstdint>   // Necessary for uint32_t
 #include <cstring>
 #include <limits> // Necessary for std::numeric_limits
 #include <set>
 #include <stdexcept>
+#include <vulkan/vulkan_core.h>
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -225,7 +224,7 @@ bool VulkanWindow::is_device_suitable(VkPhysicalDevice device) {
                         !swapChainSupport.presentModes.empty();
   }
 
-  return indices.isComplete() && extensionsSupported && swapChainAdequate;
+  return indices.is_complete() && extensionsSupported && swapChainAdequate;
 }
 
 bool VulkanWindow::check_device_extension_support(VkPhysicalDevice device) {
@@ -270,7 +269,7 @@ QueueFamilyIndices VulkanWindow::find_queue_families(VkPhysicalDevice device) {
       indices.presentFamily = i;
     }
 
-    if (indices.isComplete()) {
+    if (indices.is_complete()) {
       break;
     }
 
@@ -484,7 +483,7 @@ debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                void *pUserData) {
   std::string message = "validation layer: ";
   message.append(pCallbackData->pMessage);
-  Logger::log(message);
+  Logger::log(message, Logger::INFO);
 
   return VK_FALSE;
 }

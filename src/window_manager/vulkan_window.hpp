@@ -33,10 +33,15 @@ struct SwapChainSupportDetails {
 class VulkanWindow : public Window {
 public:
   VulkanWindow(std::string title);
+
+#pragma region Setup
+
   void init_vulkan();
+  void create_instance();
   void deconstruct_window();
 
-  void create_instance();
+#pragma endregion Setup
+
   void setup_debug_messenger();
   void create_surface();
 
@@ -46,8 +51,13 @@ public:
   void create_logical_device();
   /// Checks if device is usable
   bool is_device_suitable(VkPhysicalDevice device);
+  bool check_device_extension_support(VkPhysicalDevice device);
+  QueueFamilyIndices find_queue_families(VkPhysicalDevice device);
 
-#pragma region SwapChain
+#pragma endregion Devices
+
+#pragma region Swapchain
+
   void create_swap_chain();
   VkSurfaceFormatKHR choose_swap_surface_format(
       const std::vector<VkSurfaceFormatKHR> &availableFormats);
@@ -56,12 +66,14 @@ public:
   VkExtent2D choose_swap_extent(const VkSurfaceCapabilitiesKHR &capabilities);
   /// Finds swapchain details
   SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice device);
-#pragma endregion SwapChain
 
-  bool check_device_extension_support(VkPhysicalDevice device);
-  QueueFamilyIndices find_queue_families(VkPhysicalDevice device);
+#pragma endregion Swapchain
 
-#pragma endregion Devices
+#pragma region Image
+
+  void create_image_views();
+
+#pragma endregion Image
 
   std::vector<const char *> get_required_extensions();
 
@@ -80,6 +92,8 @@ private:
   std::vector<VkImage> swapChainImages_;
   VkFormat swapChainImageFormat_;
   VkExtent2D swapChainExtent_;
+
+  std::vector<VkImageView> swapChainImageViews_;
 
   VkQueue graphicsQueue_;
   VkQueue presentQueue_;

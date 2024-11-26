@@ -10,7 +10,6 @@
 #include <set>
 #include <stdexcept>
 
-#define NDEBUG
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
@@ -44,6 +43,8 @@ void destroy_debug_utils_messenger_ext(
   }
 }
 
+#pragma region Setup
+
 VulkanWindow::VulkanWindow(std::string title) : Window(title) { init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
@@ -53,6 +54,7 @@ void VulkanWindow::init_vulkan() {
   pick_physical_device();
   create_logical_device();
   create_swap_chain();
+  create_image_views();
 }
 
 void VulkanWindow::create_instance() {
@@ -98,6 +100,11 @@ void VulkanWindow::create_instance() {
 
 void VulkanWindow::deconstruct_window() {
   Logger::log("Destroying vulkan...");
+
+  for (auto imageView : swapChainImageViews_) {
+    vkDestroyImageView(device_, imageView, nullptr);
+  }
+
   vkDestroySwapchainKHR(device_, swapChain_, nullptr);
   vkDestroyDevice(device_, nullptr);
 
@@ -109,6 +116,8 @@ void VulkanWindow::deconstruct_window() {
   vkDestroyInstance(instance_, nullptr);
   Window::deconstruct_window();
 }
+
+#pragma endregion Setup
 
 void VulkanWindow::setup_debug_messenger() {
   if (!enableValidationLayers)
@@ -237,6 +246,42 @@ bool VulkanWindow::check_device_extension_support(VkPhysicalDevice device) {
 
   return requiredExtensions.empty();
 }
+
+QueueFamilyIndices VulkanWindow::find_queue_families(VkPhysicalDevice device) {
+  QueueFamilyIndices indices;
+
+  uint32_t queueFamilyCount = 0;
+  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+  std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
+                                           queueFamilies.data());
+
+  int i = 0;
+  for (const auto &queueFamily : queueFamilies) {
+    if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+      indices.graphicsFamily = i;
+    }
+
+    VkBool32 presentSupport = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_, &presentSupport);
+
+    if (presentSupport) {
+      indices.presentFamily = i;
+    }
+
+    if (indices.isComplete()) {
+      break;
+    }
+
+    i++;
+  }
+
+  return indices;
+}
+
+#pragma endregion Devices
+
 #pragma region Swapchain
 
 void VulkanWindow::create_swap_chain() {
@@ -376,40 +421,46 @@ VulkanWindow::query_swap_chain_support(VkPhysicalDevice device) {
 
 #pragma endregion Swapchain
 
-QueueFamilyIndices VulkanWindow::find_queue_families(VkPhysicalDevice device) {
-  QueueFamilyIndices indices;
+#pragma region Image
 
-  uint32_t queueFamilyCount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+void VulkanWindow::create_image_views() {
 
-  std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
-                                           queueFamilies.data());
+  // resize image views
+  swapChainImageViews_.resize(swapChainImages_.size());
 
-  int i = 0;
-  for (const auto &queueFamily : queueFamilies) {
-    if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      indices.graphicsFamily = i;
+  // iterate over swap chain images
+  for (size_t i = 0; i < swapChainImages_.size(); i++) {
+    // Create image view info
+    VkImageViewCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    createInfo.image = swapChainImages_[i];
+
+    // Format for 2D textures
+    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.format = swapChainImageFormat_;
+
+    // set color mapping
+    createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+    // setsubresource range
+    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    createInfo.subresourceRange.baseMipLevel = 0;
+    createInfo.subresourceRange.levelCount = 1;
+    createInfo.subresourceRange.baseArrayLayer = 0;
+    createInfo.subresourceRange.layerCount = 1;
+
+    // Create image view
+    if (vkCreateImageView(device_, &createInfo, nullptr,
+                          &swapChainImageViews_[i]) != VK_SUCCESS) {
+      throw std::runtime_error("failed to create image views!");
     }
-
-    VkBool32 presentSupport = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_, &presentSupport);
-
-    if (presentSupport) {
-      indices.presentFamily = i;
-    }
-
-    if (indices.isComplete()) {
-      break;
-    }
-
-    i++;
   }
-
-  return indices;
 }
 
-#pragma endregion Devices
+#pragma endregion Image
 
 std::vector<const char *> VulkanWindow::get_required_extensions() {
   uint32_t glfwExtensionCount = 0;
@@ -427,10 +478,10 @@ std::vector<const char *> VulkanWindow::get_required_extensions() {
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-              VkDebugUtilsMessageTypeFlagsEXT messageType,
-              const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-              void *pUserData) {
+debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+               VkDebugUtilsMessageTypeFlagsEXT messageType,
+               const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+               void *pUserData) {
   std::string message = "validation layer: ";
   message.append(pCallbackData->pMessage);
   Logger::log(message);
@@ -473,7 +524,7 @@ void VulkanWindow::populate_debug_messenger_create_info(
   createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-  createInfo.pfnUserCallback = debugCallback;
+  createInfo.pfnUserCallback = debug_callback;
 }
 
 } // namespace Windows

@@ -81,6 +81,7 @@ void VulkanWindow::init_vulkan() {
   create_framebuffers();
   create_command_pool();
   create_command_buffer();
+  create_sync_objects();
 }
 
 void VulkanWindow::create_instance() {
@@ -161,6 +162,8 @@ void VulkanWindow::deconstruct_window() {
 void VulkanWindow::loop() {
   Window::loop();
   draw_frame();
+
+  vkDeviceWaitIdle(device_);
 }
 
 #pragma endregion Core
@@ -705,6 +708,14 @@ void VulkanWindow::create_render_pass() {
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
 
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
   // ### render pass ###
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -712,6 +723,8 @@ void VulkanWindow::create_render_pass() {
   renderPassInfo.pAttachments = &colorAttachment;
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
+  renderPassInfo.dependencyCount = 1;
+  renderPassInfo.pDependencies = &dependency;
 
   if (vkCreateRenderPass(device_, &renderPassInfo, nullptr, &renderPass_) !=
       VK_SUCCESS) {
@@ -820,39 +833,52 @@ void VulkanWindow::record_command_buffer(VkCommandBuffer commandBuffer,
 }
 
 void VulkanWindow::draw_frame() {
-  // vkWaitForFences(device_, 1, &inFlightFence_, VK_TRUE, UINT64_MAX);
-  // vkResetFences(device_, 1, &inFlightFence_);
+  vkWaitForFences(device_, 1, &inFlightFence_, VK_TRUE, UINT64_MAX);
+  vkResetFences(device_, 1, &inFlightFence_);
 
-  // uint32_t imageIndex;
-  // vkAcquireNextImageKHR(device_, swapChain_, UINT64_MAX,
-  //                       imageAvailableSemaphore_, VK_NULL_HANDLE,
-  //                       &imageIndex);
+  uint32_t imageIndex;
+  vkAcquireNextImageKHR(device_, swapChain_, UINT64_MAX,
+                        imageAvailableSemaphore_, VK_NULL_HANDLE, &imageIndex);
 
-  // vkResetCommandBuffer(commandBuffer_, 0);
-  // record_command_buffer(commandBuffer_, imageIndex);
+  vkResetCommandBuffer(commandBuffer_, 0);
+  record_command_buffer(commandBuffer_, imageIndex);
 
-  // // submit command buffer
-  // VkSubmitInfo submitInfo{};
-  // submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  // submit command buffer
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-  // VkSemaphore waitSemaphores[] = {imageAvailableSemaphore_};
-  // VkPipelineStageFlags waitStages[] = {
-  //     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-  // submitInfo.waitSemaphoreCount = 1;
-  // submitInfo.pWaitSemaphores = waitSemaphores;
-  // submitInfo.pWaitDstStageMask = waitStages;
+  VkSemaphore waitSemaphores[] = {imageAvailableSemaphore_};
+  VkPipelineStageFlags waitStages[] = {
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = waitSemaphores;
+  submitInfo.pWaitDstStageMask = waitStages;
 
-  // submitInfo.commandBufferCount = 1;
-  // submitInfo.pCommandBuffers = &commandBuffer_;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer_;
 
-  // VkSemaphore signalSemaphores[] = {renderFinishedSemaphore_};
-  // submitInfo.signalSemaphoreCount = 1;
-  // submitInfo.pSignalSemaphores = signalSemaphores;
+  VkSemaphore signalSemaphores[] = {renderFinishedSemaphore_};
+  submitInfo.signalSemaphoreCount = 1;
+  submitInfo.pSignalSemaphores = signalSemaphores;
 
-  // if (vkQueueSubmit(graphicsQueue_, 1, &submitInfo, inFlightFence_) !=
-  //     VK_SUCCESS) {
-  //   throw std::runtime_error("failed to submit draw command buffer!");
-  // }
+  if (vkQueueSubmit(graphicsQueue_, 1, &submitInfo, inFlightFence_) !=
+      VK_SUCCESS) {
+    throw std::runtime_error("failed to submit draw command buffer!");
+  }
+
+  VkPresentInfoKHR presentInfo{};
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+  presentInfo.waitSemaphoreCount = 1;
+  presentInfo.pWaitSemaphores = signalSemaphores;
+
+  VkSwapchainKHR swapChains[] = {swapChain_};
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = swapChains;
+  presentInfo.pImageIndices = &imageIndex;
+  presentInfo.pResults = nullptr; // Optional
+
+  vkQueuePresentKHR(presentQueue_, &presentInfo);
 }
 
 void VulkanWindow::create_sync_objects() {

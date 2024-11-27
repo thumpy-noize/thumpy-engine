@@ -1,8 +1,8 @@
 #pragma once
 
-#include "swap_chain.hpp"
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan/vulkan_device.hpp"
+#include "vulkan/vulkan_swap_chain.hpp"
 #include "window.hpp"
 #include <optional>
 #include <vector>

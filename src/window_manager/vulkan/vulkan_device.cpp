@@ -1,5 +1,4 @@
 #include "vulkan_device.hpp"
-#include "vulkan/swap_chain.hpp"
 #include <set>
 #include <stdexcept>
 #include <vector>

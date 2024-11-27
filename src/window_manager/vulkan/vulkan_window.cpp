@@ -1,10 +1,11 @@
+#define GLFW_INCLUDE_VULKAN
+
+#include "vulkan_window.hpp"
+#include "logger.hpp"
 #include "logger_helper.hpp"
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan/vulkan_device.hpp"
-#define GLFW_INCLUDE_VULKAN
-#include "logger.hpp"
 #include "vulkan_helper.hpp"
-#include "vulkan_window.hpp"
 #include <algorithm> // Necessary for std::clamp
 #include <cstdint>   // Necessary for uint32_t
 #include <cstring>

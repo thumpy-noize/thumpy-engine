@@ -1,3 +1,14 @@
+/**
+ * @file vulkan_debug.hpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Contains methods for Vulkan debug messenger.
+ * @version 0.1
+ * @date 2024-11-27
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #pragma once
 
 #include "logger.hpp"
@@ -10,6 +21,15 @@ namespace Windows {
 namespace Vulkan {
 namespace Debug {
 
+/**
+ * @brief Debug message callback
+ *
+ * @param messageSeverity
+ * @param messageType
+ * @param pCallbackData
+ * @param pUserData
+ * @return VKAPI_ATTR
+ */
 static VKAPI_ATTR VkBool32 VKAPI_CALL
 debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -22,25 +42,47 @@ debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
   return VK_FALSE;
 }
 
+/**
+ * @brief Set up the debug messenger
+ *
+ * @param instance
+ * @param debugMessenger
+ */
 void setup_debug_messenger(VkInstance instance,
                            VkDebugUtilsMessengerEXT *debugMessenger);
 
+/**
+ * @brief Creates utils
+ *
+ * @param instance
+ * @param pCreateInfo
+ * @param pAllocator
+ * @param pDebugMessenger
+ * @return VkResult
+ */
 VkResult create_debug_utils_messenger_ext(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
     const VkAllocationCallbacks *pAllocator,
     VkDebugUtilsMessengerEXT *pDebugMessenger);
 
+/**
+ * @brief Destroy the utils
+ *
+ * @param instance
+ * @param debugMessenger
+ * @param pAllocator
+ */
 void destroy_debug_utils_messenger_ext(VkInstance instance,
                                        VkDebugUtilsMessengerEXT *debugMessenger,
                                        const VkAllocationCallbacks *pAllocator);
 
+/**
+ * @brief Populate messenger info and set callback
+ *
+ * @param createInfo
+ */
 void populate_debug_messenger_create_info(
     VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-
-void create_debug_utils_messenger_ext_dep(
-    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator,
-    VkDebugUtilsMessengerEXT *pDebugMessenger);
 
 }; // namespace Debug
 } // namespace Vulkan

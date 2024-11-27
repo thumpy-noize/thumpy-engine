@@ -15,11 +15,9 @@
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
-#include <algorithm> // Necessary for std::clamp
-#include <cstdint>   // Necessary for uint32_t
+#include <cstdint> // Necessary for uint32_t
 #include <cstring>
 #include <fstream>
-#include <limits> // Necessary for std::numeric_limits
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
@@ -166,37 +164,22 @@ void VulkanWindow::create_graphics_pipeline() {
   VkShaderModule vertShaderModule = create_shader_module(vertShaderCode);
   VkShaderModule fragShaderModule = create_shader_module(fragShaderCode);
 
-  VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-  vertShaderStageInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+  VkPipelineShaderStageCreateInfo vertShaderStageInfo =
+      Initializer::vert_shader_stage_info(vertShaderModule);
 
-  vertShaderStageInfo.module = vertShaderModule;
-  vertShaderStageInfo.pName = "main";
-
-  VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-  fragShaderStageInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-  fragShaderStageInfo.module = fragShaderModule;
-  fragShaderStageInfo.pName = "main";
+  VkPipelineShaderStageCreateInfo fragShaderStageInfo =
+      Initializer::frag_shader_stage_info(fragShaderModule);
 
   VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo,
                                                     fragShaderStageInfo};
 
   // ### vertex input ###
-  VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-  vertexInputInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertexInputInfo.vertexBindingDescriptionCount = 0;
-  vertexInputInfo.vertexAttributeDescriptionCount = 0;
+  VkPipelineVertexInputStateCreateInfo vertexInputInfo =
+      Initializer::vertex_input_info();
 
   // ### input assembly ###
-  VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-  inputAssembly.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-  inputAssembly.primitiveRestartEnable = VK_FALSE;
+  VkPipelineInputAssemblyStateCreateInfo inputAssembly =
+      Initializer::input_assembly();
 
   // ### viewport & scissor ###
   VkViewport viewport{};

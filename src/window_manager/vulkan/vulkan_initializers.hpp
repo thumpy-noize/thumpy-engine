@@ -38,6 +38,48 @@ command_buffer_allocate_info(VkCommandPool commandPool, uint32_t bufferCount) {
   allocInfo.commandBufferCount = bufferCount;
   return allocInfo;
 }
+
+inline VkPipelineShaderStageCreateInfo
+vert_shader_stage_info(VkShaderModule vertShaderModule) {
+  VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+  vertShaderStageInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+
+  vertShaderStageInfo.module = vertShaderModule;
+  vertShaderStageInfo.pName = "main";
+  return vertShaderStageInfo;
+}
+
+inline VkPipelineShaderStageCreateInfo
+frag_shader_stage_info(VkShaderModule fragShaderModule) {
+  VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+  fragShaderStageInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  fragShaderStageInfo.module = fragShaderModule;
+  fragShaderStageInfo.pName = "main";
+  return fragShaderStageInfo;
+}
+
+inline VkPipelineVertexInputStateCreateInfo vertex_input_info() {
+  VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+  vertexInputInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertexInputInfo.vertexBindingDescriptionCount = 0;
+  vertexInputInfo.vertexAttributeDescriptionCount = 0;
+  return vertexInputInfo;
+}
+
+inline VkPipelineInputAssemblyStateCreateInfo input_assembly() {
+  VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+  inputAssembly.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  inputAssembly.primitiveRestartEnable = VK_FALSE;
+  return inputAssembly;
+}
+
 } // namespace Initializer
 } // namespace Vulkan
 } // namespace Windows

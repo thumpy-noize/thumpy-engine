@@ -4,7 +4,7 @@
 
 #include "window_manager.hpp"
 #include "logger.hpp"
-#include "vulkan_window.hpp"
+#include "vulkan/vulkan_window.hpp"
 
 extern bool APPLICATION_RUNNING;
 

@@ -8,8 +8,8 @@ target_sources(window_manager
   ${CMAKE_CURRENT_LIST_DIR}/window.hpp
   ${CMAKE_CURRENT_LIST_DIR}/window.cpp
 
-  ${CMAKE_CURRENT_LIST_DIR}/vulkan_window.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/vulkan_window.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_window.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_window.cpp
 )
 
 target_include_directories(window_manager

@@ -11,7 +11,6 @@
 #include <cstring>
 #include <fstream>
 #include <limits> // Necessary for std::numeric_limits
-#include <set>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
@@ -45,10 +44,16 @@ static std::vector<char> read_file(const std::string &filename) {
 VulkanWindow::VulkanWindow(std::string title) : Window(title) { init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
+
+  // Create our instance
   create_instance();
+  // Setup debug messenger
   Debug::setup_debug_messenger(instance_, &debugMessenger_);
+  // Create surface
   create_surface();
+  // Find & create vulkan device
   vulkanDevice_ = new Device::VulkanDevice(instance_, surface_);
+  // Create swap chain
   // newSwapChain_ =
   //     new SwapChain(instance_, vulkanDevice_->physicalDevice, device_,
   //     surface_, window_);

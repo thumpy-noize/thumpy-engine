@@ -32,7 +32,7 @@ void VulkanSwapChain::create_swap_chain() {
       choose_swap_surface_format(swapChainSupport.formats);
   VkPresentModeKHR presentMode =
       choose_swap_present_mode(swapChainSupport.presentModes);
-  VkExtent2D extent = choose_swap_extent(swapChainSupport.capabilities);
+  VkExtent2D chosen_extent = choose_swap_extent(swapChainSupport.capabilities);
 
   uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
   if (swapChainSupport.capabilities.maxImageCount > 0 &&
@@ -47,7 +47,7 @@ void VulkanSwapChain::create_swap_chain() {
   createInfo.minImageCount = imageCount;
   createInfo.imageFormat = surfaceFormat.format;
   createInfo.imageColorSpace = surfaceFormat.colorSpace;
-  createInfo.imageExtent = extent;
+  createInfo.imageExtent = chosen_extent;
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
@@ -82,7 +82,7 @@ void VulkanSwapChain::create_swap_chain() {
                           swapChainImages_.data());
 
   swapChainImageFormat = surfaceFormat.format;
-  swapChainExtent = extent;
+  extent = chosen_extent;
 
   create_image_views();
   create_render_pass();
@@ -242,8 +242,8 @@ void VulkanSwapChain::create_framebuffers() {
     framebufferInfo.renderPass = renderPass;
     framebufferInfo.attachmentCount = 1;
     framebufferInfo.pAttachments = attachments;
-    framebufferInfo.width = swapChainExtent.width;
-    framebufferInfo.height = swapChainExtent.height;
+    framebufferInfo.width = extent.width;
+    framebufferInfo.height = extent.height;
     framebufferInfo.layers = 1;
 
     if (vkCreateFramebuffer(device_->device, &framebufferInfo, nullptr,

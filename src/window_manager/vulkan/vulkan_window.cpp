@@ -182,17 +182,10 @@ void VulkanWindow::create_graphics_pipeline() {
       Initializer::input_assembly();
 
   // ### viewport & scissor ###
-  VkViewport viewport{};
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = (float)swapChain_->swapChainExtent.width;
-  viewport.height = (float)swapChain_->swapChainExtent.height;
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
+  VkViewport viewport = Initializer::viewport((float)swapChain_->extent.height,
+                                              (float)swapChain_->extent.width);
 
-  VkRect2D scissor{};
-  scissor.offset = {0, 0};
-  scissor.extent = swapChain_->swapChainExtent;
+  VkRect2D scissor = Initializer::scissor(swapChain_->extent);
 
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -202,42 +195,15 @@ void VulkanWindow::create_graphics_pipeline() {
   viewportState.pScissors = &scissor;
 
   // ### rasterization ###
-  VkPipelineRasterizationStateCreateInfo rasterizer{};
-  rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-  rasterizer.depthClampEnable = VK_FALSE;
-  rasterizer.rasterizerDiscardEnable = VK_FALSE;
-  rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-  rasterizer.lineWidth = 1.0f;
-  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-  rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-  rasterizer.depthBiasEnable = VK_FALSE;
-  rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-  rasterizer.depthBiasClamp = 0.0f;          // Optional
-  rasterizer.depthBiasSlopeFactor = 0.0f;    // Optional
+  VkPipelineRasterizationStateCreateInfo rasterizer = Initializer::rasterizer();
 
   // ### multi-sampling ###
-  VkPipelineMultisampleStateCreateInfo multisampling{};
-  multisampling.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-  multisampling.sampleShadingEnable = VK_FALSE;
-  multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-  multisampling.minSampleShading = 1.0f;          // Optional
-  multisampling.pSampleMask = nullptr;            // Optional
-  multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-  multisampling.alphaToOneEnable = VK_FALSE;      // Optional
+  VkPipelineMultisampleStateCreateInfo multisampling =
+      Initializer::multisampling();
 
   // ### color blending ###
-  VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-  colorBlendAttachment.colorWriteMask =
-      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-  colorBlendAttachment.blendEnable = VK_FALSE;
-  colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;  // Optional
-  colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-  colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;             // Optional
-  colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;  // Optional
-  colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-  colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;             // Optional
+  VkPipelineColorBlendAttachmentState colorBlendAttachment =
+      Initializer::color_blend_attachment();
 
   VkPipelineColorBlendStateCreateInfo colorBlending{};
   colorBlending.sType =
@@ -261,12 +227,8 @@ void VulkanWindow::create_graphics_pipeline() {
   dynamicState.pDynamicStates = dynamicStates.data();
 
   // ### pipeline layout ###
-  VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-  pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 0;            // Optional
-  pipelineLayoutInfo.pSetLayouts = nullptr;         // Optional
-  pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
-  pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+  VkPipelineLayoutCreateInfo pipelineLayoutInfo =
+      Initializer::pipeline_layout_info();
 
   if (vkCreatePipelineLayout(vulkanDevice_->device, &pipelineLayoutInfo,
                              nullptr, &pipelineLayout_) != VK_SUCCESS) {
@@ -298,17 +260,14 @@ void VulkanWindow::create_graphics_pipeline() {
   }
 
   // ### destroy ###
-
   vkDestroyShaderModule(vulkanDevice_->device, fragShaderModule, nullptr);
   vkDestroyShaderModule(vulkanDevice_->device, vertShaderModule, nullptr);
 }
 
 VkShaderModule
 VulkanWindow::create_shader_module(const std::vector<char> &code) {
-  VkShaderModuleCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+  VkShaderModuleCreateInfo createInfo =
+      Initializer::shader_module_create_info(code);
 
   VkShaderModule shaderModule;
   if (vkCreateShaderModule(vulkanDevice_->device, &createInfo, nullptr,
@@ -326,14 +285,8 @@ void VulkanWindow::create_framebuffers() {
   for (size_t i = 0; i < swapChain_->swapChainImageViews.size(); i++) {
     VkImageView attachments[] = {swapChain_->swapChainImageViews[i]};
 
-    VkFramebufferCreateInfo framebufferInfo{};
-    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = swapChain_->renderPass;
-    framebufferInfo.attachmentCount = 1;
-    framebufferInfo.pAttachments = attachments;
-    framebufferInfo.width = swapChain_->swapChainExtent.width;
-    framebufferInfo.height = swapChain_->swapChainExtent.height;
-    framebufferInfo.layers = 1;
+    VkFramebufferCreateInfo framebufferInfo = Initializer::framebuffer_info(
+        swapChain_->renderPass, swapChain_->extent, attachments);
 
     if (vkCreateFramebuffer(vulkanDevice_->device, &framebufferInfo, nullptr,
                             &swapChain_->swapChainFramebuffers[i]) !=
@@ -347,10 +300,8 @@ void VulkanWindow::create_command_pool() {
   QueueFamilyIndices queueFamilyIndices =
       vulkanDevice_->find_queue_families(vulkanDevice_->physicalDevice);
 
-  VkCommandPoolCreateInfo poolInfo{};
-  poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-  poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+  VkCommandPoolCreateInfo poolInfo =
+      Initializer::pool_info(queueFamilyIndices.graphicsFamily.value());
 
   if (vkCreateCommandPool(vulkanDevice_->device, &poolInfo, nullptr,
                           &commandPool_) != VK_SUCCESS) {
@@ -372,21 +323,15 @@ void VulkanWindow::create_command_buffer() {
 
 void VulkanWindow::record_command_buffer(VkCommandBuffer commandBuffer,
                                          uint32_t imageIndex) {
-  VkCommandBufferBeginInfo beginInfo{};
-  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  beginInfo.flags = 0;                  // Optional
-  beginInfo.pInheritanceInfo = nullptr; // Optional
+  VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
 
   if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
     throw std::runtime_error("failed to begin recording command buffer!");
   }
 
-  VkRenderPassBeginInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = swapChain_->renderPass;
-  renderPassInfo.framebuffer = swapChain_->swapChainFramebuffers[imageIndex];
-  renderPassInfo.renderArea.offset = {0, 0};
-  renderPassInfo.renderArea.extent = swapChain_->swapChainExtent;
+  VkRenderPassBeginInfo renderPassInfo = Initializer::render_pass_info(
+      swapChain_->renderPass, swapChain_->swapChainFramebuffers[imageIndex],
+      swapChain_->extent);
 
   VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}}; // background color
   renderPassInfo.clearValueCount = 1;
@@ -398,18 +343,12 @@ void VulkanWindow::record_command_buffer(VkCommandBuffer commandBuffer,
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                     graphicsPipeline_);
 
-  VkViewport viewport{};
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = static_cast<float>(swapChain_->swapChainExtent.width);
-  viewport.height = static_cast<float>(swapChain_->swapChainExtent.height);
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
+  VkViewport viewport =
+      Initializer::viewport(static_cast<float>(swapChain_->extent.height),
+                            static_cast<float>(swapChain_->extent.width));
   vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-  VkRect2D scissor{};
-  scissor.offset = {0, 0};
-  scissor.extent = swapChain_->swapChainExtent;
+  VkRect2D scissor = Initializer::scissor(swapChain_->extent);
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
   vkCmdDraw(commandBuffer, 3, 1, 0, 0);

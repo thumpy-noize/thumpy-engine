@@ -439,12 +439,9 @@ void VulkanWindow::create_sync_objects() {
   renderFinishedSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
   inFlightFences_.resize(MAX_FRAMES_IN_FLIGHT);
 
-  VkSemaphoreCreateInfo semaphoreInfo{};
-  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  VkSemaphoreCreateInfo semaphoreInfo = Initializer::semaphore_info();
 
-  VkFenceCreateInfo fenceInfo{};
-  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+  VkFenceCreateInfo fenceInfo = Initializer::fence_info();
 
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     if (vkCreateSemaphore(vulkanDevice_->device, &semaphoreInfo, nullptr,

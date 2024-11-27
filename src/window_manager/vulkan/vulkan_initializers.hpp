@@ -216,22 +216,19 @@ inline VkRenderPassBeginInfo render_pass_info(VkRenderPass renderPass,
   return renderPassInfo;
 }
 
-// inline VkPresentInfoKHR present_info(VkSemaphore signalSemaphores[],
-//                                      VkSwapchainKHR swapChains,
-//                                      uint32_t imageIndex) {
-//   VkPresentInfoKHR presentInfo{};
-//   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+inline VkSemaphoreCreateInfo semaphore_info() {
+  VkSemaphoreCreateInfo semaphoreInfo{};
+  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  return semaphoreInfo;
+}
 
-//   presentInfo.waitSemaphoreCount = 1;
-//   presentInfo.pWaitSemaphores = signalSemaphores;
+inline VkFenceCreateInfo fence_info() {
+  VkFenceCreateInfo fenceInfo{};
+  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+  return fenceInfo;
+}
 
-//   VkSwapchainKHR swapChains_[] = {swapChains};
-//   presentInfo.swapchainCount = 1;
-//   presentInfo.pSwapchains = swapChains_;
-//   presentInfo.pImageIndices = &imageIndex;
-//   presentInfo.pResults = nullptr; // Optional
-//   return presentInfo;
-// }
 } // namespace Initializer
 } // namespace Vulkan
 } // namespace Windows

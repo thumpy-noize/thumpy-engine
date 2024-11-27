@@ -30,23 +30,28 @@ public:
 
 #pragma region Core
 
+  /**
+   * @brief Setup vulkan
+   *
+   */
   void init_vulkan();
+
+  /**
+   * @brief deconstruct vulkan window
+   *
+   */
   void deconstruct_window();
 
+  /**
+   * @brief Render loop
+   *
+   */
   void loop();
 
   void create_instance();
   void create_surface();
 
 #pragma endregion Core
-
-#pragma region Image
-
-  void draw_frame();
-
-  void create_sync_objects();
-
-#pragma endregion Image
 
 private:
   const int MAX_FRAMES_IN_FLIGHT = 2;

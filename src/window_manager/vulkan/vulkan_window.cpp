@@ -8,11 +8,9 @@
  * @copyright Copyright (c) 2024
  *
  */
-#include "logger_helper.hpp"
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_render.hpp"
-#define GLFW_INCLUDE_VULKAN
 
+#define GLFW_INCLUDE_VULKAN
+#include "vulkan_window.hpp"
 #include "logger.hpp"
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan_command.hpp"
@@ -20,10 +18,8 @@
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
-#include "vulkan_window.hpp"
 #include <cstdint> // Necessary for uint32_t
 #include <cstring>
-#include <fstream>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 

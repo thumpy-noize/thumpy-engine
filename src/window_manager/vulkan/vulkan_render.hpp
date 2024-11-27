@@ -21,19 +21,46 @@ namespace Windows {
 namespace Vulkan {
 class VulkanRender {
 public:
+  /**
+   * @brief Construct and setup a new Vulkan Render object.
+   *
+   * @param max_frames_in_fligh
+   * @param vulkanDevice
+   * @param swapchain
+   * @param commandBuffers
+   * @param pipeline
+   */
   VulkanRender(int max_frames_in_fligh, VulkanDevice *vulkanDevice,
                VulkanSwapChain *swapchain,
                std::vector<VkCommandBuffer> *commandBuffers,
                VulkanPipeline pipeline);
 
+  /**
+   * @brief Destroy render
+   *
+   */
   void destroy();
 
+  /**
+   * @brief Set the context for this render
+   *
+   * @param max_frames_in_flight
+   * @param vulkanDevice
+   * @param swapchain
+   * @param commandBuffers
+   * @param pipeline
+   */
   void set_context(int max_frames_in_flight, VulkanDevice *vulkanDevice,
                    VulkanSwapChain *swapchain,
                    std::vector<VkCommandBuffer> *commandBuffers,
                    VulkanPipeline pipeline);
+
   void create_sync_objects();
 
+  /**
+   * @brief Draw to frame
+   *
+   */
   void draw_frame();
 
   void record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex,

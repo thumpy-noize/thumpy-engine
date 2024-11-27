@@ -33,6 +33,10 @@ struct SwapChainSupportDetails {
   std::vector<VkSurfaceFormatKHR> formats;
   std::vector<VkPresentModeKHR> presentModes;
 };
+
+bool check_validation_layer_support();
+std::vector<const char *> get_required_extensions();
+
 } // namespace Vulkan
 } // namespace Windows
 } // namespace Core

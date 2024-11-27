@@ -6,6 +6,7 @@
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan_helper.hpp"
+#include "vulkan_initializers.hpp"
 #include <algorithm> // Necessary for std::clamp
 #include <cstdint>   // Necessary for uint32_t
 #include <cstring>
@@ -70,13 +71,7 @@ void VulkanWindow::create_instance() {
     throw std::runtime_error("validation layers requested, but not available!");
   }
 
-  VkApplicationInfo appInfo{};
-  appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  appInfo.pApplicationName = "Hello Triangle";
-  appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-  appInfo.pEngineName = "No Engine";
-  appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-  appInfo.apiVersion = VK_API_VERSION_1_0;
+  VkApplicationInfo appInfo = Initializer::application_info();
 
   VkInstanceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -155,43 +150,6 @@ void VulkanWindow::create_surface() {
 }
 
 #pragma region Image
-
-// void VulkanWindow::create_image_views() {
-
-// // resize image views
-// swapChainImageViews_.resize(swapChainImages_.size());
-
-// // iterate over swap chain images
-// for (size_t i = 0; i < swapChainImages_.size(); i++) {
-//   // Create image view info
-//   VkImageViewCreateInfo createInfo{};
-//   createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-//   createInfo.image = swapChainImages_[i];
-
-//   // Format for 2D textures
-//   createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-//   createInfo.format = swapChainImageFormat_;
-
-//   // set color mapping
-//   createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-//   createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-//   createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-//   createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-//   // setsubresource range
-//   createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-//   createInfo.subresourceRange.baseMipLevel = 0;
-//   createInfo.subresourceRange.levelCount = 1;
-//   createInfo.subresourceRange.baseArrayLayer = 0;
-//   createInfo.subresourceRange.layerCount = 1;
-
-//   // Create image view
-//   if (vkCreateImageView(vulkanDevice_->device, &createInfo, nullptr,
-//                         &swapChainImageViews_[i]) != VK_SUCCESS) {
-//     throw std::runtime_error("failed to create image views!");
-//   }
-// }
-// }
 
 void VulkanWindow::create_graphics_pipeline() {
   auto vertShaderCode = read_file("src/shaders/compiled/vert.spv");
@@ -369,53 +327,6 @@ VulkanWindow::create_shader_module(const std::vector<char> &code) {
 
   return shaderModule;
 }
-
-// void VulkanWindow::create_render_pass() {
-
-//   // ### color attachment ###
-//   VkAttachmentDescription colorAttachment{};
-//   colorAttachment.format = swapChain_->swapChainImageFormat;
-//   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-//   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-//   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-//   colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-//   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-//   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-//   colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-//   VkAttachmentReference colorAttachmentRef{};
-//   colorAttachmentRef.attachment = 0;
-//   colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-//   // ### subpass ###
-//   VkSubpassDescription subpass{};
-//   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-//   subpass.colorAttachmentCount = 1;
-//   subpass.pColorAttachments = &colorAttachmentRef;
-
-//   VkSubpassDependency dependency{};
-//   dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-//   dependency.dstSubpass = 0;
-//   dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//   dependency.srcAccessMask = 0;
-//   dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//   dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-//   // ### render pass ###
-//   VkRenderPassCreateInfo renderPassInfo{};
-//   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-//   renderPassInfo.attachmentCount = 1;
-//   renderPassInfo.pAttachments = &colorAttachment;
-//   renderPassInfo.subpassCount = 1;
-//   renderPassInfo.pSubpasses = &subpass;
-//   renderPassInfo.dependencyCount = 1;
-//   renderPassInfo.pDependencies = &dependency;
-
-//   if (vkCreateRenderPass(vulkanDevice_->device, &renderPassInfo, nullptr,
-//                          &swapChain_->renderPass) != VK_SUCCESS) {
-//     throw std::runtime_error("failed to create render pass!");
-//   }
-// }
 
 void VulkanWindow::create_framebuffers() {
   swapChain_->swapChainFramebuffers.resize(
@@ -622,46 +533,6 @@ void VulkanWindow::create_sync_objects() {
 }
 
 #pragma endregion Image
-
-std::vector<const char *> VulkanWindow::get_required_extensions() {
-  uint32_t glfwExtensionCount = 0;
-  const char **glfwExtensions;
-  glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-  std::vector<const char *> extensions(glfwExtensions,
-                                       glfwExtensions + glfwExtensionCount);
-
-  if (enableValidationLayers) {
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-  }
-
-  return extensions;
-}
-
-bool VulkanWindow::check_validation_layer_support() {
-  uint32_t layerCount;
-  vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-  std::vector<VkLayerProperties> availableLayers(layerCount);
-  vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-  for (const char *layerName : validationLayers) {
-    bool layerFound = false;
-
-    for (const auto &layerProperties : availableLayers) {
-      if (strcmp(layerName, layerProperties.layerName) == 0) {
-        layerFound = true;
-        break;
-      }
-    }
-
-    if (!layerFound) {
-      return false;
-    }
-  }
-
-  return true;
-}
 
 } // namespace Vulkan
 } // namespace Windows

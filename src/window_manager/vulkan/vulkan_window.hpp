@@ -45,12 +45,6 @@ public:
 
 #pragma endregion Image
 
-  std::vector<const char *> get_required_extensions();
-
-  bool check_validation_layer_support();
-  void populate_debug_messenger_create_info(
-      VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-
 private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 

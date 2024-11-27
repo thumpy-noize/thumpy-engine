@@ -9,7 +9,7 @@
  *
  */
 
-#include "vulkan_framebuffers.hpp"
+#include "vulkan_buffers.hpp"
 #include "vulkan_initializers.hpp"
 #include <stdexcept>
 
@@ -17,6 +17,7 @@ namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
+namespace Buffer {
 
 void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device) {
   swapChain->swapChainFramebuffers.resize(
@@ -35,6 +36,8 @@ void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device) {
     }
   }
 }
+
+} // namespace Buffer
 } // namespace Vulkan
 } // namespace Windows
 } // namespace Core

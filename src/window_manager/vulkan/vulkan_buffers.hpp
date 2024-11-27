@@ -8,16 +8,19 @@
  * @copyright Copyright (c) 2024
  *
  */
+#pragma once
+
 #include "vulkan/vulkan_swap_chain.hpp"
 
 namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
-#pragma once
+namespace Buffer {
 
 void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device);
 
+} // namespace Buffer
 } // namespace Vulkan
 } // namespace Windows
 } // namespace Core

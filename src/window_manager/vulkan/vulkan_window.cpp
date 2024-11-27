@@ -13,8 +13,8 @@
 #include "vulkan_window.hpp"
 #include "logger.hpp"
 #include "vulkan/vulkan_debug.hpp"
+#include "vulkan_buffers.hpp"
 #include "vulkan_command.hpp"
-#include "vulkan_framebuffers.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
@@ -49,7 +49,7 @@ void VulkanWindow::init_vulkan() {
   pipeline_ = create_graphics_pipeline(swapChain_, vulkanDevice_->device);
 
   // Create frame buffers
-  create_framebuffers(swapChain_, vulkanDevice_->device);
+  Buffer::create_framebuffers(swapChain_, vulkanDevice_->device);
 
   // Create command pool & buffer
   create_command_pool(vulkanDevice_, commandPool_);

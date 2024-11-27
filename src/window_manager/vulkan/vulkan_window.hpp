@@ -34,7 +34,6 @@ public:
 
   void create_graphics_pipeline();
   VkShaderModule create_shader_module(const std::vector<char> &code);
-  void create_render_pass();
   void create_framebuffers();
   void create_command_pool();
   void create_command_buffer();

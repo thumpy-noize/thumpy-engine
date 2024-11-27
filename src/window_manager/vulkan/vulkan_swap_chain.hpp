@@ -72,6 +72,7 @@ public:
 
   void create_image_views();
   void create_framebuffers();
+  void create_render_pass();
 
 public:
   VkSwapchainKHR swapChain;

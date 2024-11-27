@@ -61,6 +61,9 @@ public:
 #pragma region Swapchain
 
   void create_swap_chain();
+  void recreate_swap_chain();
+  void clear_swap_chain();
+
   VkSurfaceFormatKHR choose_swap_surface_format(
       const std::vector<VkSurfaceFormatKHR> &availableFormats);
   VkPresentModeKHR choose_swap_present_mode(
@@ -120,11 +123,11 @@ private:
   std::vector<VkSemaphore> imageAvailableSemaphores_;
   std::vector<VkSemaphore> renderFinishedSemaphores_;
   std::vector<VkFence> inFlightFences_;
+
   uint32_t currentFrame_ = 0;
 
   VkSemaphore imageAvailableSemaphore_;
   VkSemaphore renderFinishedSemaphore_;
-  VkFence inFlightFence_;
 
   VkQueue graphicsQueue_;
   VkQueue presentQueue_;

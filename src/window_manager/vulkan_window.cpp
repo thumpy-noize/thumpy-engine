@@ -128,6 +128,13 @@ void VulkanWindow::create_instance() {
 void VulkanWindow::deconstruct_window() {
   Logger::log("Destroying vulkan...");
 
+  clear_swap_chain();
+
+  vkDestroyPipeline(device_, graphicsPipeline_, nullptr);
+  vkDestroyPipelineLayout(device_, pipelineLayout_, nullptr);
+
+  vkDestroyRenderPass(device_, renderPass_, nullptr);
+
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroySemaphore(device_, renderFinishedSemaphores_[i], nullptr);
     vkDestroySemaphore(device_, imageAvailableSemaphores_[i], nullptr);
@@ -136,19 +143,6 @@ void VulkanWindow::deconstruct_window() {
 
   vkDestroyCommandPool(device_, commandPool_, nullptr);
 
-  for (auto framebuffer : swapChainFramebuffers_) {
-    vkDestroyFramebuffer(device_, framebuffer, nullptr);
-  }
-
-  vkDestroyPipeline(device_, graphicsPipeline_, nullptr);
-  vkDestroyPipelineLayout(device_, pipelineLayout_, nullptr);
-  vkDestroyRenderPass(device_, renderPass_, nullptr);
-
-  for (auto imageView : swapChainImageViews_) {
-    vkDestroyImageView(device_, imageView, nullptr);
-  }
-
-  vkDestroySwapchainKHR(device_, swapChain_, nullptr);
   vkDestroyDevice(device_, nullptr);
 
   if (enableValidationLayers) {
@@ -393,6 +387,36 @@ void VulkanWindow::create_swap_chain() {
 
   swapChainImageFormat_ = surfaceFormat.format;
   swapChainExtent_ = extent;
+}
+
+void VulkanWindow::recreate_swap_chain() {
+  Logger::log("Recreating swap chain...", Logger::INFO);
+  int width = 0, height = 0;
+  glfwGetFramebufferSize(window_, &width, &height);
+  while (width == 0 || height == 0) {
+    glfwGetFramebufferSize(window_, &width, &height);
+    glfwWaitEvents();
+  }
+
+  vkDeviceWaitIdle(device_);
+
+  clear_swap_chain();
+
+  create_swap_chain();
+  create_image_views();
+  create_framebuffers();
+}
+
+void VulkanWindow::clear_swap_chain() {
+  for (auto framebuffer : swapChainFramebuffers_) {
+    vkDestroyFramebuffer(device_, framebuffer, nullptr);
+  }
+
+  for (auto imageView : swapChainImageViews_) {
+    vkDestroyImageView(device_, imageView, nullptr);
+  }
+
+  vkDestroySwapchainKHR(device_, swapChain_, nullptr);
 }
 
 VkSurfaceFormatKHR VulkanWindow::choose_swap_surface_format(
@@ -838,16 +862,28 @@ void VulkanWindow::record_command_buffer(VkCommandBuffer commandBuffer,
 void VulkanWindow::draw_frame() {
   vkWaitForFences(device_, 1, &inFlightFences_[currentFrame_], VK_TRUE,
                   UINT64_MAX);
-  vkResetFences(device_, 1, &inFlightFences_[currentFrame_]);
 
   uint32_t imageIndex;
-  vkAcquireNextImageKHR(device_, swapChain_, UINT64_MAX,
-                        imageAvailableSemaphores_[currentFrame_],
-                        VK_NULL_HANDLE, &imageIndex);
+  VkResult result = vkAcquireNextImageKHR(
+      device_, swapChain_, UINT64_MAX, imageAvailableSemaphores_[currentFrame_],
+      VK_NULL_HANDLE, &imageIndex);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+    recreate_swap_chain();
+    return;
+  } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+    throw std::runtime_error("failed to acquire swap chain image!");
+  }
+
+  vkResetFences(device_, 1, &inFlightFences_[currentFrame_]);
 
   vkResetCommandBuffer(commandBuffers_[currentFrame_],
                        /*VkCommandBufferResetFlagBits*/ 0);
   record_command_buffer(commandBuffers_[currentFrame_], imageIndex);
+
+  // vkAcquireNextImageKHR(device_, swapChain_, UINT64_MAX,
+  //                       imageAvailableSemaphores_[currentFrame_],
+  //                       VK_NULL_HANDLE, &imageIndex);
 
   // submit command buffer
   VkSubmitInfo submitInfo{};
@@ -884,7 +920,15 @@ void VulkanWindow::draw_frame() {
   presentInfo.pImageIndices = &imageIndex;
   presentInfo.pResults = nullptr; // Optional
 
-  vkQueuePresentKHR(presentQueue_, &presentInfo);
+  result = vkQueuePresentKHR(presentQueue_, &presentInfo);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+      framebufferResized) {
+    framebufferResized = false;
+    recreate_swap_chain();
+  } else if (result != VK_SUCCESS) {
+    throw std::runtime_error("failed to present swap chain image!");
+  }
 
   currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 }

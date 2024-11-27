@@ -2,6 +2,8 @@
 #include "window.hpp"
 #include "logger.hpp"
 #include "logger_helper.hpp"
+#include "window_manager.hpp"
+#include <cstddef>
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -18,9 +20,11 @@ void Window::init_window() {
   glfwInit();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
   window_ = glfwCreateWindow(WIDTH, HEIGHT, title_.c_str(), nullptr, nullptr);
+
+  glfwSetWindowUserPointer(window_, this);
+  glfwSetFramebufferSizeCallback(window_, framebuffer_resize_callback);
 }
 
 void Window::deconstruct_window() {
@@ -39,6 +43,12 @@ void Window::loop() {
 }
 
 bool Window::should_close() { return glfwWindowShouldClose(window_); };
+
+void Window::framebuffer_resize_callback(GLFWwindow *window, int width,
+                                         int height) {
+  auto app = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+  app->framebufferResized = true;
+}
 
 } // namespace Windows
 

@@ -21,6 +21,10 @@ public:
   virtual void loop();
   bool should_close();
 
+  static void framebuffer_resize_callback(GLFWwindow *window, int width,
+                                          int height);
+  bool framebufferResized = false;
+
 protected:
   GLFWwindow *window_;
   std::string title_;

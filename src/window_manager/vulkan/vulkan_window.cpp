@@ -1,5 +1,6 @@
 #include "logger_helper.hpp"
 #include "vulkan/vulkan_debug.hpp"
+#include "vulkan/vulkan_device.hpp"
 #define GLFW_INCLUDE_VULKAN
 #include "logger.hpp"
 #include "vulkan_window.hpp"
@@ -51,6 +52,7 @@ void VulkanWindow::init_vulkan() {
   create_instance();
   Debug::setup_debug_messenger(instance_, &debugMessenger_);
   create_surface();
+  Device::VulkanDevice vulkanDevice_ = Device::VulkanDevice(instance_);
   pick_physical_device();
   create_logical_device();
   // newSwapChain_ =

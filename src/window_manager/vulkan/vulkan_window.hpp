@@ -137,7 +137,7 @@ private:
   VkQueue graphicsQueue_;
   VkQueue presentQueue_;
 
-  VkDebugUtilsMessengerEXT debugMessenger_dep_;
+  VkDebugUtilsMessengerEXT debugMessenger_;
 };
 } // namespace Vulkan
 } // namespace Windows

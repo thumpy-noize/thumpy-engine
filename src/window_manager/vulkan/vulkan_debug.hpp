@@ -1,6 +1,7 @@
 #pragma once
 
 #include "logger.hpp"
+#include "logger_helper.hpp"
 #include <string>
 #include <vulkan/vulkan_core.h>
 namespace Thumpy {
@@ -16,12 +17,13 @@ debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                void *pUserData) {
   std::string message = "validation layer: ";
   message.append(pCallbackData->pMessage);
-  Logger::log(message, Logger::DEBUG);
+  Logger::log(message, Logger::INFO);
 
   return VK_FALSE;
 }
 
-void setup_debug_messenger(VkInstance instance);
+void setup_debug_messenger(VkInstance instance,
+                           VkDebugUtilsMessengerEXT *debugMessenger);
 
 VkResult create_debug_utils_messenger_ext(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
@@ -29,7 +31,7 @@ VkResult create_debug_utils_messenger_ext(
     VkDebugUtilsMessengerEXT *pDebugMessenger);
 
 void destroy_debug_utils_messenger_ext(VkInstance instance,
-                                       VkDebugUtilsMessengerEXT debugMessenger,
+                                       VkDebugUtilsMessengerEXT *debugMessenger,
                                        const VkAllocationCallbacks *pAllocator);
 
 void populate_debug_messenger_create_info(

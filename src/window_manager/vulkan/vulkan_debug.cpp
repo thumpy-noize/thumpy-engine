@@ -16,19 +16,19 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-VkDebugUtilsMessengerEXT debugMessenger_;
-
-void setup_debug_messenger(VkInstance instance) {
+void setup_debug_messenger(VkInstance instance,
+                           VkDebugUtilsMessengerEXT *debugMessenger) {
   if (!enableValidationLayers)
     return;
 
   VkDebugUtilsMessengerCreateInfoEXT createInfo;
   populate_debug_messenger_create_info(createInfo);
-
-  if (create_debug_utils_messenger_ext(instance, &createInfo, nullptr,
-                                       &debugMessenger_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to set up debug messenger!");
-  }
+  create_debug_utils_messenger_ext(instance, &createInfo, nullptr,
+                                   debugMessenger);
+  //   if (create_debug_utils_messenger_ext(instance, &createInfo, nullptr,
+  //                                        &debugMessenger) != VK_SUCCESS) {
+  //     throw std::runtime_error("failed to set up debug messenger!");
+  //   }
 }
 
 VkResult create_debug_utils_messenger_ext(
@@ -45,12 +45,12 @@ VkResult create_debug_utils_messenger_ext(
 }
 
 void destroy_debug_utils_messenger_ext(
-    VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+    VkInstance instance, VkDebugUtilsMessengerEXT *debugMessenger,
     const VkAllocationCallbacks *pAllocator) {
   auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
       instance, "vkDestroyDebugUtilsMessengerEXT");
   if (func != nullptr) {
-    func(instance, debugMessenger, pAllocator);
+    func(instance, *debugMessenger, pAllocator);
   }
 }
 

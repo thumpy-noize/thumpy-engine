@@ -49,9 +49,7 @@ VulkanWindow::VulkanWindow(std::string title) : Window(title) { init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
   create_instance();
-
-  // Debug::setup_debug_messenger(instance_);
-  setup_debug_messenger();
+  Debug::setup_debug_messenger(instance_, &debugMessenger_);
   create_surface();
   pick_physical_device();
   create_logical_device();
@@ -129,7 +127,7 @@ void VulkanWindow::deconstruct_window() {
   vkDestroyDevice(device_, nullptr);
 
   if (enableValidationLayers) {
-    Debug::destroy_debug_utils_messenger_ext(instance_, debugMessenger_dep_,
+    Debug::destroy_debug_utils_messenger_ext(instance_, &debugMessenger_,
                                              nullptr);
   }
 
@@ -147,20 +145,6 @@ void VulkanWindow::loop() {
 }
 
 #pragma endregion Core
-
-void VulkanWindow::setup_debug_messenger() {
-  if (!enableValidationLayers)
-    return;
-
-  VkDebugUtilsMessengerCreateInfoEXT createInfo;
-  Debug::populate_debug_messenger_create_info(createInfo);
-
-  if (Debug::create_debug_utils_messenger_ext(instance_, &createInfo, nullptr,
-                                              &debugMessenger_dep_) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to set up debug messenger!");
-  }
-}
 
 void VulkanWindow::create_surface() {
   if (glfwCreateWindowSurface(instance_, window_, nullptr, &surface_) !=

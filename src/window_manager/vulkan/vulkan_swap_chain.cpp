@@ -9,15 +9,13 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-VulkanSwapChain::VulkanSwapChain(VkInstance instance,
-                                 Device::VulkanDevice *device,
+VulkanSwapChain::VulkanSwapChain(VkInstance instance, VulkanDevice *device,
                                  VkSurfaceKHR surface, GLFWwindow *window) {
   set_context(instance, device, surface, window);
   create_swap_chain();
 }
 
-void VulkanSwapChain::set_context(VkInstance instance,
-                                  Device::VulkanDevice *device,
+void VulkanSwapChain::set_context(VkInstance instance, VulkanDevice *device,
                                   VkSurfaceKHR surface, GLFWwindow *window) {
   instance_ = instance;
   surface_ = surface;

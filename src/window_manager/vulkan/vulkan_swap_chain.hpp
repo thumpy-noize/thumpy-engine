@@ -13,7 +13,7 @@ namespace Vulkan {
 
 class VulkanSwapChain {
 public:
-  VulkanSwapChain(VkInstance instance, Device::VulkanDevice *Device,
+  VulkanSwapChain(VkInstance instance, VulkanDevice *Device,
                   VkSurfaceKHR surface, GLFWwindow *window);
   /**
    * @brief Set swap chain context variables
@@ -23,7 +23,7 @@ public:
    * @param surface
    * @param window
    */
-  void set_context(VkInstance instance, Device::VulkanDevice *device,
+  void set_context(VkInstance instance, VulkanDevice *device,
                    VkSurfaceKHR surface, GLFWwindow *window);
   /**
    * @brief Create swap chain
@@ -88,7 +88,7 @@ private:
   VkInstance instance_;
   VkSurfaceKHR surface_;
   GLFWwindow *window_;
-  Device::VulkanDevice *device_;
+  VulkanDevice *device_;
 
   std::vector<VkImage> swapChainImages_;
 };

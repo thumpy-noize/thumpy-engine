@@ -8,7 +8,6 @@ namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
-namespace Device {
 
 VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface) {
   surface_ = surface;
@@ -72,8 +71,8 @@ void VulkanDevice::create_logical_device() {
   createInfo.pEnabledFeatures = &deviceFeatures;
 
   createInfo.enabledExtensionCount =
-      static_cast<uint32_t>(Device::deviceExtensions.size());
-  createInfo.ppEnabledExtensionNames = Device::deviceExtensions.data();
+      static_cast<uint32_t>(deviceExtensions.size());
+  createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
   if (enableValidationLayers) {
     createInfo.enabledLayerCount =
@@ -189,7 +188,6 @@ VulkanDevice::query_swap_chain_support(VkPhysicalDevice device) {
   return details;
 }
 
-} // namespace Device
 } // namespace Vulkan
 } // namespace Windows
 } // namespace Core

@@ -7,7 +7,6 @@ namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
-namespace Device {
 
 const std::vector<const char *> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -49,7 +48,6 @@ private:
   VkSurfaceKHR surface_;
 };
 
-} // namespace Device
 } // namespace Vulkan
 } // namespace Windows
 } // namespace Core

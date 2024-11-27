@@ -15,6 +15,7 @@
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
+#include "vulkan_pipeline.hpp"
 #include <cstdint> // Necessary for uint32_t
 #include <cstring>
 #include <fstream>
@@ -59,12 +60,14 @@ void VulkanWindow::init_vulkan() {
   // Create surface
   create_surface();
   // Find & create vulkan device
-  vulkanDevice_ = new Device::VulkanDevice(instance_, surface_);
-  // Create swap chain & image views
+  vulkanDevice_ = new VulkanDevice(instance_, surface_);
+  // Create swap chain / image views / render pass
   swapChain_ = new VulkanSwapChain(instance_, vulkanDevice_, surface_, window_);
 
-  // create_render_pass();
-  create_graphics_pipeline();
+  // Create graphics pipeline
+  pipeline_ = create_graphics_pipeline(swapChain_, vulkanDevice_->device);
+
+  // Create frame buffers
   create_framebuffers();
   create_command_pool();
   create_command_buffer();
@@ -76,8 +79,9 @@ void VulkanWindow::deconstruct_window() {
 
   swapChain_->clear_swap_chain();
 
-  vkDestroyPipeline(vulkanDevice_->device, graphicsPipeline_, nullptr);
-  vkDestroyPipelineLayout(vulkanDevice_->device, pipelineLayout_, nullptr);
+  destroy_graphics_pipeline(vulkanDevice_->device, pipeline_);
+  // vkDestroyPipeline(vulkanDevice_->device, graphicsPipeline_, nullptr);
+  // vkDestroyPipelineLayout(vulkanDevice_->device, pipelineLayout_, nullptr);
 
   vkDestroyRenderPass(vulkanDevice_->device, swapChain_->renderPass, nullptr);
 
@@ -157,127 +161,6 @@ void VulkanWindow::loop() {
 
 #pragma region Image
 
-void VulkanWindow::create_graphics_pipeline() {
-  auto vertShaderCode = read_file("src/shaders/compiled/vert.spv");
-  auto fragShaderCode = read_file("src/shaders/compiled/frag.spv");
-
-  VkShaderModule vertShaderModule = create_shader_module(vertShaderCode);
-  VkShaderModule fragShaderModule = create_shader_module(fragShaderCode);
-
-  VkPipelineShaderStageCreateInfo vertShaderStageInfo =
-      Initializer::vert_shader_stage_info(vertShaderModule);
-
-  VkPipelineShaderStageCreateInfo fragShaderStageInfo =
-      Initializer::frag_shader_stage_info(fragShaderModule);
-
-  VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo,
-                                                    fragShaderStageInfo};
-
-  // ### vertex input ###
-  VkPipelineVertexInputStateCreateInfo vertexInputInfo =
-      Initializer::vertex_input_info();
-
-  // ### input assembly ###
-  VkPipelineInputAssemblyStateCreateInfo inputAssembly =
-      Initializer::input_assembly();
-
-  // ### viewport & scissor ###
-  VkViewport viewport = Initializer::viewport((float)swapChain_->extent.height,
-                                              (float)swapChain_->extent.width);
-
-  VkRect2D scissor = Initializer::scissor(swapChain_->extent);
-
-  VkPipelineViewportStateCreateInfo viewportState{};
-  viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-  viewportState.viewportCount = 1;
-  viewportState.pViewports = &viewport;
-  viewportState.scissorCount = 1;
-  viewportState.pScissors = &scissor;
-
-  // ### rasterization ###
-  VkPipelineRasterizationStateCreateInfo rasterizer = Initializer::rasterizer();
-
-  // ### multi-sampling ###
-  VkPipelineMultisampleStateCreateInfo multisampling =
-      Initializer::multisampling();
-
-  // ### color blending ###
-  VkPipelineColorBlendAttachmentState colorBlendAttachment =
-      Initializer::color_blend_attachment();
-
-  VkPipelineColorBlendStateCreateInfo colorBlending{};
-  colorBlending.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-  colorBlending.logicOpEnable = VK_FALSE;
-  colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-  colorBlending.attachmentCount = 1;
-  colorBlending.pAttachments = &colorBlendAttachment;
-  colorBlending.blendConstants[0] = 0.0f; // Optional
-  colorBlending.blendConstants[1] = 0.0f; // Optional
-  colorBlending.blendConstants[2] = 0.0f; // Optional
-  colorBlending.blendConstants[3] = 0.0f; // Optional
-
-  // ### dynamic state ###
-  std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
-                                               VK_DYNAMIC_STATE_SCISSOR};
-
-  VkPipelineDynamicStateCreateInfo dynamicState{};
-  dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-  dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-  dynamicState.pDynamicStates = dynamicStates.data();
-
-  // ### pipeline layout ###
-  VkPipelineLayoutCreateInfo pipelineLayoutInfo =
-      Initializer::pipeline_layout_info();
-
-  if (vkCreatePipelineLayout(vulkanDevice_->device, &pipelineLayoutInfo,
-                             nullptr, &pipelineLayout_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create pipeline layout!");
-  }
-
-  VkGraphicsPipelineCreateInfo pipelineInfo{};
-  pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-  pipelineInfo.stageCount = 2;
-  pipelineInfo.pStages = shaderStages;
-  pipelineInfo.pVertexInputState = &vertexInputInfo;
-  pipelineInfo.pInputAssemblyState = &inputAssembly;
-  pipelineInfo.pViewportState = &viewportState;
-  pipelineInfo.pRasterizationState = &rasterizer;
-  pipelineInfo.pMultisampleState = &multisampling;
-  pipelineInfo.pDepthStencilState = nullptr; // Optional
-  pipelineInfo.pColorBlendState = &colorBlending;
-  pipelineInfo.pDynamicState = &dynamicState;
-  pipelineInfo.layout = pipelineLayout_;
-  pipelineInfo.renderPass = swapChain_->renderPass;
-  pipelineInfo.subpass = 0;
-  pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
-  pipelineInfo.basePipelineIndex = -1;              // Optional
-
-  if (vkCreateGraphicsPipelines(vulkanDevice_->device, VK_NULL_HANDLE, 1,
-                                &pipelineInfo, nullptr,
-                                &graphicsPipeline_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create graphics pipeline!");
-  }
-
-  // ### destroy ###
-  vkDestroyShaderModule(vulkanDevice_->device, fragShaderModule, nullptr);
-  vkDestroyShaderModule(vulkanDevice_->device, vertShaderModule, nullptr);
-}
-
-VkShaderModule
-VulkanWindow::create_shader_module(const std::vector<char> &code) {
-  VkShaderModuleCreateInfo createInfo =
-      Initializer::shader_module_create_info(code);
-
-  VkShaderModule shaderModule;
-  if (vkCreateShaderModule(vulkanDevice_->device, &createInfo, nullptr,
-                           &shaderModule) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create shader module!");
-  }
-
-  return shaderModule;
-}
-
 void VulkanWindow::create_framebuffers() {
   swapChain_->swapChainFramebuffers.resize(
       swapChain_->swapChainImageViews.size());
@@ -341,7 +224,7 @@ void VulkanWindow::record_command_buffer(VkCommandBuffer commandBuffer,
                        VK_SUBPASS_CONTENTS_INLINE);
 
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    graphicsPipeline_);
+                    pipeline_.graphicsPipeline);
 
   VkViewport viewport =
       Initializer::viewport(static_cast<float>(swapChain_->extent.height),

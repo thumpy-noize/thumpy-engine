@@ -12,6 +12,7 @@
 #pragma once
 
 #include "vulkan/vulkan_device.hpp"
+#include "vulkan/vulkan_pipeline.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
 #include "window.hpp"
 #include <vector>
@@ -40,8 +41,6 @@ public:
 
 #pragma region Image
 
-  void create_graphics_pipeline();
-  VkShaderModule create_shader_module(const std::vector<char> &code);
   void create_framebuffers();
   void create_command_pool();
   void create_command_buffer();
@@ -56,14 +55,13 @@ public:
 private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  Device::VulkanDevice *vulkanDevice_;
+  VulkanDevice *vulkanDevice_;
   VulkanSwapChain *swapChain_;
 
   VkInstance instance_;
   VkSurfaceKHR surface_;
 
-  VkPipelineLayout pipelineLayout_;
-  VkPipeline graphicsPipeline_;
+  VulkanPipeline pipeline_;
 
   VkCommandPool commandPool_;
   std::vector<VkCommandBuffer> commandBuffers_;

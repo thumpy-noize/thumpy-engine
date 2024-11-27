@@ -21,12 +21,16 @@ namespace Buffer {
 
 void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device);
 
-void create_vertex_buffer(std::vector<Vertex> vertices_,
-                          VulkanDevice *vulkanDevice, VkBuffer vertexBuffe,
-                          VkDeviceMemory vertexBufferMemory);
+class VertexBuffer {
+public:
+  void create_vertex_buffer(std::vector<Vertex> vertices_,
+                            VulkanDevice *vulkanDevice, VkBuffer vertexBuffe,
+                            VkDeviceMemory vertexBufferMemory);
 
-uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties,
-                          VkPhysicalDevice physicalDevice);
+  uint32_t find_memory_type(uint32_t typeFilter,
+                            VkMemoryPropertyFlags properties,
+                            VkPhysicalDevice physicalDevice);
+};
 
 } // namespace Buffer
 } // namespace Vulkan

@@ -8,14 +8,17 @@
  * @copyright Copyright (c) 2024
  *
  */
+#include "vulkan/vulkan_device.hpp"
 #define GLFW_INCLUDE_VULKAN
 
-#include "vulkan_window.hpp"
 #include "logger.hpp"
 #include "vulkan/vulkan_debug.hpp"
+#include "vulkan_command.hpp"
+#include "vulkan_framebuffers.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
+#include "vulkan_window.hpp"
 #include <cstdint> // Necessary for uint32_t
 #include <cstring>
 #include <fstream>
@@ -68,8 +71,11 @@ void VulkanWindow::init_vulkan() {
   pipeline_ = create_graphics_pipeline(swapChain_, vulkanDevice_->device);
 
   // Create frame buffers
-  create_framebuffers();
-  create_command_pool();
+  create_framebuffers(swapChain_, vulkanDevice_->device);
+
+  // Create command pool
+  create_command_pool(vulkanDevice_, commandPool_);
+
   create_command_buffer();
   create_sync_objects();
 }
@@ -160,37 +166,6 @@ void VulkanWindow::loop() {
 #pragma endregion Core
 
 #pragma region Image
-
-void VulkanWindow::create_framebuffers() {
-  swapChain_->swapChainFramebuffers.resize(
-      swapChain_->swapChainImageViews.size());
-
-  for (size_t i = 0; i < swapChain_->swapChainImageViews.size(); i++) {
-    VkImageView attachments[] = {swapChain_->swapChainImageViews[i]};
-
-    VkFramebufferCreateInfo framebufferInfo = Initializer::framebuffer_info(
-        swapChain_->renderPass, swapChain_->extent, attachments);
-
-    if (vkCreateFramebuffer(vulkanDevice_->device, &framebufferInfo, nullptr,
-                            &swapChain_->swapChainFramebuffers[i]) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to create framebuffer!");
-    }
-  }
-}
-
-void VulkanWindow::create_command_pool() {
-  QueueFamilyIndices queueFamilyIndices =
-      vulkanDevice_->find_queue_families(vulkanDevice_->physicalDevice);
-
-  VkCommandPoolCreateInfo poolInfo =
-      Initializer::pool_info(queueFamilyIndices.graphicsFamily.value());
-
-  if (vkCreateCommandPool(vulkanDevice_->device, &poolInfo, nullptr,
-                          &commandPool_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create command pool!");
-  }
-}
 
 void VulkanWindow::create_command_buffer() {
   commandBuffers_.resize(MAX_FRAMES_IN_FLIGHT);

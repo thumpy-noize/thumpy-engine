@@ -41,8 +41,8 @@ public:
 
 #pragma region Image
 
-  void create_framebuffers();
-  void create_command_pool();
+  void create_framebuffers_dep();
+  void create_command_pool_dep();
   void create_command_buffer();
   void record_command_buffer(VkCommandBuffer commandBuffer,
                              uint32_t imageIndex);
@@ -55,12 +55,11 @@ public:
 private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  VulkanDevice *vulkanDevice_;
-  VulkanSwapChain *swapChain_;
-
   VkInstance instance_;
   VkSurfaceKHR surface_;
 
+  VulkanDevice *vulkanDevice_;
+  VulkanSwapChain *swapChain_;
   VulkanPipeline pipeline_;
 
   VkCommandPool commandPool_;

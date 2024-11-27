@@ -13,6 +13,7 @@
 
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_pipeline.hpp"
+#include "vulkan/vulkan_render.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
 #include "window.hpp"
 #include <vector>
@@ -32,10 +33,10 @@ public:
   void init_vulkan();
   void deconstruct_window();
 
+  void loop();
+
   void create_instance();
   void create_surface();
-
-  void loop();
 
 #pragma endregion Core
 
@@ -49,6 +50,7 @@ public:
 
 private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
+  uint32_t currentFrame_ = 0;
 
   VkInstance instance_;
   VkSurfaceKHR surface_;
@@ -56,18 +58,10 @@ private:
   VulkanDevice *vulkanDevice_;
   VulkanSwapChain *swapChain_;
   VulkanPipeline pipeline_;
+  VulkanRender *render_;
 
   VkCommandPool commandPool_;
   std::vector<VkCommandBuffer> commandBuffers_;
-
-  std::vector<VkSemaphore> imageAvailableSemaphores_;
-  std::vector<VkSemaphore> renderFinishedSemaphores_;
-  std::vector<VkFence> inFlightFences_;
-
-  uint32_t currentFrame_ = 0;
-
-  VkSemaphore imageAvailableSemaphore_;
-  VkSemaphore renderFinishedSemaphore_;
 
   VkDebugUtilsMessengerEXT debugMessenger_;
 };

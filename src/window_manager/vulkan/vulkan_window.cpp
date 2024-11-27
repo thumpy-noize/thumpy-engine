@@ -19,12 +19,6 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-
 // Create simple io script to hold this
 static std::vector<char> read_file(const std::string &filename) {
   Logger::log("opening file: " + filename, Logger::INFO);

@@ -45,6 +45,9 @@ public:
 
 private:
   VkSurfaceKHR surface_;
+
+  VkQueue graphicsQueue_;
+  VkQueue presentQueue_;
 };
 
 } // namespace Device

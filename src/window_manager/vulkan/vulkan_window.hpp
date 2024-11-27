@@ -2,6 +2,7 @@
 
 #include "swap_chain.hpp"
 #include "vulkan/vulkan_debug.hpp"
+#include "vulkan/vulkan_device.hpp"
 #include "window.hpp"
 #include <optional>
 #include <vector>
@@ -11,9 +12,6 @@ namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
-
-const std::vector<const char *> validationLayers = {
-    "VK_LAYER_KHRONOS_validation"};
 
 // struct QueueFamilyIndices {
 //   std::optional<uint32_t> graphicsFamily;
@@ -101,6 +99,7 @@ private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
   SwapChain *newSwapChain_;
+  Device::VulkanDevice *vulkanDevice_;
 
   VkInstance instance_;
   VkSurfaceKHR surface_;

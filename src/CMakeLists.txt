@@ -21,6 +21,7 @@ target_link_libraries(engine
 
     glfw
     vulkan
+    glm::glm
 
     ${GLFW_LIBRARIES}
 )

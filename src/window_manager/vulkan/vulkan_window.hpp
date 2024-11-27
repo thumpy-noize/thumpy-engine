@@ -67,8 +67,11 @@ private:
 
   VkCommandPool commandPool_;
   std::vector<VkCommandBuffer> commandBuffers_;
-
   VkDebugUtilsMessengerEXT debugMessenger_;
+
+  const std::vector<Vertex> vertices_ = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                         {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                         {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 };
 } // namespace Vulkan
 } // namespace Windows

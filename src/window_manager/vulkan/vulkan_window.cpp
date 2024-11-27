@@ -3,6 +3,7 @@
 #include "vulkan/vulkan_device.hpp"
 #define GLFW_INCLUDE_VULKAN
 #include "logger.hpp"
+#include "vulkan_helper.hpp"
 #include "vulkan_window.hpp"
 #include <algorithm> // Necessary for std::clamp
 #include <cstdint>   // Necessary for uint32_t
@@ -52,7 +53,8 @@ void VulkanWindow::init_vulkan() {
   create_instance();
   Debug::setup_debug_messenger(instance_, &debugMessenger_);
   create_surface();
-  Device::VulkanDevice vulkanDevice_ = Device::VulkanDevice(instance_);
+  Device::VulkanDevice vulkanDevice_ =
+      Device::VulkanDevice(instance_, surface_);
   pick_physical_device();
   create_logical_device();
   // newSwapChain_ =
@@ -209,8 +211,8 @@ void VulkanWindow::create_logical_device() {
   createInfo.pEnabledFeatures = &deviceFeatures;
 
   createInfo.enabledExtensionCount =
-      static_cast<uint32_t>(deviceExtensions.size());
-  createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+      static_cast<uint32_t>(Device::deviceExtensions.size());
+  createInfo.ppEnabledExtensionNames = Device::deviceExtensions.data();
 
   if (enableValidationLayers) {
     createInfo.enabledLayerCount =
@@ -253,8 +255,8 @@ bool VulkanWindow::check_device_extension_support(VkPhysicalDevice device) {
   vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
                                        availableExtensions.data());
 
-  std::set<std::string> requiredExtensions(deviceExtensions.begin(),
-                                           deviceExtensions.end());
+  std::set<std::string> requiredExtensions(Device::deviceExtensions.begin(),
+                                           Device::deviceExtensions.end());
 
   for (const auto &extension : availableExtensions) {
     requiredExtensions.erase(extension.extensionName);

@@ -89,8 +89,8 @@ void VulkanDevice::create_logical_device() {
     throw std::runtime_error("failed to create logical device!");
   }
 
-  vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue_);
-  vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue_);
+  vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+  vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
 
 bool VulkanDevice::is_device_suitable(VkPhysicalDevice device) {

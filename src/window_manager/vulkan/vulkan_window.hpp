@@ -104,9 +104,6 @@ private:
   VkInstance instance_;
   VkSurfaceKHR surface_;
 
-  VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
-  VkDevice device_;
-
   VkSwapchainKHR swapChain_;
   std::vector<VkImage> swapChainImages_;
   VkFormat swapChainImageFormat_;
@@ -129,9 +126,6 @@ private:
 
   VkSemaphore imageAvailableSemaphore_;
   VkSemaphore renderFinishedSemaphore_;
-
-  VkQueue graphicsQueue_;
-  VkQueue presentQueue_;
 
   VkDebugUtilsMessengerEXT debugMessenger_;
 };

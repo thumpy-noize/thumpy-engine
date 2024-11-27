@@ -47,12 +47,12 @@ void VulkanWindow::init_vulkan() {
   create_instance();
   Debug::setup_debug_messenger(instance_, &debugMessenger_);
   create_surface();
-  Device::VulkanDevice vulkanDevice_ =
-      Device::VulkanDevice(instance_, surface_);
-  pick_physical_device();
-  create_logical_device();
+  vulkanDevice_ = new Device::VulkanDevice(instance_, surface_);
+  // pick_physical_device();
+  // create_logical_device();
   // newSwapChain_ =
-  //     new SwapChain(instance_, physicalDevice_, device_, surface_, window_);
+  //     new SwapChain(instance_, vulkanDevice_->physicalDevice, device_,
+  //     surface_, window_);
   create_swap_chain();
   create_image_views();
   create_render_pass();
@@ -109,20 +109,22 @@ void VulkanWindow::deconstruct_window() {
 
   clear_swap_chain();
 
-  vkDestroyPipeline(device_, graphicsPipeline_, nullptr);
-  vkDestroyPipelineLayout(device_, pipelineLayout_, nullptr);
+  vkDestroyPipeline(vulkanDevice_->device, graphicsPipeline_, nullptr);
+  vkDestroyPipelineLayout(vulkanDevice_->device, pipelineLayout_, nullptr);
 
-  vkDestroyRenderPass(device_, renderPass_, nullptr);
+  vkDestroyRenderPass(vulkanDevice_->device, renderPass_, nullptr);
 
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    vkDestroySemaphore(device_, renderFinishedSemaphores_[i], nullptr);
-    vkDestroySemaphore(device_, imageAvailableSemaphores_[i], nullptr);
-    vkDestroyFence(device_, inFlightFences_[i], nullptr);
+    vkDestroySemaphore(vulkanDevice_->device, renderFinishedSemaphores_[i],
+                       nullptr);
+    vkDestroySemaphore(vulkanDevice_->device, imageAvailableSemaphores_[i],
+                       nullptr);
+    vkDestroyFence(vulkanDevice_->device, inFlightFences_[i], nullptr);
   }
 
-  vkDestroyCommandPool(device_, commandPool_, nullptr);
+  vkDestroyCommandPool(vulkanDevice_->device, commandPool_, nullptr);
 
-  vkDestroyDevice(device_, nullptr);
+  vkDestroyDevice(vulkanDevice_->device, nullptr);
 
   if (enableValidationLayers) {
     Debug::destroy_debug_utils_messenger_ext(instance_, &debugMessenger_,
@@ -139,7 +141,7 @@ void VulkanWindow::loop() {
   Window::loop();
   draw_frame();
 
-  vkDeviceWaitIdle(device_);
+  vkDeviceWaitIdle(vulkanDevice_->device);
 }
 
 #pragma endregion Core
@@ -166,18 +168,19 @@ void VulkanWindow::pick_physical_device() {
 
   for (const auto &device : devices) {
     if (is_device_suitable(device)) {
-      physicalDevice_ = device;
+      vulkanDevice_->physicalDevice = device;
       break;
     }
   }
 
-  if (physicalDevice_ == VK_NULL_HANDLE) {
+  if (vulkanDevice_->physicalDevice == VK_NULL_HANDLE) {
     throw std::runtime_error("failed to find a suitable GPU!");
   }
 }
 
 void VulkanWindow::create_logical_device() {
-  QueueFamilyIndices indices = find_queue_families(physicalDevice_);
+  QueueFamilyIndices indices =
+      find_queue_families(vulkanDevice_->physicalDevice);
 
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(),
@@ -216,13 +219,15 @@ void VulkanWindow::create_logical_device() {
     createInfo.enabledLayerCount = 0;
   }
 
-  if (vkCreateDevice(physicalDevice_, &createInfo, nullptr, &device_) !=
-      VK_SUCCESS) {
+  if (vkCreateDevice(vulkanDevice_->physicalDevice, &createInfo, nullptr,
+                     &vulkanDevice_->device) != VK_SUCCESS) {
     throw std::runtime_error("failed to create logical device!");
   }
 
-  vkGetDeviceQueue(device_, indices.graphicsFamily.value(), 0, &graphicsQueue_);
-  vkGetDeviceQueue(device_, indices.presentFamily.value(), 0, &presentQueue_);
+  vkGetDeviceQueue(vulkanDevice_->device, indices.graphicsFamily.value(), 0,
+                   &vulkanDevice_->graphicsQueue);
+  vkGetDeviceQueue(vulkanDevice_->device, indices.presentFamily.value(), 0,
+                   &vulkanDevice_->presentQueue);
 }
 
 bool VulkanWindow::is_device_suitable(VkPhysicalDevice device) {
@@ -298,7 +303,7 @@ QueueFamilyIndices VulkanWindow::find_queue_families(VkPhysicalDevice device) {
 
 void VulkanWindow::create_swap_chain() {
   SwapChainSupportDetails swapChainSupport =
-      query_swap_chain_support(physicalDevice_);
+      query_swap_chain_support(vulkanDevice_->physicalDevice);
 
   VkSurfaceFormatKHR surfaceFormat =
       choose_swap_surface_format(swapChainSupport.formats);
@@ -323,7 +328,8 @@ void VulkanWindow::create_swap_chain() {
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-  QueueFamilyIndices indices = find_queue_families(physicalDevice_);
+  QueueFamilyIndices indices =
+      find_queue_families(vulkanDevice_->physicalDevice);
   uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(),
                                    indices.presentFamily.value()};
 
@@ -342,14 +348,15 @@ void VulkanWindow::create_swap_chain() {
 
   createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  if (vkCreateSwapchainKHR(device_, &createInfo, nullptr, &swapChain_) !=
-      VK_SUCCESS) {
+  if (vkCreateSwapchainKHR(vulkanDevice_->device, &createInfo, nullptr,
+                           &swapChain_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create swap chain!");
   }
 
-  vkGetSwapchainImagesKHR(device_, swapChain_, &imageCount, nullptr);
+  vkGetSwapchainImagesKHR(vulkanDevice_->device, swapChain_, &imageCount,
+                          nullptr);
   swapChainImages_.resize(imageCount);
-  vkGetSwapchainImagesKHR(device_, swapChain_, &imageCount,
+  vkGetSwapchainImagesKHR(vulkanDevice_->device, swapChain_, &imageCount,
                           swapChainImages_.data());
 
   swapChainImageFormat_ = surfaceFormat.format;
@@ -365,7 +372,7 @@ void VulkanWindow::recreate_swap_chain() {
     glfwWaitEvents();
   }
 
-  vkDeviceWaitIdle(device_);
+  vkDeviceWaitIdle(vulkanDevice_->device);
 
   clear_swap_chain();
 
@@ -376,14 +383,14 @@ void VulkanWindow::recreate_swap_chain() {
 
 void VulkanWindow::clear_swap_chain() {
   for (auto framebuffer : swapChainFramebuffers_) {
-    vkDestroyFramebuffer(device_, framebuffer, nullptr);
+    vkDestroyFramebuffer(vulkanDevice_->device, framebuffer, nullptr);
   }
 
   for (auto imageView : swapChainImageViews_) {
-    vkDestroyImageView(device_, imageView, nullptr);
+    vkDestroyImageView(vulkanDevice_->device, imageView, nullptr);
   }
 
-  vkDestroySwapchainKHR(device_, swapChain_, nullptr);
+  vkDestroySwapchainKHR(vulkanDevice_->device, swapChain_, nullptr);
 }
 
 VkSurfaceFormatKHR VulkanWindow::choose_swap_surface_format(
@@ -495,7 +502,7 @@ void VulkanWindow::create_image_views() {
     createInfo.subresourceRange.layerCount = 1;
 
     // Create image view
-    if (vkCreateImageView(device_, &createInfo, nullptr,
+    if (vkCreateImageView(vulkanDevice_->device, &createInfo, nullptr,
                           &swapChainImageViews_[i]) != VK_SUCCESS) {
       throw std::runtime_error("failed to create image views!");
     }
@@ -628,8 +635,8 @@ void VulkanWindow::create_graphics_pipeline() {
   pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
   pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-  if (vkCreatePipelineLayout(device_, &pipelineLayoutInfo, nullptr,
-                             &pipelineLayout_) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(vulkanDevice_->device, &pipelineLayoutInfo,
+                             nullptr, &pipelineLayout_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create pipeline layout!");
   }
 
@@ -651,15 +658,16 @@ void VulkanWindow::create_graphics_pipeline() {
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
   pipelineInfo.basePipelineIndex = -1;              // Optional
 
-  if (vkCreateGraphicsPipelines(device_, VK_NULL_HANDLE, 1, &pipelineInfo,
-                                nullptr, &graphicsPipeline_) != VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(vulkanDevice_->device, VK_NULL_HANDLE, 1,
+                                &pipelineInfo, nullptr,
+                                &graphicsPipeline_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create graphics pipeline!");
   }
 
   // ### destroy ###
 
-  vkDestroyShaderModule(device_, fragShaderModule, nullptr);
-  vkDestroyShaderModule(device_, vertShaderModule, nullptr);
+  vkDestroyShaderModule(vulkanDevice_->device, fragShaderModule, nullptr);
+  vkDestroyShaderModule(vulkanDevice_->device, vertShaderModule, nullptr);
 }
 
 VkShaderModule
@@ -670,8 +678,8 @@ VulkanWindow::create_shader_module(const std::vector<char> &code) {
   createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
   VkShaderModule shaderModule;
-  if (vkCreateShaderModule(device_, &createInfo, nullptr, &shaderModule) !=
-      VK_SUCCESS) {
+  if (vkCreateShaderModule(vulkanDevice_->device, &createInfo, nullptr,
+                           &shaderModule) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module!");
   }
 
@@ -719,8 +727,8 @@ void VulkanWindow::create_render_pass() {
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
 
-  if (vkCreateRenderPass(device_, &renderPassInfo, nullptr, &renderPass_) !=
-      VK_SUCCESS) {
+  if (vkCreateRenderPass(vulkanDevice_->device, &renderPassInfo, nullptr,
+                         &renderPass_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create render pass!");
   }
 }
@@ -740,7 +748,7 @@ void VulkanWindow::create_framebuffers() {
     framebufferInfo.height = swapChainExtent_.height;
     framebufferInfo.layers = 1;
 
-    if (vkCreateFramebuffer(device_, &framebufferInfo, nullptr,
+    if (vkCreateFramebuffer(vulkanDevice_->device, &framebufferInfo, nullptr,
                             &swapChainFramebuffers_[i]) != VK_SUCCESS) {
       throw std::runtime_error("failed to create framebuffer!");
     }
@@ -748,15 +756,16 @@ void VulkanWindow::create_framebuffers() {
 }
 
 void VulkanWindow::create_command_pool() {
-  QueueFamilyIndices queueFamilyIndices = find_queue_families(physicalDevice_);
+  QueueFamilyIndices queueFamilyIndices =
+      find_queue_families(vulkanDevice_->physicalDevice);
 
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
   poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-  if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool_) !=
-      VK_SUCCESS) {
+  if (vkCreateCommandPool(vulkanDevice_->device, &poolInfo, nullptr,
+                          &commandPool_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create command pool!");
   }
 }
@@ -769,8 +778,8 @@ void VulkanWindow::create_command_buffer() {
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = (uint32_t)commandBuffers_.size();
 
-  if (vkAllocateCommandBuffers(device_, &allocInfo, commandBuffers_.data()) !=
-      VK_SUCCESS) {
+  if (vkAllocateCommandBuffers(vulkanDevice_->device, &allocInfo,
+                               commandBuffers_.data()) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate command buffers!");
   }
 }
@@ -827,13 +836,13 @@ void VulkanWindow::record_command_buffer(VkCommandBuffer commandBuffer,
 }
 
 void VulkanWindow::draw_frame() {
-  vkWaitForFences(device_, 1, &inFlightFences_[currentFrame_], VK_TRUE,
-                  UINT64_MAX);
+  vkWaitForFences(vulkanDevice_->device, 1, &inFlightFences_[currentFrame_],
+                  VK_TRUE, UINT64_MAX);
 
   uint32_t imageIndex;
   VkResult result = vkAcquireNextImageKHR(
-      device_, swapChain_, UINT64_MAX, imageAvailableSemaphores_[currentFrame_],
-      VK_NULL_HANDLE, &imageIndex);
+      vulkanDevice_->device, swapChain_, UINT64_MAX,
+      imageAvailableSemaphores_[currentFrame_], VK_NULL_HANDLE, &imageIndex);
 
   if (result == VK_ERROR_OUT_OF_DATE_KHR) {
     recreate_swap_chain();
@@ -842,13 +851,13 @@ void VulkanWindow::draw_frame() {
     throw std::runtime_error("failed to acquire swap chain image!");
   }
 
-  vkResetFences(device_, 1, &inFlightFences_[currentFrame_]);
+  vkResetFences(vulkanDevice_->device, 1, &inFlightFences_[currentFrame_]);
 
   vkResetCommandBuffer(commandBuffers_[currentFrame_],
                        /*VkCommandBufferResetFlagBits*/ 0);
   record_command_buffer(commandBuffers_[currentFrame_], imageIndex);
 
-  // vkAcquireNextImageKHR(device_, swapChain_, UINT64_MAX,
+  // vkAcquireNextImageKHR(vulkanDevice_->device, swapChain_, UINT64_MAX,
   //                       imageAvailableSemaphores_[currentFrame_],
   //                       VK_NULL_HANDLE, &imageIndex);
 
@@ -870,7 +879,7 @@ void VulkanWindow::draw_frame() {
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
-  if (vkQueueSubmit(graphicsQueue_, 1, &submitInfo,
+  if (vkQueueSubmit(vulkanDevice_->graphicsQueue, 1, &submitInfo,
                     inFlightFences_[currentFrame_]) != VK_SUCCESS) {
     throw std::runtime_error("failed to submit draw command buffer!");
   }
@@ -887,7 +896,7 @@ void VulkanWindow::draw_frame() {
   presentInfo.pImageIndices = &imageIndex;
   presentInfo.pResults = nullptr; // Optional
 
-  result = vkQueuePresentKHR(presentQueue_, &presentInfo);
+  result = vkQueuePresentKHR(vulkanDevice_->presentQueue, &presentInfo);
 
   if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
       framebufferResized) {
@@ -913,12 +922,12 @@ void VulkanWindow::create_sync_objects() {
   fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    if (vkCreateSemaphore(device_, &semaphoreInfo, nullptr,
+    if (vkCreateSemaphore(vulkanDevice_->device, &semaphoreInfo, nullptr,
                           &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
-        vkCreateSemaphore(device_, &semaphoreInfo, nullptr,
+        vkCreateSemaphore(vulkanDevice_->device, &semaphoreInfo, nullptr,
                           &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
-        vkCreateFence(device_, &fenceInfo, nullptr, &inFlightFences_[i]) !=
-            VK_SUCCESS) {
+        vkCreateFence(vulkanDevice_->device, &fenceInfo, nullptr,
+                      &inFlightFences_[i]) != VK_SUCCESS) {
 
       throw std::runtime_error(
           "failed to create synchronization objects for a frame!");

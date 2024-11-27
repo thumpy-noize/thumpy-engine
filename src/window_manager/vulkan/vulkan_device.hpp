@@ -43,11 +43,11 @@ public:
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   VkDevice device;
 
+  VkQueue graphicsQueue;
+  VkQueue presentQueue;
+
 private:
   VkSurfaceKHR surface_;
-
-  VkQueue graphicsQueue_;
-  VkQueue presentQueue_;
 };
 
 } // namespace Device

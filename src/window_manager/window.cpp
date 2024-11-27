@@ -1,18 +1,9 @@
 
-#include <GL/gl.h>
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
-#include <cstdio>
-#include <iostream>
-#include <string>
-
+#include "window.hpp"
 #include "logger.hpp"
 #include "logger_helper.hpp"
-#include "window.hpp"
-
+#include "window_manager.hpp"
+#include <cstddef>
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -20,38 +11,44 @@ namespace Windows {
 Window::Window(std::string title) {
   title_ = title;
   init_window();
-  init_vulkan();
 }
 
 Window::~Window() { deconstruct_window(); }
 
 void Window::init_window() {
-  Logger::log("Creating window.", Logger::DEBUG);
+  Logger::log("Creating window...", Logger::INFO);
   glfwInit();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
   window_ = glfwCreateWindow(WIDTH, HEIGHT, title_.c_str(), nullptr, nullptr);
-}
 
-void Window::init_vulkan() {}
+  glfwSetWindowUserPointer(window_, this);
+  glfwSetFramebufferSizeCallback(window_, framebuffer_resize_callback);
+}
 
 void Window::deconstruct_window() {
   if (window_ == NULL) {
     return;
   }
-  Logger::log("Destroying window - " + title_ + "", Logger::DEBUG);
+  Logger::log("Destroying window - " + title_ + "", Logger::INFO);
   glfwDestroyWindow(window_);
 }
 
 void Window::loop() {
-  glfwMakeContextCurrent(window_);
-  // glClear(GL_COLOR_BUFFER_BIT);
-  glfwSwapBuffers(window_);
+  // glfwSwapBuffers(window_); ??? maybe
+
+  // glfwMakeContextCurrent(window_);
+  // // glClear(GL_COLOR_BUFFER_BIT);
 }
 
 bool Window::should_close() { return glfwWindowShouldClose(window_); };
+
+void Window::framebuffer_resize_callback(GLFWwindow *window, int width,
+                                         int height) {
+  auto app = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+  app->framebufferResized = true;
+}
 
 } // namespace Windows
 

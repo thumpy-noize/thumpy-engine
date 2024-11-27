@@ -72,6 +72,9 @@ private:
   const std::vector<Vertex> vertices_ = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                                          {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                                          {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+  VkBuffer vertexBuffer_;
+  VkDeviceMemory vertexBufferMemory_;
 };
 } // namespace Vulkan
 } // namespace Windows

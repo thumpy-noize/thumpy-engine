@@ -30,26 +30,6 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-// Create simple io script to hold this
-static std::vector<char> read_file(const std::string &filename) {
-  Logger::log("opening file: " + filename, Logger::INFO);
-  std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-  if (!file.is_open()) {
-    throw std::runtime_error("failed to open file: " + filename);
-  }
-
-  size_t fileSize = (size_t)file.tellg();
-  std::vector<char> buffer(fileSize);
-
-  file.seekg(0);
-  file.read(buffer.data(), fileSize);
-
-  file.close();
-
-  return buffer;
-}
-
 #pragma region Core
 
 VulkanWindow::VulkanWindow(std::string title) : Window(title) { init_vulkan(); }
@@ -76,7 +56,8 @@ void VulkanWindow::init_vulkan() {
   // Create command pool
   create_command_pool(vulkanDevice_, commandPool_);
 
-  create_command_buffer();
+  create_command_buffer(commandBuffers_, commandPool_, vulkanDevice_->device,
+                        MAX_FRAMES_IN_FLIGHT);
   create_sync_objects();
 }
 
@@ -167,57 +148,6 @@ void VulkanWindow::loop() {
 
 #pragma region Image
 
-void VulkanWindow::create_command_buffer() {
-  commandBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
-  VkCommandBufferAllocateInfo allocInfo =
-      Initializer::command_buffer_allocate_info(
-          commandPool_, (uint32_t)commandBuffers_.size());
-
-  if (vkAllocateCommandBuffers(vulkanDevice_->device, &allocInfo,
-                               commandBuffers_.data()) != VK_SUCCESS) {
-    throw std::runtime_error("failed to allocate command buffers!");
-  }
-}
-
-void VulkanWindow::record_command_buffer(VkCommandBuffer commandBuffer,
-                                         uint32_t imageIndex) {
-  VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
-
-  if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-    throw std::runtime_error("failed to begin recording command buffer!");
-  }
-
-  VkRenderPassBeginInfo renderPassInfo = Initializer::render_pass_info(
-      swapChain_->renderPass, swapChain_->swapChainFramebuffers[imageIndex],
-      swapChain_->extent);
-
-  VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}}; // background color
-  renderPassInfo.clearValueCount = 1;
-  renderPassInfo.pClearValues = &clearColor;
-
-  vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
-                       VK_SUBPASS_CONTENTS_INLINE);
-
-  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    pipeline_.graphicsPipeline);
-
-  VkViewport viewport =
-      Initializer::viewport(static_cast<float>(swapChain_->extent.height),
-                            static_cast<float>(swapChain_->extent.width));
-  vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-  VkRect2D scissor = Initializer::scissor(swapChain_->extent);
-  vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-  vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-
-  vkCmdEndRenderPass(commandBuffer);
-
-  if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-    throw std::runtime_error("failed to record command buffer!");
-  }
-}
-
 void VulkanWindow::draw_frame() {
   vkWaitForFences(vulkanDevice_->device, 1, &inFlightFences_[currentFrame_],
                   VK_TRUE, UINT64_MAX);
@@ -238,7 +168,8 @@ void VulkanWindow::draw_frame() {
 
   vkResetCommandBuffer(commandBuffers_[currentFrame_],
                        /*VkCommandBufferResetFlagBits*/ 0);
-  record_command_buffer(commandBuffers_[currentFrame_], imageIndex);
+  record_command_buffer(commandBuffers_[currentFrame_], imageIndex, swapChain_,
+                        pipeline_);
 
   // vkAcquireNextImageKHR(vulkanDevice_->device, swapChain_, UINT64_MAX,
   //                       imageAvailableSemaphores_[currentFrame_],

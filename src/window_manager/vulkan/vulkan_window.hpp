@@ -41,11 +41,6 @@ public:
 
 #pragma region Image
 
-  void create_framebuffers_dep();
-  void create_command_pool_dep();
-  void create_command_buffer();
-  void record_command_buffer(VkCommandBuffer commandBuffer,
-                             uint32_t imageIndex);
   void draw_frame();
 
   void create_sync_objects();

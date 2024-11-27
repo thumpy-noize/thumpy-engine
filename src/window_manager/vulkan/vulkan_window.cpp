@@ -945,18 +945,6 @@ std::vector<const char *> VulkanWindow::get_required_extensions() {
   return extensions;
 }
 
-// static VKAPI_ATTR VkBool32 VKAPI_CALL
-// debug_callback_dep(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-//                    VkDebugUtilsMessageTypeFlagsEXT messageType,
-//                    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-//                    void *pUserData) {
-//   std::string message = "validation layer: ";
-//   message.append(pCallbackData->pMessage);
-//   Logger::log(message, Logger::ERROR);
-
-//   return VK_FALSE;
-// }
-
 bool VulkanWindow::check_validation_layer_support() {
   uint32_t layerCount;
   vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -981,21 +969,6 @@ bool VulkanWindow::check_validation_layer_support() {
 
   return true;
 }
-
-// void VulkanWindow::populate_debug_messenger_create_info(
-//     VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
-//   createInfo = {};
-//   createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-//   createInfo.messageSeverity =
-//   VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-//                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-//                                |
-//                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-//   createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-//                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-//                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-//   createInfo.pfnUserCallback = debug_callback_dep;
-// }
 
 } // namespace Vulkan
 } // namespace Windows

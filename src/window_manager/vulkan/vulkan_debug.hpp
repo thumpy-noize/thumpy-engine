@@ -17,7 +17,7 @@ debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                void *pUserData) {
   std::string message = "validation layer: ";
   message.append(pCallbackData->pMessage);
-  Logger::log(message, Logger::INFO);
+  Logger::log(message, Logger::DEBUG);
 
   return VK_FALSE;
 }

@@ -3,13 +3,20 @@ add_library(window_manager "")
 
 target_sources(window_manager
   PUBLIC
+
+  # base
   ${CMAKE_CURRENT_LIST_DIR}/window_manager.hpp
   ${CMAKE_CURRENT_LIST_DIR}/window_manager.cpp
   ${CMAKE_CURRENT_LIST_DIR}/window.hpp
   ${CMAKE_CURRENT_LIST_DIR}/window.cpp
 
+  # vulkan
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_window.hpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_window.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_debug.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_debug.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/swap_chain.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/swap_chain.cpp
 )
 
 target_include_directories(window_manager

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "swap_chain.hpp"
+#include "vulkan/vulkan_debug.hpp"
 #include "window.hpp"
 #include <optional>
 #include <vector>
@@ -16,20 +18,20 @@ const std::vector<const char *> validationLayers = {
 const std::vector<const char *> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-struct QueueFamilyIndices {
-  std::optional<uint32_t> graphicsFamily;
-  std::optional<uint32_t> presentFamily;
+// struct QueueFamilyIndices {
+//   std::optional<uint32_t> graphicsFamily;
+//   std::optional<uint32_t> presentFamily;
 
-  bool is_complete() {
-    return graphicsFamily.has_value() && presentFamily.has_value();
-  }
-};
+//   bool is_complete() {
+//     return graphicsFamily.has_value() && presentFamily.has_value();
+//   }
+// };
 
-struct SwapChainSupportDetails {
-  VkSurfaceCapabilitiesKHR capabilities;
-  std::vector<VkSurfaceFormatKHR> formats;
-  std::vector<VkPresentModeKHR> presentModes;
-};
+// struct SwapChainSupportDetails {
+//   VkSurfaceCapabilitiesKHR capabilities;
+//   std::vector<VkSurfaceFormatKHR> formats;
+//   std::vector<VkPresentModeKHR> presentModes;
+// };
 
 class VulkanWindow : public Window {
 public:
@@ -101,6 +103,8 @@ public:
 private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
+  SwapChain *newSwapChain_;
+
   VkInstance instance_;
   VkSurfaceKHR surface_;
 
@@ -133,7 +137,7 @@ private:
   VkQueue graphicsQueue_;
   VkQueue presentQueue_;
 
-  VkDebugUtilsMessengerEXT debugMessenger_;
+  VkDebugUtilsMessengerEXT debugMessenger_dep_;
 };
 } // namespace Vulkan
 } // namespace Windows

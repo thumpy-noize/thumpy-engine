@@ -58,8 +58,7 @@ void VulkanWindow::init_vulkan() {
 
   // Create vertex buffer
   Buffer::VertexBuffer vertexBuffer = Buffer::VertexBuffer();
-  vertexBuffer.create_vertex_buffer(vertices_, vulkanDevice_, vertexBuffer_,
-                                    vertexBufferMemory_);
+  vertexBuffer.create_vertex_buffer(vertices_, vulkanDevice_);
 
   // Create command buffer
   create_command_buffer(commandBuffers_, commandPool_, vulkanDevice_->device,
@@ -78,6 +77,8 @@ void VulkanWindow::deconstruct_window() {
   destroy_graphics_pipeline(vulkanDevice_->device, pipeline_);
   // vkDestroyPipeline(vulkanDevice_->device, graphicsPipeline_, nullptr);
   // vkDestroyPipelineLayout(vulkanDevice_->device, pipelineLayout_, nullptr);
+
+  vkDestroyBuffer(vulkanDevice_->device, vertexBuffer_.vertexBuffer, nullptr);
 
   vkDestroyRenderPass(vulkanDevice_->device, swapChain_->renderPass, nullptr);
 

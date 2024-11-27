@@ -42,9 +42,7 @@ void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device) {
 #pragma region Vertex buffer
 
 void VertexBuffer::create_vertex_buffer(std::vector<Vertex> vertices,
-                                        VulkanDevice *vulkanDevice,
-                                        VkBuffer vertexBuffer,
-                                        VkDeviceMemory vertexBufferMemory) {
+                                        VulkanDevice *vulkanDevice) {
   VkBufferCreateInfo bufferInfo{};
   bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
   bufferInfo.size = sizeof(vertices[0]) * vertices.size();

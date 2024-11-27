@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vulkan/vulkan_swap_chain.hpp"
 #include "vulkan_helper.hpp"
 #include <vector>
 #include <vulkan/vulkan_core.h>

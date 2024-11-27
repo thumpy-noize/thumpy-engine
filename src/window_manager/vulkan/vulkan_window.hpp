@@ -13,21 +13,6 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-// struct QueueFamilyIndices {
-//   std::optional<uint32_t> graphicsFamily;
-//   std::optional<uint32_t> presentFamily;
-
-//   bool is_complete() {
-//     return graphicsFamily.has_value() && presentFamily.has_value();
-//   }
-// };
-
-// struct SwapChainSupportDetails {
-//   VkSurfaceCapabilitiesKHR capabilities;
-//   std::vector<VkSurfaceFormatKHR> formats;
-//   std::vector<VkPresentModeKHR> presentModes;
-// };
-
 class VulkanWindow : public Window {
 public:
   VulkanWindow(std::string title);
@@ -45,25 +30,8 @@ public:
   void setup_debug_messenger();
   void create_surface();
 
-#pragma region Swapchain
-
-  void create_swap_chain();
-  void recreate_swap_chain();
-  void clear_swap_chain();
-
-  VkSurfaceFormatKHR choose_swap_surface_format(
-      const std::vector<VkSurfaceFormatKHR> &availableFormats);
-  VkPresentModeKHR choose_swap_present_mode(
-      const std::vector<VkPresentModeKHR> &availablePresentModes);
-  VkExtent2D choose_swap_extent(const VkSurfaceCapabilitiesKHR &capabilities);
-  /// Finds swapchain details
-  SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice device);
-
-#pragma endregion Swapchain
-
 #pragma region Image
 
-  void create_image_views();
   void create_graphics_pipeline();
   VkShaderModule create_shader_module(const std::vector<char> &code);
   void create_render_pass();
@@ -87,20 +55,12 @@ public:
 private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  SwapChain *newSwapChain_;
   Device::VulkanDevice *vulkanDevice_;
+  VulkanSwapChain *swapChain_;
 
   VkInstance instance_;
   VkSurfaceKHR surface_;
 
-  VkSwapchainKHR swapChain_;
-  std::vector<VkImage> swapChainImages_;
-  VkFormat swapChainImageFormat_;
-  VkExtent2D swapChainExtent_;
-  std::vector<VkImageView> swapChainImageViews_;
-  std::vector<VkFramebuffer> swapChainFramebuffers_;
-
-  VkRenderPass renderPass_;
   VkPipelineLayout pipelineLayout_;
   VkPipeline graphicsPipeline_;
 

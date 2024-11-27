@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -25,6 +26,12 @@ struct QueueFamilyIndices {
   bool is_complete() {
     return graphicsFamily.has_value() && presentFamily.has_value();
   }
+};
+
+struct SwapChainSupportDetails {
+  VkSurfaceCapabilitiesKHR capabilities;
+  std::vector<VkSurfaceFormatKHR> formats;
+  std::vector<VkPresentModeKHR> presentModes;
 };
 } // namespace Vulkan
 } // namespace Windows

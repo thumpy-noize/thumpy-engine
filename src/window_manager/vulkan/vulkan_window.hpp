@@ -8,6 +8,7 @@
 namespace Thumpy {
 namespace Core {
 namespace Windows {
+namespace Vulkan {
 
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
@@ -134,6 +135,7 @@ private:
 
   VkDebugUtilsMessengerEXT debugMessenger_;
 };
+} // namespace Vulkan
 } // namespace Windows
 } // namespace Core
 } // namespace Thumpy

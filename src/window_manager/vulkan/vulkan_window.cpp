@@ -20,6 +20,7 @@ const bool enableValidationLayers = true;
 namespace Thumpy {
 namespace Core {
 namespace Windows {
+namespace Vulkan {
 
 VkResult create_debug_utils_messenger_ext(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
@@ -1026,6 +1027,7 @@ void VulkanWindow::populate_debug_messenger_create_info(
   createInfo.pfnUserCallback = debug_callback;
 }
 
+} // namespace Vulkan
 } // namespace Windows
 } // namespace Core
 } // namespace Thumpy

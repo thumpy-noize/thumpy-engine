@@ -23,7 +23,7 @@ void WindowManager::create_new_window(RenderAPI api, std::string title) {
   Window *window;
   switch (api) {
   case VULKAN: {
-    window = new VulkanWindow(title);
+    window = new Vulkan::VulkanWindow(title);
     windows_.push_back(window);
     break;
   }

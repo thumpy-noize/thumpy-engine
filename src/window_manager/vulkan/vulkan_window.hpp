@@ -45,17 +45,6 @@ public:
   void setup_debug_messenger();
   void create_surface();
 
-#pragma region Devices
-
-  void pick_physical_device();
-  void create_logical_device();
-  /// Checks if device is usable
-  bool is_device_suitable(VkPhysicalDevice device);
-  bool check_device_extension_support(VkPhysicalDevice device);
-  QueueFamilyIndices find_queue_families(VkPhysicalDevice device);
-
-#pragma endregion Devices
-
 #pragma region Swapchain
 
   void create_swap_chain();

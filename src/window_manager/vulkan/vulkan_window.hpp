@@ -1,6 +1,16 @@
+/**
+ * @file vulkan_window.hpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Vulkan support for our glfw window.
+ * @version 0.1
+ * @date 2024-11-27
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #pragma once
 
-#include "vulkan/vulkan_debug.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
 #include "window.hpp"
@@ -20,15 +30,14 @@ public:
 #pragma region Core
 
   void init_vulkan();
-  void create_instance();
   void deconstruct_window();
+
+  void create_instance();
+  void create_surface();
 
   void loop();
 
 #pragma endregion Core
-
-  void setup_debug_messenger();
-  void create_surface();
 
 #pragma region Image
 

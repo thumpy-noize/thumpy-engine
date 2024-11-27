@@ -1,10 +1,18 @@
+/**
+ * @file vulkan_window.cpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief vulkan_window cpp file.
+ * @version 0.1
+ * @date 2024-11-27
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #define GLFW_INCLUDE_VULKAN
 
 #include "vulkan_window.hpp"
 #include "logger.hpp"
-#include "logger_helper.hpp"
 #include "vulkan/vulkan_debug.hpp"
-#include "vulkan/vulkan_device.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include <algorithm> // Necessary for std::clamp
@@ -65,6 +73,39 @@ void VulkanWindow::init_vulkan() {
   create_sync_objects();
 }
 
+void VulkanWindow::deconstruct_window() {
+  Logger::log("Destroying vulkan...");
+
+  swapChain_->clear_swap_chain();
+
+  vkDestroyPipeline(vulkanDevice_->device, graphicsPipeline_, nullptr);
+  vkDestroyPipelineLayout(vulkanDevice_->device, pipelineLayout_, nullptr);
+
+  vkDestroyRenderPass(vulkanDevice_->device, swapChain_->renderPass, nullptr);
+
+  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    vkDestroySemaphore(vulkanDevice_->device, renderFinishedSemaphores_[i],
+                       nullptr);
+    vkDestroySemaphore(vulkanDevice_->device, imageAvailableSemaphores_[i],
+                       nullptr);
+    vkDestroyFence(vulkanDevice_->device, inFlightFences_[i], nullptr);
+  }
+
+  vkDestroyCommandPool(vulkanDevice_->device, commandPool_, nullptr);
+
+  vkDestroyDevice(vulkanDevice_->device, nullptr);
+
+  if (enableValidationLayers) {
+    Debug::destroy_debug_utils_messenger_ext(instance_, &debugMessenger_,
+                                             nullptr);
+  }
+
+  vkDestroySurfaceKHR(instance_, surface_, nullptr);
+  vkDestroyInstance(instance_, nullptr);
+
+  Window::deconstruct_window();
+}
+
 void VulkanWindow::create_instance() {
 
   if (enableValidationLayers && !check_validation_layer_support()) {
@@ -100,37 +141,11 @@ void VulkanWindow::create_instance() {
   }
 }
 
-void VulkanWindow::deconstruct_window() {
-  Logger::log("Destroying vulkan...");
-
-  swapChain_->clear_swap_chain();
-
-  vkDestroyPipeline(vulkanDevice_->device, graphicsPipeline_, nullptr);
-  vkDestroyPipelineLayout(vulkanDevice_->device, pipelineLayout_, nullptr);
-
-  vkDestroyRenderPass(vulkanDevice_->device, swapChain_->renderPass, nullptr);
-
-  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    vkDestroySemaphore(vulkanDevice_->device, renderFinishedSemaphores_[i],
-                       nullptr);
-    vkDestroySemaphore(vulkanDevice_->device, imageAvailableSemaphores_[i],
-                       nullptr);
-    vkDestroyFence(vulkanDevice_->device, inFlightFences_[i], nullptr);
+void VulkanWindow::create_surface() {
+  if (glfwCreateWindowSurface(instance_, window_, nullptr, &surface_) !=
+      VK_SUCCESS) {
+    throw std::runtime_error("failed to create window surface!");
   }
-
-  vkDestroyCommandPool(vulkanDevice_->device, commandPool_, nullptr);
-
-  vkDestroyDevice(vulkanDevice_->device, nullptr);
-
-  if (enableValidationLayers) {
-    Debug::destroy_debug_utils_messenger_ext(instance_, &debugMessenger_,
-                                             nullptr);
-  }
-
-  vkDestroySurfaceKHR(instance_, surface_, nullptr);
-  vkDestroyInstance(instance_, nullptr);
-
-  Window::deconstruct_window();
 }
 
 void VulkanWindow::loop() {
@@ -141,13 +156,6 @@ void VulkanWindow::loop() {
 }
 
 #pragma endregion Core
-
-void VulkanWindow::create_surface() {
-  if (glfwCreateWindowSurface(instance_, window_, nullptr, &surface_) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to create window surface!");
-  }
-}
 
 #pragma region Image
 
@@ -369,11 +377,9 @@ void VulkanWindow::create_command_pool() {
 
 void VulkanWindow::create_command_buffer() {
   commandBuffers_.resize(MAX_FRAMES_IN_FLIGHT);
-  VkCommandBufferAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  allocInfo.commandPool = commandPool_;
-  allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  allocInfo.commandBufferCount = (uint32_t)commandBuffers_.size();
+  VkCommandBufferAllocateInfo allocInfo =
+      Initializer::command_buffer_allocate_info(
+          commandPool_, (uint32_t)commandBuffers_.size());
 
   if (vkAllocateCommandBuffers(vulkanDevice_->device, &allocInfo,
                                commandBuffers_.data()) != VK_SUCCESS) {

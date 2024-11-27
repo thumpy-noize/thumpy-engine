@@ -29,6 +29,15 @@ inline VkApplicationInfo application_info() {
   return appInfo;
 }
 
+inline VkCommandBufferAllocateInfo
+command_buffer_allocate_info(VkCommandPool commandPool, uint32_t bufferCount) {
+  VkCommandBufferAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  allocInfo.commandPool = commandPool;
+  allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  allocInfo.commandBufferCount = bufferCount;
+  return allocInfo;
+}
 } // namespace Initializer
 } // namespace Vulkan
 } // namespace Windows

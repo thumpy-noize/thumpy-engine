@@ -1,3 +1,14 @@
+/**
+ * @file vulkan_debug.hpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Contains methods for Vulkan debug messenger.
+ * @version 0.1
+ * @date 2024-11-27
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #pragma once
 
 #include "logger.hpp"

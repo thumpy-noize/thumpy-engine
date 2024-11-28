@@ -79,7 +79,11 @@ struct Vertex {
 };
 
 bool check_validation_layer_support();
+
 std::vector<const char *> get_required_extensions();
+
+uint32_t find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeFilter,
+                          VkMemoryPropertyFlags properties);
 
 } // namespace Vulkan
 } // namespace Windows

@@ -169,8 +169,9 @@ void VulkanWindow::create_vertex_buffer() {
   allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   allocInfo.allocationSize = memRequirements.size;
   allocInfo.memoryTypeIndex = find_memory_type(
-      memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+      vulkanDevice_->physicalDevice, memRequirements.memoryTypeBits,
+      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
   if (vkAllocateMemory(vulkanDevice_->device, &allocInfo, nullptr,
                        &vertexBufferMemory_) != VK_SUCCESS) {
@@ -187,21 +188,22 @@ void VulkanWindow::create_vertex_buffer() {
   vkUnmapMemory(vulkanDevice_->device, vertexBufferMemory_);
 }
 
-uint32_t VulkanWindow::find_memory_type(uint32_t typeFilter,
-                                        VkMemoryPropertyFlags properties) {
-  VkPhysicalDeviceMemoryProperties memProperties;
-  vkGetPhysicalDeviceMemoryProperties(vulkanDevice_->physicalDevice,
-                                      &memProperties);
+// uint32_t VulkanWindow::find_memory_type(uint32_t typeFilter,
+//                                         VkMemoryPropertyFlags properties) {
+//   VkPhysicalDeviceMemoryProperties memProperties;
+//   vkGetPhysicalDeviceMemoryProperties(vulkanDevice_->physicalDevice,
+//                                       &memProperties);
 
-  for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-    if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags &
-                                    properties) == properties) {
-      return i;
-    }
-  }
+//   for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+//     if ((typeFilter & (1 << i)) &&
+//     (memProperties.memoryTypes[i].propertyFlags &
+//                                     properties) == properties) {
+//       return i;
+//     }
+//   }
 
-  throw std::runtime_error("failed to find suitable memory type!");
-}
+//   throw std::runtime_error("failed to find suitable memory type!");
+// }
 
 #pragma endregion Core
 

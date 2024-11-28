@@ -53,8 +53,8 @@ public:
 
   void create_vertex_buffer();
 
-  uint32_t find_memory_type(uint32_t typeFilter,
-                            VkMemoryPropertyFlags properties);
+  // uint32_t find_memory_type(uint32_t typeFilter,
+  //                           VkMemoryPropertyFlags properties);
 
 #pragma endregion Core
 

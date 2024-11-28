@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "logger.hpp"
 #include "vulkan_helper.hpp"
 #include <cstdint>
 #include <vector>
@@ -64,7 +65,7 @@ inline VkPipelineVertexInputStateCreateInfo vertex_input_info() {
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
+  Logger::log("vertex_input_info is deprecated", Logger::WARNING);
   return vertexInputInfo;
 }
 

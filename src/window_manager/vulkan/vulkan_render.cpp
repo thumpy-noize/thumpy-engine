@@ -15,6 +15,7 @@
 #include "vulkan/vulkan_initializers.hpp"
 #include "vulkan/vulkan_pipeline.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
+#include <cstdint>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 namespace Thumpy {
@@ -76,7 +77,7 @@ void VulkanRender::create_sync_objects() {
   }
 }
 
-void VulkanRender::draw_frame() {
+void VulkanRender::draw_frame(VkBuffer vertexBuffer, uint32_t vertexCount) {
 
   vkWaitForFences(vulkanDevice_->device, 1, &inFlightFences_[currentFrame_],
                   VK_TRUE, UINT64_MAX);
@@ -97,7 +98,8 @@ void VulkanRender::draw_frame() {
 
   vkResetCommandBuffer(commandBuffers_[currentFrame_],
                        /*VkCommandBufferResetFlagBits*/ 0);
-  record_command_buffer(commandBuffers_[currentFrame_], imageIndex, swapChain_);
+  record_command_buffer(commandBuffers_[currentFrame_], imageIndex, swapChain_,
+                        vertexBuffer, vertexCount);
 
   // vkAcquireNextImageKHR(vulkanDevice_->device, swapChain_->swapChain,
   //                       UINT64_MAX, imageAvailableSemaphores_[currentFrame_],
@@ -151,7 +153,9 @@ void VulkanRender::draw_frame() {
 
 void VulkanRender::record_command_buffer(VkCommandBuffer commandBuffer,
                                          uint32_t imageIndex,
-                                         VulkanSwapChain *swapChain) {
+                                         VulkanSwapChain *swapChain,
+                                         VkBuffer vertexBuffer,
+                                         uint32_t vertexCount) {
   VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
 
   if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
@@ -172,6 +176,12 @@ void VulkanRender::record_command_buffer(VkCommandBuffer commandBuffer,
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                     pipeline_.graphicsPipeline);
 
+  VkBuffer vertexBuffers[] = {vertexBuffer};
+  VkDeviceSize offsets[] = {0};
+  vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+  vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
   VkViewport viewport =
       Initializer::viewport(static_cast<float>(swapChain->extent.height),
                             static_cast<float>(swapChain->extent.width));
@@ -180,7 +190,7 @@ void VulkanRender::record_command_buffer(VkCommandBuffer commandBuffer,
   VkRect2D scissor = Initializer::scissor(swapChain->extent);
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-  vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+  vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 
   vkCmdEndRenderPass(commandBuffer);
 

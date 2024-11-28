@@ -51,6 +51,11 @@ public:
   void create_instance();
   void create_surface();
 
+  void create_vertex_buffer();
+
+  uint32_t find_memory_type(uint32_t typeFilter,
+                            VkMemoryPropertyFlags properties);
+
 #pragma endregion Core
 
 private:
@@ -69,10 +74,32 @@ private:
   std::vector<VkCommandBuffer> commandBuffers_;
   VkDebugUtilsMessengerEXT debugMessenger_;
 
+<<<<<<< HEAD
   // const std::vector<Vertex> vertices_ = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
   //                                        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
   //                                        {{-0.5f, 0.5f}, {0.0f,
   //                                        0.0f, 1.0f}}};
+=======
+  const std::vector<Vertex> vertices_ = {
+      {{0.0f, -1.0f}, {1.0f, 0.0f, 1.0f}}, {{1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
+      {{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, {{0.0f, -0.9f}, {1.0f, 0.0f, 1.0f}},
+      {{0.9f, 0.9f}, {0.0f, 1.0f, 0.0f}},  {{-0.9f, 0.9f}, {0.0f, 0.0f, 1.0f}},
+      {{0.0f, -0.8f}, {1.0f, 0.0f, 1.0f}}, {{0.8f, 0.8f}, {0.0f, 1.0f, 0.0f}},
+      {{-0.8f, 0.8f}, {0.0f, 0.0f, 1.0f}}, {{0.0f, -0.7f}, {1.0f, 0.0f, 1.0f}},
+      {{0.7f, 0.7f}, {0.0f, 1.0f, 0.0f}},  {{-0.7f, 0.7f}, {0.0f, 0.0f, 1.0f}},
+      {{0.0f, -0.6f}, {1.0f, 0.0f, 1.0f}}, {{0.6f, 0.6f}, {0.0f, 1.0f, 0.0f}},
+      {{-0.6f, 0.6f}, {0.0f, 0.0f, 1.0f}}, {{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
+      {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},  {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+      {{0.0f, -0.4f}, {1.0f, 0.0f, 1.0f}}, {{0.4f, 0.4f}, {0.0f, 1.0f, 0.0f}},
+      {{-0.4f, 0.4f}, {0.0f, 0.0f, 1.0f}}, {{0.0f, -0.3f}, {1.0f, 0.0f, 1.0f}},
+      {{0.3f, 0.3f}, {0.0f, 1.0f, 0.0f}},  {{-0.3f, 0.3f}, {0.0f, 0.0f, 1.0f}},
+      {{0.0f, -0.2f}, {1.0f, 0.0f, 1.0f}}, {{0.2f, 0.2f}, {0.0f, 1.0f, 0.0f}},
+      {{-0.2f, 0.2f}, {0.0f, 0.0f, 1.0f}}, {{0.0f, -0.1f}, {1.0f, 0.0f, 1.0f}},
+      {{0.1f, 0.1f}, {0.0f, 1.0f, 0.0f}},  {{-0.1f, 0.1f}, {0.0f, 0.0f, 1.0f}}};
+
+  VkBuffer vertexBuffer_;
+  VkDeviceMemory vertexBufferMemory_;
+>>>>>>> 0cd495308e (Fake Recurisve triange)
 };
 } // namespace Vulkan
 } // namespace Windows

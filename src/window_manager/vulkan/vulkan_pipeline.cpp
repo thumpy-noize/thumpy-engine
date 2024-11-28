@@ -57,9 +57,6 @@ VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
   //   VkPipelineVertexInputStateCreateInfo vertexInputInfo =
   //       Initializer::vertex_input_info();
 
-  //   auto bindingDescription = Vertex::get_binding_description();
-  //   auto attributeDescriptions = Vertex::get_attribute_descriptions();
-
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -72,8 +69,6 @@ VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
       static_cast<uint32_t>(attributeDescriptions.size());
   vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
   vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-
-  Initializer::vertex_input_info();
 
   // ### input assembly ###
   VkPipelineInputAssemblyStateCreateInfo inputAssembly =

@@ -34,8 +34,10 @@ static std::vector<char> read_file(const std::string &filename) {
 
 VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
                                         VkDevice vulkanDevice) {
-  auto vertShaderCode = read_file("src/shaders/compiled/vert.spv");
-  auto fragShaderCode = read_file("src/shaders/compiled/frag.spv");
+  auto vertShaderCode =
+      read_file("/home/kali/Projects/engine/src/shaders/compiled/vert.spv");
+  auto fragShaderCode =
+      read_file("/home/kali/Projects/engine/src/shaders/compiled/frag.spv");
 
   VkShaderModule vertShaderModule =
       create_shader_module(vertShaderCode, vulkanDevice);
@@ -52,8 +54,21 @@ VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
                                                     fragShaderStageInfo};
 
   // ### vertex input ###
-  VkPipelineVertexInputStateCreateInfo vertexInputInfo =
-      Initializer::vertex_input_info();
+  //   VkPipelineVertexInputStateCreateInfo vertexInputInfo =
+  //       Initializer::vertex_input_info();
+
+  VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+  vertexInputInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+  auto bindingDescription = Vertex::get_binding_description();
+  auto attributeDescriptions = Vertex::get_attribute_descriptions();
+
+  vertexInputInfo.vertexBindingDescriptionCount = 1;
+  vertexInputInfo.vertexAttributeDescriptionCount =
+      static_cast<uint32_t>(attributeDescriptions.size());
+  vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+  vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
   // ### input assembly ###
   VkPipelineInputAssemblyStateCreateInfo inputAssembly =

@@ -16,7 +16,7 @@ target_sources(window_manager
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_device.hpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_swap_chain.hpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_pipeline.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_framebuffers.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_buffers.hpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_command.hpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_render.hpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_helper.hpp
@@ -27,7 +27,7 @@ target_sources(window_manager
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_device.cpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_swap_chain.cpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_pipeline.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_framebuffers.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_buffers.cpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_command.cpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_render.cpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_helper.cpp

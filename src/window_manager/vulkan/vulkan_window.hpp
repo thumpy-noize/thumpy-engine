@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_pipeline.hpp"
 #include "vulkan/vulkan_render.hpp"
@@ -74,7 +73,8 @@ private:
                                          {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                                          {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-  Buffer::VertexBuffer vertexBuffer_;
+  VkBuffer vertexBuffer_;
+  VkDeviceMemory vertexBufferMemory_;
 };
 } // namespace Vulkan
 } // namespace Windows

@@ -20,6 +20,10 @@ namespace Buffer {
 
 void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device);
 
+void create_vertex_buffer(std::vector<Vertex> vertices,
+                          VulkanDevice *vulkanDevice, VkBuffer &vertexBuffer,
+                          VkDeviceMemory &vertexBufferMemory);
+
 } // namespace Buffer
 } // namespace Vulkan
 } // namespace Windows

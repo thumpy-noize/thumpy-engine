@@ -56,7 +56,8 @@ void VulkanWindow::init_vulkan() {
 
   // Create vertex buffer
   // vertexBuffer_ = VkBuffer();
-  create_vertex_buffer();
+  Buffer::create_vertex_buffer(vertices_, vulkanDevice_, vertexBuffer_,
+                               vertexBufferMemory_);
 
   // Create command buffer
 
@@ -147,63 +148,6 @@ void VulkanWindow::create_surface() {
     throw std::runtime_error("failed to create window surface!");
   }
 }
-
-void VulkanWindow::create_vertex_buffer() {
-
-  VkBufferCreateInfo bufferInfo{};
-  bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-  bufferInfo.size = sizeof(vertices_[0]) * vertices_.size();
-  bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-  bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-  if (vkCreateBuffer(vulkanDevice_->device, &bufferInfo, nullptr,
-                     &vertexBuffer_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create vertex buffer!");
-  }
-
-  VkMemoryRequirements memRequirements;
-  vkGetBufferMemoryRequirements(vulkanDevice_->device, vertexBuffer_,
-                                &memRequirements);
-
-  VkMemoryAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-  allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex = find_memory_type(
-      vulkanDevice_->physicalDevice, memRequirements.memoryTypeBits,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-  if (vkAllocateMemory(vulkanDevice_->device, &allocInfo, nullptr,
-                       &vertexBufferMemory_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to allocate vertex buffer memory!");
-  }
-
-  vkBindBufferMemory(vulkanDevice_->device, vertexBuffer_, vertexBufferMemory_,
-                     0);
-
-  void *data;
-  vkMapMemory(vulkanDevice_->device, vertexBufferMemory_, 0, bufferInfo.size, 0,
-              &data);
-  memcpy(data, vertices_.data(), (size_t)bufferInfo.size);
-  vkUnmapMemory(vulkanDevice_->device, vertexBufferMemory_);
-}
-
-// uint32_t VulkanWindow::find_memory_type(uint32_t typeFilter,
-//                                         VkMemoryPropertyFlags properties) {
-//   VkPhysicalDeviceMemoryProperties memProperties;
-//   vkGetPhysicalDeviceMemoryProperties(vulkanDevice_->physicalDevice,
-//                                       &memProperties);
-
-//   for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-//     if ((typeFilter & (1 << i)) &&
-//     (memProperties.memoryTypes[i].propertyFlags &
-//                                     properties) == properties) {
-//       return i;
-//     }
-//   }
-
-//   throw std::runtime_error("failed to find suitable memory type!");
-// }
 
 #pragma endregion Core
 

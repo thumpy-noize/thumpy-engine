@@ -39,12 +39,9 @@ void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device) {
   }
 }
 
-#pragma region Vertex buffer
-
-void VertexBuffer::create_vertex_buffer(std::vector<Vertex> vertices,
-                                        VulkanDevice *vulkanDevice,
-                                        VkBuffer vertexBuffer,
-                                        VkDeviceMemory vertexBufferMemory) {
+void create_vertex_buffer(std::vector<Vertex> vertices,
+                          VulkanDevice *vulkanDevice, VkBuffer vertexBuffer,
+                          VkDeviceMemory vertexBufferMemory) {
   VkBufferCreateInfo bufferInfo{};
   bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
   bufferInfo.size = sizeof(vertices[0]) * vertices.size();
@@ -83,9 +80,8 @@ void VertexBuffer::create_vertex_buffer(std::vector<Vertex> vertices,
   vkUnmapMemory(vulkanDevice->device, vertexBufferMemory);
 }
 
-uint32_t VertexBuffer::find_memory_type(uint32_t typeFilter,
-                                        VkMemoryPropertyFlags properties,
-                                        VkPhysicalDevice physicalDevice) {
+uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties,
+                          VkPhysicalDevice physicalDevice) {
   VkPhysicalDeviceMemoryProperties memProperties;
   vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
@@ -98,8 +94,6 @@ uint32_t VertexBuffer::find_memory_type(uint32_t typeFilter,
 
   throw std::runtime_error("failed to find suitable memory type!");
 }
-
-#pragma endregion Vertex buffer
 
 } // namespace Buffer
 } // namespace Vulkan

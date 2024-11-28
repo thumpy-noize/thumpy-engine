@@ -55,7 +55,7 @@ void VulkanWindow::init_vulkan() {
   create_command_pool(vulkanDevice_, commandPool_);
 
   // Create vertex buffer
-  vertexBuffer_ = VkBuffer();
+  // vertexBuffer_ = VkBuffer();
   create_vertex_buffer();
 
   // Create command buffer

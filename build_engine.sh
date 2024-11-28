@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# init submodules
+git submodule init
+git submodule update
+
 # Remove Build
 [[ -d build ]] && rm -rf build
 

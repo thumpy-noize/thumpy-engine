@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "vulkan_helper.hpp"
 #include <cstdint>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -54,12 +55,16 @@ frag_shader_stage_info(VkShaderModule fragShaderModule) {
   return fragShaderStageInfo;
 }
 
+/**
+ * @brief deprecated
+ *
+ * @return VkPipelineVertexInputStateCreateInfo
+ */
 inline VkPipelineVertexInputStateCreateInfo vertex_input_info() {
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertexInputInfo.vertexBindingDescriptionCount = 0;
-  vertexInputInfo.vertexAttributeDescriptionCount = 0;
+
   return vertexInputInfo;
 }
 

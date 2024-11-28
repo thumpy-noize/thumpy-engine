@@ -189,7 +189,7 @@ void VulkanRender::record_command_buffer(VkCommandBuffer commandBuffer,
   // VkRect2D scissor{};
   // scissor.offset = {0, 0};
   // scissor.extent = swapChain->extent;
-  // vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+  vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
   vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 

@@ -74,12 +74,10 @@ private:
   std::vector<VkCommandBuffer> commandBuffers_;
   VkDebugUtilsMessengerEXT debugMessenger_;
 
-<<<<<<< HEAD
   // const std::vector<Vertex> vertices_ = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
   //                                        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
   //                                        {{-0.5f, 0.5f}, {0.0f,
   //                                        0.0f, 1.0f}}};
-=======
   const std::vector<Vertex> vertices_ = {
       {{0.0f, -1.0f}, {1.0f, 0.0f, 1.0f}}, {{1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
       {{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, {{0.0f, -0.9f}, {1.0f, 0.0f, 1.0f}},
@@ -99,7 +97,6 @@ private:
 
   VkBuffer vertexBuffer_;
   VkDeviceMemory vertexBufferMemory_;
->>>>>>> 0cd495308e (Fake Recurisve triange)
 };
 } // namespace Vulkan
 } // namespace Windows

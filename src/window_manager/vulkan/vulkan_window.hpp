@@ -51,11 +51,6 @@ public:
   void create_instance();
   void create_surface();
 
-  void create_vertex_buffer();
-
-  uint32_t find_memory_type(uint32_t typeFilter,
-                            VkMemoryPropertyFlags properties);
-
 #pragma endregion Core
 
 private:

@@ -9,17 +9,15 @@
  *
  */
 
-#include "vulkan/vulkan_device.hpp"
 #define GLFW_INCLUDE_VULKAN
+#include "vulkan_window.hpp"
 #include "logger.hpp"
-#include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan_buffers.hpp"
 #include "vulkan_command.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
-#include "vulkan_window.hpp"
 #include <cstdint> // Necessary for uint32_t
 #include <cstring>
 #include <stdexcept>
@@ -53,14 +51,9 @@ void VulkanWindow::init_vulkan() {
   // Create frame buffers
   Buffer::create_framebuffers(swapChain_, vulkanDevice_->device);
 
-  // Create command pool
+  // Create command pool & buffer
   create_command_pool(vulkanDevice_, commandPool_);
 
-  // Create vertex buffer
-  Buffer::create_vertex_buffer(vertices_, vulkanDevice_, vertexBuffer_,
-                               vertexBufferMemory_);
-
-  // Create command buffer
   create_command_buffer(commandBuffers_, commandPool_, vulkanDevice_->device,
                         MAX_FRAMES_IN_FLIGHT);
 

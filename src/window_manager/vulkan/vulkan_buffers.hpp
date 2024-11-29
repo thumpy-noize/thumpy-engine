@@ -18,6 +18,10 @@ namespace Windows {
 namespace Vulkan {
 namespace Buffer {
 
+void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                   VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                   VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice);
+
 void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device);
 
 void create_vertex_buffer(std::vector<Vertex> vertices,

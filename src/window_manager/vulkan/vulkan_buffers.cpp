@@ -22,6 +22,37 @@ namespace Windows {
 namespace Vulkan {
 namespace Buffer {
 
+void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                   VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                   VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice) {
+  VkBufferCreateInfo bufferInfo{};
+  bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  bufferInfo.size = size;
+  bufferInfo.usage = usage;
+  bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+  if (vkCreateBuffer(vulkanDevice->device, &bufferInfo, nullptr, &buffer) !=
+      VK_SUCCESS) {
+    Logger::log("Failed to create buffer!");
+  }
+
+  VkMemoryRequirements memRequirements;
+  vkGetBufferMemoryRequirements(vulkanDevice->device, buffer, &memRequirements);
+
+  VkMemoryAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  allocInfo.allocationSize = memRequirements.size;
+  allocInfo.memoryTypeIndex = find_memory_type(
+      vulkanDevice->physicalDevice, memRequirements.memoryTypeBits, properties);
+
+  if (vkAllocateMemory(vulkanDevice->device, &allocInfo, nullptr,
+                       &bufferMemory) != VK_SUCCESS) {
+    Logger::log("Failed to allocate buffer memory!");
+  }
+
+  vkBindBufferMemory(vulkanDevice->device, buffer, bufferMemory, 0);
+}
+
 void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device) {
   swapChain->swapChainFramebuffers.resize(
       swapChain->swapChainImageViews.size());
@@ -43,41 +74,16 @@ void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device) {
 void create_vertex_buffer(std::vector<Vertex> vertices,
                           VulkanDevice *vulkanDevice, VkBuffer &vertexBuffer,
                           VkDeviceMemory &vertexBufferMemory) {
-
-  VkBufferCreateInfo bufferInfo{};
-  bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-  bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-  bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-  bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-  if (vkCreateBuffer(vulkanDevice->device, &bufferInfo, nullptr,
-                     &vertexBuffer) != VK_SUCCESS) {
-    Logger::log("Failed to create vertex buffer!", Logger::CRITICAL);
-  }
-
-  VkMemoryRequirements memRequirements;
-  vkGetBufferMemoryRequirements(vulkanDevice->device, vertexBuffer,
-                                &memRequirements);
-
-  VkMemoryAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-  allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex = find_memory_type(
-      vulkanDevice->physicalDevice, memRequirements.memoryTypeBits,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-  if (vkAllocateMemory(vulkanDevice->device, &allocInfo, nullptr,
-                       &vertexBufferMemory) != VK_SUCCESS) {
-    Logger::log("failed to allocate vertex buffer memory!", Logger::CRITICAL);
-  }
-
-  vkBindBufferMemory(vulkanDevice->device, vertexBuffer, vertexBufferMemory, 0);
+  VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+  create_buffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                vertexBuffer, vertexBufferMemory, vulkanDevice);
 
   void *data;
-  vkMapMemory(vulkanDevice->device, vertexBufferMemory, 0, bufferInfo.size, 0,
+  vkMapMemory(vulkanDevice->device, vertexBufferMemory, 0, bufferSize, 0,
               &data);
-  memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+  memcpy(data, vertices.data(), bufferSize);
   vkUnmapMemory(vulkanDevice->device, vertexBufferMemory);
 }
 

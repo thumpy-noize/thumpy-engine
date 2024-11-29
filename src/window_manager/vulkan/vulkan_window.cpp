@@ -64,7 +64,7 @@ void VulkanWindow::init_vulkan() {
   vertices_ = Shapes::generate_sierpinski_triangle(6, vertices_);
 
   Buffer::create_vertex_buffer(vertices_, vulkanDevice_, vertexBuffer_,
-                               vertexBufferMemory_);
+                               vertexBufferMemory_, commandPool_);
 
   // Create command buffer
 

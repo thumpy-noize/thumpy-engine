@@ -3,6 +3,7 @@
     "fmt",
     "gtest",
     "glfw3",
+    "vulkan",
     "glm"
   ]
 }

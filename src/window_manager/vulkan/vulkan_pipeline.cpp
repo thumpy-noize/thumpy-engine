@@ -6,7 +6,6 @@
 #include "vulkan_initializers.hpp"
 #include <fstream>
 #include <ios>
-#include <stdexcept>
 #include <unistd.h>
 
 namespace Thumpy {
@@ -14,13 +13,13 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-// Please fix this and move it to a better place
+// Please move this to a better place
 static std::vector<char> read_file(const std::string &filename) {
   Logger::log("opening file: " + filename, Logger::INFO);
   std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
   if (!file.is_open()) {
-    throw std::runtime_error("failed to open file: " + filename);
+    Logger::log("failed to open file: " + filename, Logger::CRITICAL);
   }
 
   size_t fileSize = (size_t)file.tellg();
@@ -45,12 +44,12 @@ std::string get_exe_path() {
   int bytes = GetModuleFileName(NULL, pBuf, len);
   return bytes ? bytes : -1;
 #endif
-  throw std::runtime_error("Error determining os for filepath.");
+  Logger::log("Error determining os for filepath.", Logger::CRITICAL);
 }
 
 VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
                                         VkDevice vulkanDevice) {
-  Logger::log("Loading shaders from: " + get_exe_path(), Logger::WARNING);
+  Logger::log("Loading shaders from: " + get_exe_path(), Logger::INFO);
   auto vertShaderCode = read_file(get_exe_path() + "/shaders/vert.vert.spv");
   auto fragShaderCode = read_file(get_exe_path() + +"/shaders/vert.frag.spv");
 
@@ -166,7 +165,7 @@ VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
   if (vkCreateGraphicsPipelines(vulkanDevice, VK_NULL_HANDLE, 1, &pipelineInfo,
                                 nullptr,
                                 &pipeline.graphicsPipeline) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create graphics pipeline!");
+    Logger::log("Failed to create graphics pipeline!", Logger::CRITICAL);
   }
 
   // ### destroy ###
@@ -189,7 +188,7 @@ VkShaderModule create_shader_module(const std::vector<char> &code,
   VkShaderModule shaderModule;
   if (vkCreateShaderModule(vulkanDevice, &createInfo, nullptr, &shaderModule) !=
       VK_SUCCESS) {
-    throw std::runtime_error("failed to create shader module!");
+    Logger::log("Failed to create shader module!", Logger::CRITICAL);
   }
 
   return shaderModule;

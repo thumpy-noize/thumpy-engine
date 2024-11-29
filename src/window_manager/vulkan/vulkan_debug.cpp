@@ -1,7 +1,6 @@
 #include "vulkan_debug.hpp"
 #include "logger.hpp"
 #include "logger_helper.hpp"
-#include <stdexcept>
 #include <string>
 
 namespace Thumpy {
@@ -25,7 +24,7 @@ void setup_debug_messenger(VkInstance instance,
   populate_debug_messenger_create_info(createInfo);
   if (create_debug_utils_messenger_ext(instance, &createInfo, nullptr,
                                        debugMessenger) != VK_SUCCESS) {
-    throw std::runtime_error("failed to set up debug messenger!");
+    Logger::log("Failed to set up debug messenger!", Logger::CRITICAL);
   }
 }
 

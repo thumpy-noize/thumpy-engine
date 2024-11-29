@@ -9,8 +9,12 @@
  *
  */
 
+#include "logger_helper.hpp"
+#include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <string>
+#include <vector>
 #define GLFW_INCLUDE_VULKAN
-#include "vulkan_window.hpp"
 #include "logger.hpp"
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan_buffers.hpp"
@@ -18,9 +22,9 @@
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
+#include "vulkan_window.hpp"
 #include <cstdint> // Necessary for uint32_t
 #include <cstring>
-#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
 namespace Thumpy {
@@ -56,6 +60,9 @@ void VulkanWindow::init_vulkan() {
 
   // Create vertex buffer
   // vertexBuffer_ = VkBuffer();
+
+  vertices_ = Shapes::generate_sierpinski_triangle(6, vertices_);
+
   Buffer::create_vertex_buffer(vertices_, vulkanDevice_, vertexBuffer_,
                                vertexBufferMemory_);
 
@@ -75,8 +82,6 @@ void VulkanWindow::deconstruct_window() {
   swapChain_->clear_swap_chain();
 
   destroy_graphics_pipeline(vulkanDevice_->device, pipeline_);
-  // vkDestroyPipeline(vulkanDevice_->device, graphicsPipeline_, nullptr);
-  // vkDestroyPipelineLayout(vulkanDevice_->device, pipelineLayout_, nullptr);
 
   vkDestroyBuffer(vulkanDevice_->device, vertexBuffer_, nullptr);
   vkFreeMemory(vulkanDevice_->device, vertexBufferMemory_, nullptr);
@@ -110,7 +115,8 @@ void VulkanWindow::loop() {
 void VulkanWindow::create_instance() {
 
   if (enableValidationLayers && !check_validation_layer_support()) {
-    throw std::runtime_error("validation layers requested, but not available!");
+    Logger::log("validation layers requested, but not available!",
+                Logger::CRITICAL);
   }
 
   VkApplicationInfo appInfo = Initializer::application_info();
@@ -138,14 +144,14 @@ void VulkanWindow::create_instance() {
   }
 
   if (vkCreateInstance(&createInfo, nullptr, &instance_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create instance!");
+    Logger::log("failed to create instance!", Logger::CRITICAL);
   }
 }
 
 void VulkanWindow::create_surface() {
   if (glfwCreateWindowSurface(instance_, window_, nullptr, &surface_) !=
       VK_SUCCESS) {
-    throw std::runtime_error("failed to create window surface!");
+    Logger::log("failed to create window surface!", Logger::CRITICAL);
   }
 }
 

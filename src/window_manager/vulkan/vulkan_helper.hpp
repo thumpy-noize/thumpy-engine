@@ -76,6 +76,13 @@ struct Vertex {
 
     return attributeDescriptions;
   }
+
+  static Vertex mid(Vertex a, Vertex b) {
+    Vertex vert;
+    vert.pos = (a.pos + b.pos) / glm::vec2(2);
+    vert.color = (a.color + b.color) / glm::vec3(2);
+    return vert;
+  }
 };
 
 bool check_validation_layer_support();
@@ -84,6 +91,13 @@ std::vector<const char *> get_required_extensions();
 
 uint32_t find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeFilter,
                           VkMemoryPropertyFlags properties);
+
+namespace Shapes {
+
+std::vector<Vertex>
+generate_sierpinski_triangle(uint32_t recursions,
+                             std::vector<Vertex> startingTriangle);
+}
 
 } // namespace Vulkan
 } // namespace Windows

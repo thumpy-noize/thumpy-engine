@@ -10,10 +10,10 @@
  */
 
 #include "vulkan_buffers.hpp"
+#include "logger_helper.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan_initializers.hpp"
 #include <cstring>
-#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
 namespace Thumpy {
@@ -35,7 +35,7 @@ void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device) {
     if (vkCreateFramebuffer(device, &framebufferInfo, nullptr,
                             &swapChain->swapChainFramebuffers[i]) !=
         VK_SUCCESS) {
-      throw std::runtime_error("failed to create framebuffer!");
+      Logger::log("Failed to create framebuffer!", Logger::CRITICAL);
     }
   }
 }
@@ -52,7 +52,7 @@ void create_vertex_buffer(std::vector<Vertex> vertices,
 
   if (vkCreateBuffer(vulkanDevice->device, &bufferInfo, nullptr,
                      &vertexBuffer) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create vertex buffer!");
+    Logger::log("Failed to create vertex buffer!", Logger::CRITICAL);
   }
 
   VkMemoryRequirements memRequirements;
@@ -69,7 +69,7 @@ void create_vertex_buffer(std::vector<Vertex> vertices,
 
   if (vkAllocateMemory(vulkanDevice->device, &allocInfo, nullptr,
                        &vertexBufferMemory) != VK_SUCCESS) {
-    throw std::runtime_error("failed to allocate vertex buffer memory!");
+    Logger::log("failed to allocate vertex buffer memory!", Logger::CRITICAL);
   }
 
   vkBindBufferMemory(vulkanDevice->device, vertexBuffer, vertexBufferMemory, 0);

@@ -51,10 +51,6 @@ public:
   void create_instance();
   void create_surface();
 
-  std::vector<Vertex>
-  generate_sierpinski_triangle(uint32_t recursions,
-                               std::vector<Vertex> startingTriangle);
-
 #pragma endregion Core
 
 private:
@@ -73,7 +69,7 @@ private:
   std::vector<VkCommandBuffer> commandBuffers_;
   VkDebugUtilsMessengerEXT debugMessenger_;
 
-  // const std::vector<Vertex> vertices_ = {
+  // std::vector<Vertex> vertices_ = {
   //     {{0.0f, -1.0f}, {1.0f, 0.0f, 1.0f}}, {{1.0f, 1.0f}, {0.0f, 1.0f,
   //     0.0f}},
   //     {{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, {{0.0f, -0.9f}, {1.0f,
@@ -107,7 +103,17 @@ private:
 
   std::vector<Vertex> vertices_ = {{{0.0f, -1.0f}, {1.0f, 0.0f, 1.0f}},
                                    {{1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-                                   {{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}};
+                                   {{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+                                   {{0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
+                                   {{-1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}},
+                                   {{1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}},
+                                   {{-1.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
+                                   {{-1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}},
+                                   {{-0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+                                   {{1.0f, -1.0f}, {1.0f, 0.0f, 1.0f}},
+                                   {{1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
+                                   {{0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}};
+
   VkBuffer vertexBuffer_;
   VkDeviceMemory vertexBufferMemory_;
 };

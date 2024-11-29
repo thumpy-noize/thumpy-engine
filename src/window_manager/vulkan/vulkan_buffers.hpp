@@ -23,6 +23,9 @@ void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage,
                    VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice,
                    VkCommandPool &commandPool, VkCommandBuffer &commandBuffer);
 
+void copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
+                 VulkanDevice *vulkanDevice, VkCommandPool &commandPool);
+
 void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device);
 
 void create_vertex_buffer(std::vector<Vertex> vertices,

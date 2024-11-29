@@ -16,7 +16,6 @@
 #include "vulkan/vulkan_pipeline.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
 #include <cstdint>
-#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 namespace Thumpy {
 namespace Core {
@@ -71,8 +70,8 @@ void VulkanRender::create_sync_objects() {
         vkCreateFence(vulkanDevice_->device, &fenceInfo, nullptr,
                       &inFlightFences_[i]) != VK_SUCCESS) {
 
-      throw std::runtime_error(
-          "failed to create synchronization objects for a frame!");
+      Logger::log("Failed to create synchronization objects for a frame!",
+                  Logger::CRITICAL);
     }
   }
 }
@@ -91,7 +90,7 @@ void VulkanRender::draw_frame(VkBuffer vertexBuffer, uint32_t vertexCount) {
     swapChain_->recreate_swap_chain();
     return;
   } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-    throw std::runtime_error("failed to acquire swap chain image!");
+    Logger::log("Failed to acquire swap chain image!", Logger::CRITICAL);
   }
 
   vkResetFences(vulkanDevice_->device, 1, &inFlightFences_[currentFrame_]);
@@ -125,7 +124,7 @@ void VulkanRender::draw_frame(VkBuffer vertexBuffer, uint32_t vertexCount) {
 
   if (vkQueueSubmit(vulkanDevice_->graphicsQueue, 1, &submitInfo,
                     inFlightFences_[currentFrame_]) != VK_SUCCESS) {
-    throw std::runtime_error("failed to submit draw command buffer!");
+    Logger::log("Failed to submit draw command buffer!", Logger::CRITICAL);
   }
 
   VkPresentInfoKHR presentInfo{};
@@ -147,7 +146,7 @@ void VulkanRender::draw_frame(VkBuffer vertexBuffer, uint32_t vertexCount) {
     framebufferResized_ = false;
     swapChain_->recreate_swap_chain();
   } else if (result != VK_SUCCESS) {
-    throw std::runtime_error("failed to present swap chain image!");
+    Logger::log("Failed to present swap chain image!", Logger::CRITICAL);
   }
 }
 
@@ -159,7 +158,7 @@ void VulkanRender::record_command_buffer(VkCommandBuffer commandBuffer,
   VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
 
   if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-    throw std::runtime_error("failed to begin recording command buffer!");
+    Logger::log("Failed to begin recording command buffer!", Logger::CRITICAL);
   }
 
   VkRenderPassBeginInfo renderPassInfo = Initializer::render_pass_info(
@@ -196,7 +195,7 @@ void VulkanRender::record_command_buffer(VkCommandBuffer commandBuffer,
   vkCmdEndRenderPass(commandBuffer);
 
   if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-    throw std::runtime_error("failed to record command buffer!");
+    Logger::log("Failed to record command buffer!", Logger::CRITICAL);
   }
 }
 

@@ -1,6 +1,6 @@
 #include "vulkan_device.hpp"
+#include "logger.hpp"
 #include <set>
-#include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
@@ -24,7 +24,7 @@ void VulkanDevice::pick_physical_device(VkInstance instance) {
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
   if (deviceCount == 0) {
-    throw std::runtime_error("failed to find GPUs with Vulkan support!");
+    Logger::log("failed to find GPUs with Vulkan support!", Logger::CRITICAL);
   }
 
   std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -38,7 +38,7 @@ void VulkanDevice::pick_physical_device(VkInstance instance) {
   }
 
   if (physicalDevice == VK_NULL_HANDLE) {
-    throw std::runtime_error("failed to find a suitable GPU!");
+    Logger::log("Failed to find GPUs with Vulkan support!", Logger::CRITICAL);
   }
 }
 
@@ -84,7 +84,7 @@ void VulkanDevice::create_logical_device() {
 
   if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) !=
       VK_SUCCESS) {
-    throw std::runtime_error("failed to create logical device!");
+    Logger::log("Failed to create logical device!", Logger::CRITICAL);
   }
 
   vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);

@@ -1,8 +1,8 @@
 #include "vulkan_swap_chain.hpp"
 #include "logger.hpp"
+#include "logger_helper.hpp"
 #include <algorithm> // Necessary for std::clamp
 #include <limits>
-#include <stdexcept>
 
 namespace Thumpy {
 namespace Core {
@@ -71,7 +71,7 @@ void VulkanSwapChain::create_swap_chain() {
 
   if (vkCreateSwapchainKHR(device_->device, &createInfo, nullptr, &swapChain) !=
       VK_SUCCESS) {
-    throw std::runtime_error("failed to create swap chain!");
+    Logger::log("failed to create swap chain!", Logger::CRITICAL);
   }
 
   vkGetSwapchainImagesKHR(device_->device, swapChain, &imageCount, nullptr);
@@ -224,7 +224,7 @@ void VulkanSwapChain::create_image_views() {
     // Create image view
     if (vkCreateImageView(device_->device, &createInfo, nullptr,
                           &swapChainImageViews[i]) != VK_SUCCESS) {
-      throw std::runtime_error("failed to create image views!");
+      Logger::log("Failed to create image views!", Logger::CRITICAL);
     }
   }
 }
@@ -246,7 +246,7 @@ void VulkanSwapChain::create_framebuffers() {
 
     if (vkCreateFramebuffer(device_->device, &framebufferInfo, nullptr,
                             &swapChainFramebuffers[i]) != VK_SUCCESS) {
-      throw std::runtime_error("failed to create framebuffer!");
+      Logger::log("failed to create framebuffer!", Logger::CRITICAL);
     }
   }
 }
@@ -294,7 +294,7 @@ void VulkanSwapChain::create_render_pass() {
 
   if (vkCreateRenderPass(device_->device, &renderPassInfo, nullptr,
                          &renderPass) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create render pass!");
+    Logger::log("failed to create render pass!", Logger::CRITICAL);
   }
 }
 

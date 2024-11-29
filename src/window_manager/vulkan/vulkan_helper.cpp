@@ -4,7 +4,6 @@
 #include "logger_helper.hpp"
 #include <GLFW/glfw3.h>
 #include <cstring>
-#include <stdexcept>
 
 namespace Thumpy {
 namespace Core {
@@ -63,7 +62,8 @@ uint32_t find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeFilter,
     }
   }
 
-  throw std::runtime_error("failed to find suitable memory type!");
+  Logger::log("failed to find suitable memory type!", Logger::CRITICAL);
+  return 0;
 }
 
 #pragma region Shape generation

@@ -3,7 +3,6 @@
 #include "file_logger.hpp"
 #include "logger_helper.hpp"
 #include "term_logger.hpp"
-#include <stacktrace>
 #include <string>
 
 namespace Thumpy {

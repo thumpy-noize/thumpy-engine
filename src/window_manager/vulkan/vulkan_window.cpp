@@ -9,8 +9,12 @@
  *
  */
 
+#include "logger_helper.hpp"
+#include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <string>
+#include <vector>
 #define GLFW_INCLUDE_VULKAN
-#include "vulkan_window.hpp"
 #include "logger.hpp"
 #include "vulkan/vulkan_debug.hpp"
 #include "vulkan_buffers.hpp"
@@ -18,6 +22,7 @@
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
+#include "vulkan_window.hpp"
 #include <cstdint> // Necessary for uint32_t
 #include <cstring>
 #include <stdexcept>
@@ -56,6 +61,9 @@ void VulkanWindow::init_vulkan() {
 
   // Create vertex buffer
   // vertexBuffer_ = VkBuffer();
+
+  vertices_ = generate_sierpinski_triangle(6, vertices_);
+
   Buffer::create_vertex_buffer(vertices_, vulkanDevice_, vertexBuffer_,
                                vertexBufferMemory_);
 
@@ -151,6 +159,60 @@ void VulkanWindow::create_surface() {
 
 #pragma endregion Core
 
+Vertex vertex_mid(Vertex a, Vertex b) {
+  Vertex vert;
+  vert.pos = (a.pos + b.pos) / glm::vec2(2);
+  vert.color = (a.color + b.color) / glm::vec3(2);
+  return vert;
+}
+
+std::vector<Vertex> VulkanWindow::generate_sierpinski_triangle(
+    uint32_t recursions, std::vector<Vertex> startingTriangle) {
+  Logger::log("Generating sierpinski: " + std::to_string(recursions) + "...",
+              Logger::WARNING);
+
+  std::vector<Vertex> local;
+
+  for (int i = 0; i < startingTriangle.size(); i++) {
+
+    int vertMod = i % 3;
+    int nextIndex;
+    int lastIndex;
+    Vertex lastVertex;
+    Vertex nextVertex;
+    switch (vertMod) {
+    case 0:
+      nextIndex = i + 1;
+      lastIndex = i + 2;
+      break;
+    case 1:
+      nextIndex = i + 1;
+      lastIndex = i - 1;
+      break;
+    case 2:
+      nextIndex = i - 2;
+      lastIndex = i - 1;
+      break;
+    default:
+      nextIndex = i;
+      lastIndex = i;
+    }
+
+    lastVertex = vertex_mid(startingTriangle[lastIndex], startingTriangle[i]);
+    nextVertex = vertex_mid(startingTriangle[nextIndex], startingTriangle[i]);
+
+    local.push_back(nextVertex);
+    local.push_back(lastVertex);
+    local.push_back(startingTriangle[i]);
+  }
+
+  if (recursions == 0) {
+    return startingTriangle;
+
+  } else {
+    return generate_sierpinski_triangle(recursions - 1, local);
+  }
+}
 } // namespace Vulkan
 } // namespace Windows
 } // namespace Core

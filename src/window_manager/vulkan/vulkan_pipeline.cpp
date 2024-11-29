@@ -2,10 +2,12 @@
 
 #include "vulkan_pipeline.hpp"
 #include "logger.hpp"
+#include "logger_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include <fstream>
 #include <ios>
 #include <stdexcept>
+#include <unistd.h>
 
 namespace Thumpy {
 namespace Core {
@@ -32,12 +34,25 @@ static std::vector<char> read_file(const std::string &filename) {
   return buffer;
 }
 
+std::string get_exe_path() {
+#ifdef __unix__
+  char result[PATH_MAX];
+  ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+  std::string path = std::string(result, (count > 0) ? count : 0);
+  path = path.substr(0, path.find_last_of("\\/"));
+  return path;
+#elif _WIN32
+  int bytes = GetModuleFileName(NULL, pBuf, len);
+  return bytes ? bytes : -1;
+#endif
+  throw std::runtime_error("Error determining os for filepath.");
+}
+
 VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
                                         VkDevice vulkanDevice) {
-  auto vertShaderCode =
-      read_file("/home/kali/Projects/engine/src/shaders/compiled/vert.spv");
-  auto fragShaderCode =
-      read_file("/home/kali/Projects/engine/src/shaders/compiled/frag.spv");
+  Logger::log("Loading shaders from: " + get_exe_path(), Logger::WARNING);
+  auto vertShaderCode = read_file(get_exe_path() + "/shaders/vert.vert.spv");
+  auto fragShaderCode = read_file(get_exe_path() + +"/shaders/vert.frag.spv");
 
   VkShaderModule vertShaderModule =
       create_shader_module(vertShaderCode, vulkanDevice);

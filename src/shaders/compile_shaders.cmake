@@ -2,16 +2,11 @@
 macro(add_shaders)
     cmake_parse_arguments("MY" "TARGET" "SOURCES" ${ARGN})
 
-    message("Adding shader")
-
-    message("${MY_SOURCES}")
-
-
     foreach(src ${MY_SOURCES})
     message("Compiling shader: ${CMAKE_CURRENT_LIST_DIR}/${src}")
         set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/shaders/${src}.spv")
         get_filename_component(PARENT_DIR "${OUTF}" DIRECTORY)
-        message("${OUTF}")
+        message("Output file: ${OUTF}")
 
         add_custom_command(
             OUTPUT "${OUTF}"
@@ -27,4 +22,5 @@ endmacro()
 
 
 message("Compiling shaders...")
-add_shaders(engine SOURCES "shader_base.vert")
+add_shaders(engine SOURCES "vert.vert")
+add_shaders(engine SOURCES "vert.frag")

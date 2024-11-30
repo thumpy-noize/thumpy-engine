@@ -11,13 +11,15 @@
 
 #pragma once
 
+#include <vulkan/vulkan_core.h>
+
+#include <vector>
+
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_pipeline.hpp"
 #include "vulkan/vulkan_render.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
 #include "window.hpp"
-#include <vector>
-#include <vulkan/vulkan_core.h>
 
 namespace Thumpy {
 namespace Core {
@@ -25,8 +27,8 @@ namespace Windows {
 namespace Vulkan {
 
 class VulkanWindow : public Window {
-public:
-  VulkanWindow(std::string title);
+ public:
+  VulkanWindow( std::string title );
 
 #pragma region Core
 
@@ -53,7 +55,7 @@ public:
 
 #pragma endregion Core
 
-private:
+ private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
   uint32_t currentFrame_ = 0;
 
@@ -101,23 +103,23 @@ private:
   //     {{0.1f, 0.1f}, {0.0f, 1.0f, 0.0f}},  {{-0.1f, 0.1f}, {0.0f,
   //     0.0f, 1.0f}}};
 
-  std::vector<Vertex> vertices_ = {{{0.0f, -1.0f}, {1.0f, 0.0f, 1.0f}},
-                                   {{1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-                                   {{-1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-                                   {{0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
-                                   {{-1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}},
-                                   {{1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}},
-                                   {{-1.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
-                                   {{-1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}},
-                                   {{-0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-                                   {{1.0f, -1.0f}, {1.0f, 0.0f, 1.0f}},
-                                   {{1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-                                   {{0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}};
+  std::vector<Vertex> vertices_ = { { { 0.0f, -1.0f }, { 1.0f, 0.0f, 1.0f } },
+                                    { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
+                                    { { -1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } },
+                                    { { 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f } },
+                                    { { -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } },
+                                    { { 1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } },
+                                    { { -1.0f, 1.0f }, { 1.0f, 0.0f, 1.0f } },
+                                    { { -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } },
+                                    { { -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+                                    { { 1.0f, -1.0f }, { 1.0f, 0.0f, 1.0f } },
+                                    { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
+                                    { { 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } } };
 
   VkBuffer vertexBuffer_;
   VkDeviceMemory vertexBufferMemory_;
 };
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

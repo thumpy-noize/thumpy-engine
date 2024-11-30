@@ -11,11 +11,13 @@
 
 #pragma once
 
-#include "logger.hpp"
-#include "vulkan_helper.hpp"
+#include <vulkan/vulkan_core.h>
+
 #include <cstdint>
 #include <vector>
-#include <vulkan/vulkan_core.h>
+
+#include "logger.hpp"
+#include "vulkan_helper.hpp"
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -26,15 +28,15 @@ inline VkApplicationInfo application_info() {
   VkApplicationInfo appInfo{};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "Thumpy Engine Vulkan Window";
-  appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+  appInfo.applicationVersion = VK_MAKE_VERSION( 1, 0, 0 );
   appInfo.pEngineName = "Thumpy Engine";
-  appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+  appInfo.engineVersion = VK_MAKE_VERSION( 1, 0, 0 );
   appInfo.apiVersion = VK_API_VERSION_1_0;
   return appInfo;
 }
 
-inline VkPipelineShaderStageCreateInfo
-vert_shader_stage_info(VkShaderModule vertShaderModule) {
+inline VkPipelineShaderStageCreateInfo vert_shader_stage_info(
+    VkShaderModule vertShaderModule ) {
   VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
   vertShaderStageInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -45,8 +47,8 @@ vert_shader_stage_info(VkShaderModule vertShaderModule) {
   return vertShaderStageInfo;
 }
 
-inline VkPipelineShaderStageCreateInfo
-frag_shader_stage_info(VkShaderModule fragShaderModule) {
+inline VkPipelineShaderStageCreateInfo frag_shader_stage_info(
+    VkShaderModule fragShaderModule ) {
   VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
   fragShaderStageInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -65,7 +67,7 @@ inline VkPipelineVertexInputStateCreateInfo vertex_input_info() {
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  Logger::log("vertex_input_info is deprecated", Logger::WARNING);
+  Logger::log( "vertex_input_info is deprecated", Logger::WARNING );
   return vertexInputInfo;
 }
 
@@ -78,7 +80,7 @@ inline VkPipelineInputAssemblyStateCreateInfo input_assembly() {
   return inputAssembly;
 }
 
-inline VkViewport viewport(float hight, float width) {
+inline VkViewport viewport( float hight, float width ) {
   VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
@@ -89,15 +91,15 @@ inline VkViewport viewport(float hight, float width) {
   return viewport;
 }
 
-inline VkRect2D scissor(VkExtent2D extent) {
+inline VkRect2D scissor( VkExtent2D extent ) {
   VkRect2D scissor{};
-  scissor.offset = {0, 0};
+  scissor.offset = { 0, 0 };
   scissor.extent = extent;
   return scissor;
 }
 
-inline VkPipelineViewportStateCreateInfo viewport_state(VkViewport &viewport,
-                                                        VkRect2D &scissor) {
+inline VkPipelineViewportStateCreateInfo viewport_state( VkViewport &viewport,
+                                                         VkRect2D &scissor ) {
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
   viewportState.viewportCount = 1;
@@ -117,9 +119,9 @@ inline VkPipelineRasterizationStateCreateInfo rasterizer() {
   rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
   rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
   rasterizer.depthBiasEnable = VK_FALSE;
-  rasterizer.depthBiasConstantFactor = 0.0f; // Optional
-  rasterizer.depthBiasClamp = 0.0f;          // Optional
-  rasterizer.depthBiasSlopeFactor = 0.0f;    // Optional
+  rasterizer.depthBiasConstantFactor = 0.0f;  // Optional
+  rasterizer.depthBiasClamp = 0.0f;           // Optional
+  rasterizer.depthBiasSlopeFactor = 0.0f;     // Optional
   return rasterizer;
 }
 
@@ -129,10 +131,10 @@ inline VkPipelineMultisampleStateCreateInfo multisampling() {
       VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   multisampling.sampleShadingEnable = VK_FALSE;
   multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-  multisampling.minSampleShading = 1.0f;          // Optional
-  multisampling.pSampleMask = nullptr;            // Optional
-  multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
-  multisampling.alphaToOneEnable = VK_FALSE;      // Optional
+  multisampling.minSampleShading = 1.0f;           // Optional
+  multisampling.pSampleMask = nullptr;             // Optional
+  multisampling.alphaToCoverageEnable = VK_FALSE;  // Optional
+  multisampling.alphaToOneEnable = VK_FALSE;       // Optional
   return multisampling;
 }
 
@@ -142,11 +144,11 @@ inline VkPipelineColorBlendAttachmentState color_blend_attachment() {
       VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
       VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
   colorBlendAttachment.blendEnable = VK_FALSE;
-  colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;  // Optional
-  colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-  colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;             // Optional
-  colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;  // Optional
-  colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+  colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;   // Optional
+  colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;  // Optional
+  colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;              // Optional
+  colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;   // Optional
+  colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;  // Optional
   colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
   return colorBlendAttachment;
 }
@@ -154,25 +156,25 @@ inline VkPipelineColorBlendAttachmentState color_blend_attachment() {
 inline VkPipelineLayoutCreateInfo pipeline_layout_info() {
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 0;            // Optional
-  pipelineLayoutInfo.pSetLayouts = nullptr;         // Optional
-  pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
-  pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+  pipelineLayoutInfo.setLayoutCount = 0;             // Optional
+  pipelineLayoutInfo.pSetLayouts = nullptr;          // Optional
+  pipelineLayoutInfo.pushConstantRangeCount = 0;     // Optional
+  pipelineLayoutInfo.pPushConstantRanges = nullptr;  // Optional
   return pipelineLayoutInfo;
 }
 
-inline VkShaderModuleCreateInfo
-shader_module_create_info(const std::vector<char> &code) {
+inline VkShaderModuleCreateInfo shader_module_create_info(
+    const std::vector<char> &code ) {
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+  createInfo.pCode = reinterpret_cast<const uint32_t *>( code.data() );
   return createInfo;
 }
 
-inline VkFramebufferCreateInfo framebuffer_info(VkRenderPass renderPass,
-                                                VkExtent2D extent,
-                                                VkImageView attachments[]) {
+inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass,
+                                                 VkExtent2D extent,
+                                                 VkImageView attachments[] ) {
   VkFramebufferCreateInfo framebufferInfo{};
   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
   framebufferInfo.renderPass = renderPass;
@@ -184,7 +186,7 @@ inline VkFramebufferCreateInfo framebuffer_info(VkRenderPass renderPass,
   return framebufferInfo;
 }
 
-inline VkCommandPoolCreateInfo pool_info(uint32_t queue_family_index) {
+inline VkCommandPoolCreateInfo pool_info( uint32_t queue_family_index ) {
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -192,8 +194,8 @@ inline VkCommandPoolCreateInfo pool_info(uint32_t queue_family_index) {
   return poolInfo;
 }
 
-inline VkCommandBufferAllocateInfo
-command_buffer_allocate_info(VkCommandPool commandPool, uint32_t bufferCount) {
+inline VkCommandBufferAllocateInfo command_buffer_allocate_info(
+    VkCommandPool commandPool, uint32_t bufferCount ) {
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.commandPool = commandPool;
@@ -205,19 +207,19 @@ command_buffer_allocate_info(VkCommandPool commandPool, uint32_t bufferCount) {
 inline VkCommandBufferBeginInfo command_buffer_begin_info() {
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  beginInfo.flags = 0;                  // Optional
-  beginInfo.pInheritanceInfo = nullptr; // Optional
+  beginInfo.flags = 0;                   // Optional
+  beginInfo.pInheritanceInfo = nullptr;  // Optional
   return beginInfo;
 }
 
-inline VkRenderPassBeginInfo render_pass_info(VkRenderPass renderPass,
-                                              VkFramebuffer frameBuffer,
-                                              VkExtent2D extent) {
+inline VkRenderPassBeginInfo render_pass_info( VkRenderPass renderPass,
+                                               VkFramebuffer frameBuffer,
+                                               VkExtent2D extent ) {
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = renderPass;
   renderPassInfo.framebuffer = frameBuffer;
-  renderPassInfo.renderArea.offset = {0, 0};
+  renderPassInfo.renderArea.offset = { 0, 0 };
   renderPassInfo.renderArea.extent = extent;
   return renderPassInfo;
 }
@@ -235,8 +237,8 @@ inline VkFenceCreateInfo fence_info() {
   return fenceInfo;
 }
 
-} // namespace Initializer
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Initializer
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

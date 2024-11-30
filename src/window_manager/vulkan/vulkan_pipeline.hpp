@@ -11,9 +11,11 @@
 
 #pragma once
 
-#include "vulkan/vulkan_swap_chain.hpp"
-#include <vector>
 #include <vulkan/vulkan_core.h>
+
+#include <vector>
+
+#include "vulkan/vulkan_swap_chain.hpp"
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -24,14 +26,15 @@ struct VulkanPipeline {
   VkPipeline graphicsPipeline;
 };
 
-VulkanPipeline create_graphics_pipeline(VulkanSwapChain *swapChain,
-                                        VkDevice vulkanDevice);
-void destroy_graphics_pipeline(VkDevice vulkanDevice, VulkanPipeline pipeline);
+VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain,
+                                         VkDevice vulkanDevice );
+void destroy_graphics_pipeline( VkDevice vulkanDevice,
+                                VulkanPipeline pipeline );
 
-VkShaderModule create_shader_module(const std::vector<char> &code,
-                                    VkDevice vulkanDevice);
+VkShaderModule create_shader_module( const std::vector<char> &code,
+                                     VkDevice vulkanDevice );
 
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

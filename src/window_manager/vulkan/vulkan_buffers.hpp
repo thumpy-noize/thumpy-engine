@@ -18,23 +18,24 @@ namespace Windows {
 namespace Vulkan {
 namespace Buffer {
 
-void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage,
-                   VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                   VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice,
-                   VkCommandPool &commandPool, VkCommandBuffer &commandBuffer);
+void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage,
+                    VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                    VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice,
+                    VkCommandPool &commandPool,
+                    VkCommandBuffer &commandBuffer );
 
-void copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
-                 VulkanDevice *vulkanDevice, VkCommandPool &commandPool);
+void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
+                  VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
-void create_framebuffers(VulkanSwapChain *swapChain, VkDevice device);
+void create_framebuffers( VulkanSwapChain *swapChain, VkDevice device );
 
-void create_vertex_buffer(std::vector<Vertex> vertices,
-                          VulkanDevice *vulkanDevice, VkBuffer &vertexBuffer,
-                          VkDeviceMemory &vertexBufferMemory,
-                          VkCommandPool &commandPool);
+void create_vertex_buffer( std::vector<Vertex> vertices,
+                           VulkanDevice *vulkanDevice, VkBuffer &vertexBuffer,
+                           VkDeviceMemory &vertexBufferMemory,
+                           VkCommandPool &commandPool );
 
-} // namespace Buffer
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Buffer
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

@@ -10,17 +10,19 @@
  */
 
 #pragma once
+#include <vulkan/vulkan_core.h>
+
+#include <vector>
+
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_pipeline.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
-#include <vector>
-#include <vulkan/vulkan_core.h>
 namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
 class VulkanRender {
-public:
+ public:
   /**
    * @brief Construct and setup a new Vulkan Render object.
    *
@@ -30,10 +32,10 @@ public:
    * @param commandBuffers
    * @param pipeline
    */
-  VulkanRender(int max_frames_in_fligh, VulkanDevice *vulkanDevice,
-               VulkanSwapChain *swapchain,
-               std::vector<VkCommandBuffer> *commandBuffers,
-               VulkanPipeline pipeline);
+  VulkanRender( int max_frames_in_fligh, VulkanDevice *vulkanDevice,
+                VulkanSwapChain *swapchain,
+                std::vector<VkCommandBuffer> *commandBuffers,
+                VulkanPipeline pipeline );
 
   /**
    * @brief Destroy render
@@ -50,10 +52,10 @@ public:
    * @param commandBuffers
    * @param pipeline
    */
-  void set_context(int max_frames_in_flight, VulkanDevice *vulkanDevice,
-                   VulkanSwapChain *swapchain,
-                   std::vector<VkCommandBuffer> *commandBuffers,
-                   VulkanPipeline pipeline);
+  void set_context( int max_frames_in_flight, VulkanDevice *vulkanDevice,
+                    VulkanSwapChain *swapchain,
+                    std::vector<VkCommandBuffer> *commandBuffers,
+                    VulkanPipeline pipeline );
 
   void create_sync_objects();
 
@@ -61,13 +63,13 @@ public:
    * @brief Draw to frame
    *
    */
-  void draw_frame(VkBuffer vertexBuffer, uint32_t vertexCount);
+  void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount );
 
-  void record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex,
-                             VulkanSwapChain *swapChain, VkBuffer vertexBuffer,
-                             uint32_t vertexCount);
+  void record_command_buffer( VkCommandBuffer commandBuffer,
+                              uint32_t imageIndex, VulkanSwapChain *swapChain,
+                              VkBuffer vertexBuffer, uint32_t vertexCount );
 
-protected:
+ protected:
   int maxFramesInFlight_;
   uint32_t currentFrame_ = 0;
 
@@ -85,7 +87,7 @@ protected:
   VkSemaphore imageAvailableSemaphore_;
   VkSemaphore renderFinishedSemaphore_;
 };
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

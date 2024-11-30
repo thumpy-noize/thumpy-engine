@@ -10,12 +10,13 @@
  */
 #pragma once
 
+#include <vulkan/vulkan_core.h>
+
 #include <array>
 #include <cstdint>
 #include <glm/glm.hpp>
 #include <optional>
 #include <vector>
-#include <vulkan/vulkan_core.h>
 
 namespace Thumpy {
 namespace Core {
@@ -29,10 +30,9 @@ const bool enableValidationLayers = true;
 #endif
 
 const std::vector<const char *> validationLayers = {
-    "VK_LAYER_KHRONOS_validation"};
+    "VK_LAYER_KHRONOS_validation" };
 
 struct QueueFamilyIndices {
-
   std::optional<uint32_t> graphicsFamily;
   std::optional<uint32_t> presentFamily;
 
@@ -54,7 +54,7 @@ struct Vertex {
   static VkVertexInputBindingDescription get_binding_description() {
     VkVertexInputBindingDescription bindingDescription{};
     bindingDescription.binding = 0;
-    bindingDescription.stride = sizeof(Vertex);
+    bindingDescription.stride = sizeof( Vertex );
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     return bindingDescription;
@@ -67,20 +67,20 @@ struct Vertex {
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[0].offset = offsetof(Vertex, pos);
+    attributeDescriptions[0].offset = offsetof( Vertex, pos );
 
     attributeDescriptions[1].binding = 0;
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Vertex, color);
+    attributeDescriptions[1].offset = offsetof( Vertex, color );
 
     return attributeDescriptions;
   }
 
-  static Vertex mid(Vertex a, Vertex b) {
+  static Vertex mid( Vertex a, Vertex b ) {
     Vertex vert;
-    vert.pos = (a.pos + b.pos) / glm::vec2(2);
-    vert.color = (a.color + b.color) / glm::vec3(2);
+    vert.pos = ( a.pos + b.pos ) / glm::vec2( 2 );
+    vert.color = ( a.color + b.color ) / glm::vec3( 2 );
     return vert;
   }
 };
@@ -89,17 +89,16 @@ bool check_validation_layer_support();
 
 std::vector<const char *> get_required_extensions();
 
-uint32_t find_memory_type(VkPhysicalDevice physicalDevice, uint32_t typeFilter,
-                          VkMemoryPropertyFlags properties);
+uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
+                           VkMemoryPropertyFlags properties );
 
 namespace Shapes {
 
-std::vector<Vertex>
-generate_sierpinski_triangle(uint32_t recursions,
-                             std::vector<Vertex> startingTriangle);
+std::vector<Vertex> generate_sierpinski_triangle(
+    uint32_t recursions, std::vector<Vertex> startingTriangle );
 }
 
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

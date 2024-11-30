@@ -1,7 +1,9 @@
 #include "vulkan_debug.hpp"
+
+#include <string>
+
 #include "logger.hpp"
 #include "logger_helper.hpp"
-#include <string>
 
 namespace Thumpy {
 namespace Core {
@@ -15,27 +17,26 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-void setup_debug_messenger(VkInstance instance,
-                           VkDebugUtilsMessengerEXT *debugMessenger) {
-  if (!enableValidationLayers)
-    return;
+void setup_debug_messenger( VkInstance instance,
+                            VkDebugUtilsMessengerEXT *debugMessenger ) {
+  if ( !enableValidationLayers ) return;
 
   VkDebugUtilsMessengerCreateInfoEXT createInfo;
-  populate_debug_messenger_create_info(createInfo);
-  if (create_debug_utils_messenger_ext(instance, &createInfo, nullptr,
-                                       debugMessenger) != VK_SUCCESS) {
-    Logger::log("Failed to set up debug messenger!", Logger::CRITICAL);
+  populate_debug_messenger_create_info( createInfo );
+  if ( create_debug_utils_messenger_ext( instance, &createInfo, nullptr,
+                                         debugMessenger ) != VK_SUCCESS ) {
+    Logger::log( "Failed to set up debug messenger!", Logger::CRITICAL );
   }
 }
 
 VkResult create_debug_utils_messenger_ext(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
     const VkAllocationCallbacks *pAllocator,
-    VkDebugUtilsMessengerEXT *pDebugMessenger) {
+    VkDebugUtilsMessengerEXT *pDebugMessenger ) {
   auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-      instance, "vkCreateDebugUtilsMessengerEXT");
-  if (func != nullptr) {
-    return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+      instance, "vkCreateDebugUtilsMessengerEXT" );
+  if ( func != nullptr ) {
+    return func( instance, pCreateInfo, pAllocator, pDebugMessenger );
   } else {
     return VK_ERROR_EXTENSION_NOT_PRESENT;
   }
@@ -43,16 +44,16 @@ VkResult create_debug_utils_messenger_ext(
 
 void destroy_debug_utils_messenger_ext(
     VkInstance instance, VkDebugUtilsMessengerEXT *debugMessenger,
-    const VkAllocationCallbacks *pAllocator) {
+    const VkAllocationCallbacks *pAllocator ) {
   auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-      instance, "vkDestroyDebugUtilsMessengerEXT");
-  if (func != nullptr) {
-    func(instance, *debugMessenger, pAllocator);
+      instance, "vkDestroyDebugUtilsMessengerEXT" );
+  if ( func != nullptr ) {
+    func( instance, *debugMessenger, pAllocator );
   }
 }
 
 void populate_debug_messenger_create_info(
-    VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
+    VkDebugUtilsMessengerCreateInfoEXT &createInfo ) {
   createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
   createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
@@ -64,8 +65,8 @@ void populate_debug_messenger_create_info(
   createInfo.pfnUserCallback = debug_callback;
 }
 
-} // namespace Debug
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Debug
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

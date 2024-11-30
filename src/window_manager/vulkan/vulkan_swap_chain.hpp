@@ -1,10 +1,12 @@
 #pragma once
 
+#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_core.h>
+
+#include <vector>
+
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
-#include <GLFW/glfw3.h>
-#include <vector>
-#include <vulkan/vulkan_core.h>
 
 namespace Thumpy {
 namespace Core {
@@ -12,9 +14,9 @@ namespace Windows {
 namespace Vulkan {
 
 class VulkanSwapChain {
-public:
-  VulkanSwapChain(VkInstance instance, VulkanDevice *Device,
-                  VkSurfaceKHR surface, GLFWwindow *window);
+ public:
+  VulkanSwapChain( VkInstance instance, VulkanDevice *Device,
+                   VkSurfaceKHR surface, GLFWwindow *window );
   /**
    * @brief Set swap chain context variables
    *
@@ -23,8 +25,8 @@ public:
    * @param surface
    * @param window
    */
-  void set_context(VkInstance instance, VulkanDevice *device,
-                   VkSurfaceKHR surface, GLFWwindow *window);
+  void set_context( VkInstance instance, VulkanDevice *device,
+                    VkSurfaceKHR surface, GLFWwindow *window );
   /**
    * @brief Create swap chain
    */
@@ -51,7 +53,7 @@ public:
    * @return VkSurfaceFormatKHR
    */
   VkSurfaceFormatKHR choose_swap_surface_format(
-      const std::vector<VkSurfaceFormatKHR> &availableFormats);
+      const std::vector<VkSurfaceFormatKHR> &availableFormats );
 
   /** @brief Chose Best available present mode
    *  Currently using mailbox
@@ -59,7 +61,7 @@ public:
    * @return VkSurfaceFormatKHR
    */
   VkPresentModeKHR choose_swap_present_mode(
-      const std::vector<VkPresentModeKHR> &availablePresentModes);
+      const std::vector<VkPresentModeKHR> &availablePresentModes );
 
   /**
    * @brief get window extent
@@ -67,14 +69,14 @@ public:
    * @param capabilities
    * @return VkExtent2D
    */
-  VkExtent2D choose_swap_extent(const VkSurfaceCapabilitiesKHR &capabilities);
+  VkExtent2D choose_swap_extent( const VkSurfaceCapabilitiesKHR &capabilities );
   QueueFamilyIndices find_queue_families();
 
   void create_image_views();
   void create_framebuffers();
   void create_render_pass();
 
-public:
+ public:
   VkSwapchainKHR swapChain;
 
   VkFormat swapChainImageFormat;
@@ -84,7 +86,7 @@ public:
   std::vector<VkImageView> swapChainImageViews;
   std::vector<VkFramebuffer> swapChainFramebuffers;
 
-private:
+ private:
   VkInstance instance_;
   VkSurfaceKHR surface_;
   GLFWwindow *window_;
@@ -92,7 +94,7 @@ private:
 
   std::vector<VkImage> swapChainImages_;
 };
-} // namespace Vulkan
-} // namespace Windows
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Vulkan
+}  // namespace Windows
+}  // namespace Core
+}  // namespace Thumpy

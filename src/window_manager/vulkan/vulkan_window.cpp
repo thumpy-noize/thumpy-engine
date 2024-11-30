@@ -90,9 +90,6 @@ void VulkanWindow::deconstruct_window() {
 
   destroy_graphics_pipeline( vulkanDevice_->device, pipeline_ );
 
-  vkDestroyBuffer( vulkanDevice_->device, vertexBuffer_, nullptr );
-  vkFreeMemory( vulkanDevice_->device, vertexBufferMemory_, nullptr );
-
   vkDestroyRenderPass( vulkanDevice_->device, swapChain_->renderPass, nullptr );
 
   render_->destroy();

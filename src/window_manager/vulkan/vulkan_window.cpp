@@ -75,7 +75,6 @@ void VulkanWindow::init_vulkan() {
                                indexBufferMemory_, commandPool_ );
 
   // Create command buffer
-
   create_command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
                          MAX_FRAMES_IN_FLIGHT );
 
@@ -98,6 +97,12 @@ void VulkanWindow::deconstruct_window() {
 
   render_->destroy();
 
+  vkDestroyBuffer( vulkanDevice_->device, indexBuffer_, nullptr );
+  vkFreeMemory( vulkanDevice_->device, indexBufferMemory_, nullptr );
+
+  vkDestroyBuffer( vulkanDevice_->device, vertexBuffer_, nullptr );
+  vkFreeMemory( vulkanDevice_->device, vertexBufferMemory_, nullptr );
+
   vkDestroyCommandPool( vulkanDevice_->device, commandPool_, nullptr );
 
   vkDestroyDevice( vulkanDevice_->device, nullptr );
@@ -115,8 +120,8 @@ void VulkanWindow::deconstruct_window() {
 
 void VulkanWindow::loop() {
   Window::loop();
-  render_->draw_frame( vertexBuffer_,
-                       static_cast<uint32_t>( vertices_.size() ) );
+  render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ),
+                       indexBuffer_, static_cast<uint32_t>( indices_.size() ) );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

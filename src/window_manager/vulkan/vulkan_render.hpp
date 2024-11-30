@@ -63,11 +63,13 @@ class VulkanRender {
    * @brief Draw to frame
    *
    */
-  void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount );
+  void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
+                   VkBuffer indexBuffer, uint32_t indexCount );
 
   void record_command_buffer( VkCommandBuffer commandBuffer,
                               uint32_t imageIndex, VulkanSwapChain *swapChain,
-                              VkBuffer vertexBuffer, uint32_t vertexCount );
+                              VkBuffer vertexBuffer, uint32_t vertexCount,
+                              VkBuffer indexBuffer, uint32_t indexCount );
 
  protected:
   int maxFramesInFlight_;

@@ -53,47 +53,6 @@ void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
   }
 }
 
-void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
-                            VulkanSwapChain *swapChain,
-                            VulkanPipeline pipeline ) {
-  VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
-
-  if ( vkBeginCommandBuffer( commandBuffer, &beginInfo ) != VK_SUCCESS ) {
-    Logger::log( "Failed to begin recording command buffer!",
-                 Logger::CRITICAL );
-  }
-
-  VkRenderPassBeginInfo renderPassInfo = Initializer::render_pass_info(
-      swapChain->renderPass, swapChain->swapChainFramebuffers[imageIndex],
-      swapChain->extent );
-
-  VkClearValue clearColor = {
-      { { 0.0f, 0.0f, 0.0f, 1.0f } } };  // background color
-  renderPassInfo.clearValueCount = 1;
-  renderPassInfo.pClearValues = &clearColor;
-
-  vkCmdBeginRenderPass( commandBuffer, &renderPassInfo,
-                        VK_SUBPASS_CONTENTS_INLINE );
-
-  vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                     pipeline.graphicsPipeline );
-
-  VkViewport viewport =
-      Initializer::viewport( static_cast<float>( swapChain->extent.height ),
-                             static_cast<float>( swapChain->extent.width ) );
-  vkCmdSetViewport( commandBuffer, 0, 1, &viewport );
-
-  VkRect2D scissor = Initializer::scissor( swapChain->extent );
-  vkCmdSetScissor( commandBuffer, 0, 1, &scissor );
-
-  vkCmdDraw( commandBuffer, 3, 1, 0, 0 );
-
-  vkCmdEndRenderPass( commandBuffer );
-
-  if ( vkEndCommandBuffer( commandBuffer ) != VK_SUCCESS ) {
-    Logger::log( "Failed to record command buffer!", Logger::CRITICAL );
-  }
-}
 }  // namespace Vulkan
 }  // namespace Windows
 }  // namespace Core

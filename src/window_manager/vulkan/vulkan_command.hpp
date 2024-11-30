@@ -24,11 +24,7 @@ void create_command_pool( VulkanDevice *vulkanDevice,
 
 void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
                             VkCommandPool commandPool, VkDevice device,
-                            int max_frames_in_flight );
-
-void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
-                            VulkanSwapChain *swapChain,
-                            VulkanPipeline pipeline );
+                            int maxFramesInFlight );
 
 }  // namespace Vulkan
 }  // namespace Windows

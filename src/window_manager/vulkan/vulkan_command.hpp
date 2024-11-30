@@ -11,9 +11,8 @@
 
 #pragma once
 
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_pipeline.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
+#include "vulkan_device.hpp"
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {

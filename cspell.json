@@ -1,0 +1,39 @@
+// cSpell Settings
+{
+    // Version of the setting file.  Always 0.2
+    "version": "0.2",
+    // language - current active spelling language
+    "language": "en",
+    // words - list of words to be always considered correct
+    "words": [
+        "endforeach",
+        "endmacro",
+        "glfw",
+        "gtest",
+        "hasvk",
+        "IWYU",
+        "khronos",
+        "libvulkan",
+        "Multisample",
+        "multisampling",
+        "radeon",
+        "sierpinskied",
+        "STRINGIZE",
+        "Subpasses",
+        "SWAPCHAIN",
+        "VKAPI",
+        "VUID",
+        "TBAA",
+        "Asan"
+    ],
+    "ignorePaths": [
+        "package-lock.json",
+        "node_modules",
+        "vscode-extension",
+        ".git/{info,lfs,logs,refs,objects}/**",
+        ".git/{index,*refs,*HEAD}",
+        ".vscode",
+        ".vscode-insiders",
+        "build/**",
+    ]
+}

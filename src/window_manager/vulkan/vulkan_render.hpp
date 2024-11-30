@@ -26,13 +26,13 @@ class VulkanRender {
   /**
    * @brief Construct and setup a new Vulkan Render object.
    *
-   * @param max_frames_in_fligh
+   * @param max_frames_in_flight
    * @param vulkanDevice
    * @param swapchain
    * @param commandBuffers
    * @param pipeline
    */
-  VulkanRender( int maxFramesInFligh, VulkanDevice *vulkanDevice,
+  VulkanRender( int maxFramesInFlight, VulkanDevice *vulkanDevice,
                 VulkanSwapChain *swapchain,
                 std::vector<VkCommandBuffer> *commandBuffers,
                 VulkanPipeline pipeline );

@@ -17,8 +17,6 @@
 #include "logger_helper.hpp"
 #include "vulkan/vulkan_helper.hpp"
 #include "vulkan/vulkan_initializers.hpp"
-#include "vulkan/vulkan_pipeline.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -41,8 +39,8 @@ void create_command_pool( VulkanDevice *vulkanDevice,
 
 void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
                             VkCommandPool commandPool, VkDevice device,
-                            int max_frames_in_flight ) {
-  commandBuffers.resize( max_frames_in_flight );
+                            int maxFramesInFlight ) {
+  commandBuffers.resize( maxFramesInFlight );
   VkCommandBufferAllocateInfo allocInfo =
       Initializer::command_buffer_allocate_info(
           commandPool, (uint32_t)commandBuffers.size() );

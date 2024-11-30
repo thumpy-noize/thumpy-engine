@@ -78,7 +78,8 @@ void VulkanRender::create_sync_objects() {
   }
 }
 
-void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount ) {
+void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
+                               VkBuffer indexBuffer, uint32_t indexCount ) {
   vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_],
                    VK_TRUE, UINT64_MAX );
 
@@ -99,7 +100,7 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount ) {
   vkResetCommandBuffer( commandBuffers_[currentFrame_],
                         /*VkCommandBufferResetFlagBits*/ 0 );
   record_command_buffer( commandBuffers_[currentFrame_], imageIndex, swapChain_,
-                         vertexBuffer, vertexCount );
+                         vertexBuffer, vertexCount, indexBuffer, indexCount );
 
   // vkAcquireNextImageKHR(vulkanDevice_->device, swapChain_->swapChain,
   //                       UINT64_MAX, imageAvailableSemaphores_[currentFrame_],
@@ -151,11 +152,10 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount ) {
   }
 }
 
-void VulkanRender::record_command_buffer( VkCommandBuffer commandBuffer,
-                                          uint32_t imageIndex,
-                                          VulkanSwapChain *swapChain,
-                                          VkBuffer vertexBuffer,
-                                          uint32_t vertexCount ) {
+void VulkanRender::record_command_buffer(
+    VkCommandBuffer commandBuffer, uint32_t imageIndex,
+    VulkanSwapChain *swapChain, VkBuffer vertexBuffer, uint32_t vertexCount,
+    VkBuffer indexBuffer, uint32_t indexCount ) {
   VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
 
   if ( vkBeginCommandBuffer( commandBuffer, &beginInfo ) != VK_SUCCESS ) {
@@ -178,10 +178,6 @@ void VulkanRender::record_command_buffer( VkCommandBuffer commandBuffer,
   vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                      pipeline_.graphicsPipeline );
 
-  VkBuffer vertexBuffers[] = { vertexBuffer };
-  VkDeviceSize offsets[] = { 0 };
-  vkCmdBindVertexBuffers( commandBuffer, 0, 1, vertexBuffers, offsets );
-
   VkViewport viewport =
       Initializer::viewport( static_cast<float>( swapChain->extent.height ),
                              static_cast<float>( swapChain->extent.width ) );
@@ -193,8 +189,17 @@ void VulkanRender::record_command_buffer( VkCommandBuffer commandBuffer,
   // scissor.extent = swapChain->extent;
   vkCmdSetScissor( commandBuffer, 0, 1, &scissor );
 
-  vkCmdDraw( commandBuffer, vertexCount, 1, 0, 0 );
+  VkBuffer vertexBuffers[] = { vertexBuffer };
+  VkDeviceSize offsets[] = { 0 };
+  vkCmdBindVertexBuffers( commandBuffer, 0, 1, vertexBuffers, offsets );
 
+  vkCmdBindVertexBuffers( commandBuffer, 0, 1, vertexBuffers, offsets );
+
+  // vkCmdDraw( commandBuffer, vertexCount, 1, 0, 0 );
+
+  vkCmdBindIndexBuffer( commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
+
+  vkCmdDrawIndexed( commandBuffer, indexCount, 1, 0, 0, 0 );
   vkCmdEndRenderPass( commandBuffer );
 
   if ( vkEndCommandBuffer( commandBuffer ) != VK_SUCCESS ) {

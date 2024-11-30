@@ -64,15 +64,17 @@ void VulkanWindow::init_vulkan() {
   create_command_pool( vulkanDevice_, commandPool_ );
 
   // Create vertex buffer
-  // vertexBuffer_ = VkBuffer();
-
-  vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
+  // Generate sierpinski triangle (broken with index buffer)
+  // vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
 
   Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_,
                                 vertexBufferMemory_, commandPool_ );
 
-  // Create command buffer
+  // Create Index Buffer
+  Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_,
+                               indexBufferMemory_, commandPool_ );
 
+  // Create command buffer
   create_command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
                          MAX_FRAMES_IN_FLIGHT );
 
@@ -95,6 +97,12 @@ void VulkanWindow::deconstruct_window() {
 
   render_->destroy();
 
+  vkDestroyBuffer( vulkanDevice_->device, indexBuffer_, nullptr );
+  vkFreeMemory( vulkanDevice_->device, indexBufferMemory_, nullptr );
+
+  vkDestroyBuffer( vulkanDevice_->device, vertexBuffer_, nullptr );
+  vkFreeMemory( vulkanDevice_->device, vertexBufferMemory_, nullptr );
+
   vkDestroyCommandPool( vulkanDevice_->device, commandPool_, nullptr );
 
   vkDestroyDevice( vulkanDevice_->device, nullptr );
@@ -112,8 +120,8 @@ void VulkanWindow::deconstruct_window() {
 
 void VulkanWindow::loop() {
   Window::loop();
-  render_->draw_frame( vertexBuffer_,
-                       static_cast<uint32_t>( vertices_.size() ) );
+  render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ),
+                       indexBuffer_, static_cast<uint32_t>( indices_.size() ) );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

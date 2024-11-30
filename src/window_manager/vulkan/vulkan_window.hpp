@@ -71,6 +71,7 @@ class VulkanWindow : public Window {
   std::vector<VkCommandBuffer> commandBuffers_;
   VkDebugUtilsMessengerEXT debugMessenger_;
 
+  // warp t
   // std::vector<Vertex> vertices_ = {
   //     {{0.0f, -1.0f}, {1.0f, 0.0f, 1.0f}}, {{1.0f, 1.0f}, {0.0f, 1.0f,
   //     0.0f}},
@@ -103,21 +104,35 @@ class VulkanWindow : public Window {
   //     {{0.1f, 0.1f}, {0.0f, 1.0f, 0.0f}},  {{-0.1f, 0.1f}, {0.0f,
   //     0.0f, 1.0f}}};
 
-  std::vector<Vertex> vertices_ = { { { 0.0f, -1.0f }, { 1.0f, 0.0f, 1.0f } },
-                                    { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
-                                    { { -1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } },
-                                    { { 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f } },
-                                    { { -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } },
-                                    { { 1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } },
-                                    { { -1.0f, 1.0f }, { 1.0f, 0.0f, 1.0f } },
-                                    { { -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } },
-                                    { { -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
-                                    { { 1.0f, -1.0f }, { 1.0f, 0.0f, 1.0f } },
-                                    { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
-                                    { { 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } } };
+  // fill screen
+  // std::vector<Vertex> vertices_ = { { { 0.0f, -1.0f }, { 1.0f, 0.0f, 1.0f }
+  // },
+  //                                   { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
+  //                                   { { -1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }
+  //                                   }, { { 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f }
+  //                                   }, { { -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f
+  //                                   } }, { { 1.0f, -1.0f }, { 0.0f,
+  //                                   0.0f, 1.0f } }, { { -1.0f, 1.0f },
+  //                                   { 1.0f, 0.0f, 1.0f } }, { { -1.0f, -1.0f
+  //                                   }, { 0.0f, 1.0f, 0.0f } }, { { -0.5f,
+  //                                   0.0f }, { 0.0f, 0.0f, 1.0f } }, { { 1.0f,
+  //                                   -1.0f }, { 1.0f, 0.0f, 1.0f } }, {
+  //                                   { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
+  //                                   { { 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+  //                                   };
+
+  // square
+  std::vector<Vertex> vertices_ = { { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+                                    { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
+                                    { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f } },
+                                    { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } } };
+
+  const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
 
   VkBuffer vertexBuffer_;
   VkDeviceMemory vertexBufferMemory_;
+  VkBuffer indexBuffer_;
+  VkDeviceMemory indexBufferMemory_;
 };
 }  // namespace Vulkan
 }  // namespace Windows

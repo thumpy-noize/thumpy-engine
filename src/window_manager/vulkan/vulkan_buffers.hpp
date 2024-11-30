@@ -34,6 +34,11 @@ void create_vertex_buffer( std::vector<Vertex> vertices,
                            VkDeviceMemory &vertexBufferMemory,
                            VkCommandPool &commandPool );
 
+void create_index_buffer( std::vector<uint16_t> indices,
+                          VulkanDevice *vulkanDevice, VkBuffer &indexBuffer,
+                          VkDeviceMemory &indexBufferMemory,
+                          VkCommandPool &commandPool );
+
 }  // namespace Buffer
 }  // namespace Vulkan
 }  // namespace Windows

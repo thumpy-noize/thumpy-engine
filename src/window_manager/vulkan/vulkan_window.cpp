@@ -64,12 +64,15 @@ void VulkanWindow::init_vulkan() {
   create_command_pool( vulkanDevice_, commandPool_ );
 
   // Create vertex buffer
-  // vertexBuffer_ = VkBuffer();
-
-  vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
+  // Generate sierpinski triangle (broken with index buffer)
+  // vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
 
   Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_,
                                 vertexBufferMemory_, commandPool_ );
+
+  // Create Index Buffer
+  Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_,
+                               indexBufferMemory_, commandPool_ );
 
   // Create command buffer
 

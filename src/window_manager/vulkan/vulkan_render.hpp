@@ -14,9 +14,9 @@
 
 #include <vector>
 
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_pipeline.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
+#include "vulkan_device.hpp"
+#include "vulkan_pipeline.hpp"
+#include "vulkan_swap_chain.hpp"
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -32,7 +32,7 @@ class VulkanRender {
    * @param commandBuffers
    * @param pipeline
    */
-  VulkanRender( int max_frames_in_fligh, VulkanDevice *vulkanDevice,
+  VulkanRender( int maxFramesInFligh, VulkanDevice *vulkanDevice,
                 VulkanSwapChain *swapchain,
                 std::vector<VkCommandBuffer> *commandBuffers,
                 VulkanPipeline pipeline );
@@ -52,7 +52,7 @@ class VulkanRender {
    * @param commandBuffers
    * @param pipeline
    */
-  void set_context( int max_frames_in_flight, VulkanDevice *vulkanDevice,
+  void set_context( int maxFramesInFlight, VulkanDevice *vulkanDevice,
                     VulkanSwapChain *swapchain,
                     std::vector<VkCommandBuffer> *commandBuffers,
                     VulkanPipeline pipeline );

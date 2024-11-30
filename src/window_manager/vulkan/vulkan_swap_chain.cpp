@@ -4,7 +4,6 @@
 #include <limits>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
 
 namespace Thumpy {
 namespace Core {

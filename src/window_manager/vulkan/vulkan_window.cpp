@@ -9,17 +9,18 @@
  *
  */
 
-#include <glm/ext/vector_float2.hpp>
-#include <glm/ext/vector_float3.hpp>
-#include <string>
-#include <vector>
-
-#include "logger_helper.hpp"
 #define GLFW_INCLUDE_VULKAN
+
+#include "vulkan_window.hpp"
+
 #include <vulkan/vulkan_core.h>
 
 #include <cstdint>  // Necessary for uint32_t
 #include <cstring>
+#include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <string>
+#include <vector>
 
 #include "logger.hpp"
 #include "vulkan/vulkan_debug.hpp"
@@ -28,7 +29,6 @@
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
-#include "vulkan_window.hpp"
 
 namespace Thumpy {
 namespace Core {

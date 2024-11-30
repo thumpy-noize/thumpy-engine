@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "logger.hpp"
-#include "vulkan_helper.hpp"
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -186,11 +186,11 @@ inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass,
   return framebufferInfo;
 }
 
-inline VkCommandPoolCreateInfo pool_info( uint32_t queue_family_index ) {
+inline VkCommandPoolCreateInfo pool_info( uint32_t queueFamilyIndex ) {
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-  poolInfo.queueFamilyIndex = queue_family_index;
+  poolInfo.queueFamilyIndex = queueFamilyIndex;
   return poolInfo;
 }
 

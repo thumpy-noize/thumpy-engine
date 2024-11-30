@@ -15,7 +15,7 @@ namespace Vulkan {
 
 class VulkanSwapChain {
  public:
-  VulkanSwapChain( VkInstance instance, VulkanDevice *Device,
+  VulkanSwapChain( VkInstance instance, VulkanDevice *device,
                    VkSurfaceKHR surface, GLFWwindow *window );
   /**
    * @brief Set swap chain context variables

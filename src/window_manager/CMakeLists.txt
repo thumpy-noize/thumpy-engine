@@ -37,8 +37,13 @@ target_sources(window_manager
 target_include_directories(window_manager
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
+    ${GLFW_LIBRARIES}
   )
 
   target_link_libraries(window_manager
     logger
+    glfw
+    glm::glm
   )
+
+

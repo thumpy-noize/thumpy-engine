@@ -22,16 +22,12 @@ add_subdirectory(io)
 add_subdirectory(logger)
 add_subdirectory(window_manager)
 
-target_include_directories(engine PRIVATE ${GLFW_LIBRARIES})
-
-
 target_link_libraries(engine
   PRIVATE
     io
     logger
     window_manager
 
-    glfw
     vulkan
     glm::glm
 )

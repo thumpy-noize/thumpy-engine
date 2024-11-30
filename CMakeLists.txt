@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.5)
-add_compile_options(-lstdc++_libbacktrace)
 
 
 set(VCPKG_ROOT "./vcpkg")

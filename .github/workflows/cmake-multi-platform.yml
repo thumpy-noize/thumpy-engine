@@ -55,7 +55,7 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: apt install 
-      run: sudo apt install xorg-dev 
+      run: sudo apt install glslc xorg-dev 
       if: matrix.os == 'ubuntu-latest'
 
     - name: Submodule init

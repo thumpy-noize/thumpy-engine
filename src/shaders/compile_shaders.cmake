@@ -20,7 +20,17 @@ macro(add_shaders)
     endforeach()
 endmacro()
 
+if(Vulkan_GLSLC_EXECUTABLE-NOTFOUND)
 
-message("Compiling shaders...")
-add_shaders(engine SOURCES "vert.vert")
-add_shaders(engine SOURCES "vert.frag")
+    message("GLSLC not found")
+
+else() 
+
+    message("GLSLC found")
+    message("Compiling shaders...")
+    add_shaders(engine SOURCES "vert.vert")
+    add_shaders(engine SOURCES "vert.frag")
+
+endif()
+
+

@@ -33,12 +33,16 @@ endmacro()
 
 if( $ENV{COMPILE_SHADERS} )
     message("Compiling shaders...")
+    # Make this loop plz...
     compile_shaders(engine SOURCES "vert.vert")
+    compile_shaders(engine SOURCES "uniform_buffer.vert")
     compile_shaders(engine SOURCES "vert.frag")
 
 else()
     message("Copying shaders...")
+    # This too
     copy_shaders(engine SOURCES "vert.vert")
+    copy_shaders(engine SOURCES "uniform_buffer.vert")
     copy_shaders(engine SOURCES "vert.frag")
 
 endif()

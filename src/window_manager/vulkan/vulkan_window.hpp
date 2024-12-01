@@ -58,6 +58,7 @@ class VulkanWindow : public Window {
   void create_descriptor_set_layout();
   void create_uniform_buffers();
   void create_descriptor_pool();
+  void create_descriptor_sets();
 
 #pragma endregion Core
 
@@ -83,6 +84,7 @@ class VulkanWindow : public Window {
   std::vector<void *> uniformBuffersMapped_;
 
   VkDescriptorPool descriptorPool_;
+  std::vector<VkDescriptorSet> descriptorSets_;
 
   // warp t
   // std::vector<Vertex> vertices_ = {

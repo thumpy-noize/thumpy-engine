@@ -50,8 +50,13 @@ class VulkanWindow : public Window {
    */
   void loop();
 
+  // move these to vulkan_command, then rename vulkan_command ->
+  // vulkan_constructors
   void create_instance();
   void create_surface();
+
+  void create_descriptor_set_layout();
+  void create_uniform_buffers();
 
 #pragma endregion Core
 
@@ -70,6 +75,11 @@ class VulkanWindow : public Window {
   VkCommandPool commandPool_;
   std::vector<VkCommandBuffer> commandBuffers_;
   VkDebugUtilsMessengerEXT debugMessenger_;
+  VkDescriptorSetLayout descriptorSetLayout_;
+
+  std::vector<VkBuffer> uniformBuffers_;
+  std::vector<VkDeviceMemory> uniformBuffersMemory_;
+  std::vector<void *> uniformBuffersMapped_;
 
   // warp t
   // std::vector<Vertex> vertices_ = {

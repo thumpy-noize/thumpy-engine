@@ -9,9 +9,8 @@
  *
  */
 
+#include "logger_helper.hpp"
 #define GLFW_INCLUDE_VULKAN
-
-#include "vulkan_window.hpp"
 
 #include <vulkan/vulkan_core.h>
 
@@ -29,6 +28,7 @@
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
+#include "vulkan_window.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -44,17 +44,25 @@ VulkanWindow::VulkanWindow( std::string title ) : Window( title ) {
 void VulkanWindow::init_vulkan() {
   // Create our instance
   create_instance();
+
   // Setup debug messenger
   Debug::setup_debug_messenger( instance_, &debugMessenger_ );
+
   // Create surface
   create_surface();
+
   // Find & create vulkan device
   vulkanDevice_ = new VulkanDevice( instance_, surface_ );
+
   // Create swap chain / image views / render pass
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
+  // Create descriptor layouts
+  create_descriptor_set_layout();
+
   // Create graphics pipeline
-  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device );
+  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device,
+                                        descriptorSetLayout_ );
 
   // Create frame buffers
   Buffer::create_framebuffers( swapChain_, vulkanDevice_->device );
@@ -72,6 +80,8 @@ void VulkanWindow::init_vulkan() {
   // Create Index Buffer
   Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_,
                                indexBufferMemory_, commandPool_ );
+
+  create_uniform_buffers();
 
   // Create command buffer
   create_command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
@@ -92,6 +102,14 @@ void VulkanWindow::deconstruct_window() {
   vkDestroyRenderPass( vulkanDevice_->device, swapChain_->renderPass, nullptr );
 
   render_->destroy();
+
+  for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+    vkDestroyBuffer( vulkanDevice_->device, uniformBuffers_[i], nullptr );
+    vkFreeMemory( vulkanDevice_->device, uniformBuffersMemory_[i], nullptr );
+  }
+
+  vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_,
+                                nullptr );
 
   vkDestroyBuffer( vulkanDevice_->device, indexBuffer_, nullptr );
   vkFreeMemory( vulkanDevice_->device, indexBufferMemory_, nullptr );
@@ -165,6 +183,45 @@ void VulkanWindow::create_surface() {
 }
 
 #pragma endregion Core
+
+void VulkanWindow::create_descriptor_set_layout() {
+  VkDescriptorSetLayoutBinding uboLayoutBinding{};
+  uboLayoutBinding.binding = 0;
+  uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  uboLayoutBinding.descriptorCount = 1;
+
+  uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  uboLayoutBinding.pImmutableSamplers = nullptr;  // Optional
+
+  VkDescriptorSetLayoutCreateInfo layoutInfo{};
+  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+  layoutInfo.bindingCount = 1;
+  layoutInfo.pBindings = &uboLayoutBinding;
+
+  if ( vkCreateDescriptorSetLayout( vulkanDevice_->device, &layoutInfo, nullptr,
+                                    &descriptorSetLayout_ ) != VK_SUCCESS ) {
+    Logger::log( "failed to create descriptor set layout!", Logger::CRITICAL );
+  }
+}
+
+void VulkanWindow::create_uniform_buffers() {
+  VkDeviceSize bufferSize = sizeof( UniformBufferObject );
+
+  uniformBuffers_.resize( MAX_FRAMES_IN_FLIGHT );
+  uniformBuffersMemory_.resize( MAX_FRAMES_IN_FLIGHT );
+  uniformBuffersMapped_.resize( MAX_FRAMES_IN_FLIGHT );
+
+  for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+    Buffer::create_buffer( bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                               VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                           uniformBuffers_[i], uniformBuffersMemory_[i],
+                           vulkanDevice_ );
+
+    vkMapMemory( vulkanDevice_->device, uniformBuffersMemory_[i], 0, bufferSize,
+                 0, &uniformBuffersMapped_[i] );
+  }
+}
 
 }  // namespace Vulkan
 }  // namespace Windows

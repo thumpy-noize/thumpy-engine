@@ -26,8 +26,10 @@ struct VulkanPipeline {
   VkPipeline graphicsPipeline;
 };
 
-VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain,
-                                         VkDevice vulkanDevice );
+VulkanPipeline create_graphics_pipeline(
+    VulkanSwapChain *swapChain, VkDevice vulkanDevice,
+    VkDescriptorSetLayout descriptorSetLayout );
+
 void destroy_graphics_pipeline( VkDevice vulkanDevice,
                                 VulkanPipeline pipeline );
 

@@ -2,6 +2,6 @@
 
 Simple engine for 3D applications
 
-Developing for Linux, working on support for windows
+Developed for Linux. Windos and MacOS may be suported in the future.
 
 To build and execute the engine, run build_engine.sh

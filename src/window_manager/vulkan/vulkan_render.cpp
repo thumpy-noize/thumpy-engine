@@ -12,9 +12,16 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include <chrono>
 #include <cstdint>
+#include <cstring>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <string>
 
 #include "logger.hpp"
+#include "logger_helper.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_initializers.hpp"
 #include "vulkan/vulkan_pipeline.hpp"
@@ -79,7 +86,8 @@ void VulkanRender::create_sync_objects() {
 }
 
 void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
-                               VkBuffer indexBuffer, uint32_t indexCount ) {
+                               VkBuffer indexBuffer, uint32_t indexCount,
+                               std::vector<void *> uniformBuffersMapped ) {
   vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_],
                    VK_TRUE, UINT64_MAX );
 
@@ -94,6 +102,8 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
   } else if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR ) {
     Logger::log( "Failed to acquire swap chain image!", Logger::CRITICAL );
   }
+
+  update_uniform_buffer( currentFrame_, uniformBuffersMapped );
 
   vkResetFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_] );
 
@@ -205,6 +215,30 @@ void VulkanRender::record_command_buffer(
   if ( vkEndCommandBuffer( commandBuffer ) != VK_SUCCESS ) {
     Logger::log( "Failed to record command buffer!", Logger::CRITICAL );
   }
+}
+
+void VulkanRender::update_uniform_buffer(
+    uint32_t currentImage, std::vector<void *> uniformBuffersMapped ) {
+  static auto startTime = std::chrono::high_resolution_clock::now();
+
+  auto currentTime = std::chrono::high_resolution_clock::now();
+  float run_time = std::chrono::duration<float, std::chrono::seconds::period>(
+                       currentTime - startTime )
+                       .count();
+  Logger::log( "Run time: " + std::to_string( run_time ), Logger::DEBUG );
+
+  UniformBufferObject ubo{};
+  ubo.model = glm::rotate( glm::mat4( 1.0f ), run_time * glm::radians( 90.0f ),
+                           glm::vec3( 0.0f, 0.0f, 1.0f ) );
+  ubo.view =
+      glm::lookAt( glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ),
+                   glm::vec3( 0.0f, 0.0f, 1.0f ) );
+  ubo.proj = glm::perspective(
+      glm::radians( 45.0f ),
+      swapChain_->extent.width / (float)swapChain_->extent.height, 0.1f,
+      10.0f );
+  ubo.proj[1][1] *= -1;
+  memcpy( uniformBuffersMapped[currentImage], &ubo, sizeof( ubo ) );
 }
 
 }  // namespace Vulkan

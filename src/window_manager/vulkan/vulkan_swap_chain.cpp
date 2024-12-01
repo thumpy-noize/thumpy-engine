@@ -10,18 +10,14 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-VulkanSwapChain::VulkanSwapChain( VkInstance instance, VulkanDevice *device,
-                                  VkSurfaceKHR surface, GLFWwindow *window ) {
-  set_context( instance, device, surface, window );
-  create_swap_chain();
-}
-
-void VulkanSwapChain::set_context( VkInstance instance, VulkanDevice *device,
-                                   VkSurfaceKHR surface, GLFWwindow *window ) {
-  instance_ = instance;
+VulkanSwapChain::VulkanSwapChain( VulkanDevice *vulkanDevice,
+                                  GLFWwindow *window, VkSurfaceKHR surface ) {
+  device_ = vulkanDevice;
   surface_ = surface;
   window_ = window;
-  device_ = device;
+  create_swap_chain();
+  create_image_views();
+  create_render_pass();
 }
 
 void VulkanSwapChain::create_swap_chain() {
@@ -83,9 +79,6 @@ void VulkanSwapChain::create_swap_chain() {
 
   swapChainImageFormat = surfaceFormat.format;
   extent = chosen_extent;
-
-  create_image_views();
-  create_render_pass();
 }
 
 void VulkanSwapChain::recreate_swap_chain() {

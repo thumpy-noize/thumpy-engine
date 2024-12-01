@@ -15,18 +15,9 @@ namespace Vulkan {
 
 class VulkanSwapChain {
  public:
-  VulkanSwapChain( VkInstance instance, VulkanDevice *device,
-                   VkSurfaceKHR surface, GLFWwindow *window );
-  /**
-   * @brief Set swap chain context variables
-   *
-   * @param instance
-   * @param device
-   * @param surface
-   * @param window
-   */
-  void set_context( VkInstance instance, VulkanDevice *device,
-                    VkSurfaceKHR surface, GLFWwindow *window );
+  VulkanSwapChain( VulkanDevice *vulkanDevice, GLFWwindow *window,
+                   VkSurfaceKHR surface );
+
   /**
    * @brief Create swap chain
    */
@@ -70,7 +61,6 @@ class VulkanSwapChain {
    * @return VkExtent2D
    */
   VkExtent2D choose_swap_extent( const VkSurfaceCapabilitiesKHR &capabilities );
-  QueueFamilyIndices find_queue_families();
 
   void create_image_views();
   void create_framebuffers();

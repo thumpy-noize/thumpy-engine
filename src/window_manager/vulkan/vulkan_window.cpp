@@ -51,8 +51,7 @@ void VulkanWindow::init_vulkan() {
   // Find & create vulkan device
   vulkanDevice_ = new VulkanDevice( instance_, surface_ );
   // Create swap chain / image views / render pass
-  swapChain_ =
-      new VulkanSwapChain( instance_, vulkanDevice_, surface_, window_ );
+  swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
   // Create graphics pipeline
   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device );

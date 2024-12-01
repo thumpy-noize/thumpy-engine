@@ -7,7 +7,6 @@
             "cmakeDebugType": "external",
             "pipeName": "/tmp/vcpkg_ext_portfile_dbg",
             "preLaunchTask": "Debug vcpkg commands"
-              
         }
     ]
 }

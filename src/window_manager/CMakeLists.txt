@@ -44,6 +44,7 @@ target_include_directories(window_manager
     logger
     glfw
     glm::glm
+    Vulkan::Vulkan
   )
 
 

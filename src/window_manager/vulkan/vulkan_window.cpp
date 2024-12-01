@@ -108,6 +108,7 @@ void VulkanWindow::deconstruct_window() {
     vkFreeMemory( vulkanDevice_->device, uniformBuffersMemory_[i], nullptr );
   }
 
+  vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
   vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_,
                                 nullptr );
 
@@ -239,6 +240,22 @@ void VulkanWindow::create_descriptor_pool() {
   if ( vkCreateDescriptorPool( vulkanDevice_->device, &poolInfo, nullptr,
                                &descriptorPool_ ) != VK_SUCCESS ) {
     Logger::log( "failed to create descriptor pool!", Logger::CRITICAL );
+  }
+}
+
+void VulkanWindow::create_descriptor_sets() {
+  std::vector<VkDescriptorSetLayout> layouts( MAX_FRAMES_IN_FLIGHT,
+                                              descriptorSetLayout_ );
+  VkDescriptorSetAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  allocInfo.descriptorPool = descriptorPool_;
+  allocInfo.descriptorSetCount = static_cast<uint32_t>( MAX_FRAMES_IN_FLIGHT );
+  allocInfo.pSetLayouts = layouts.data();
+
+  descriptorSets_.resize( MAX_FRAMES_IN_FLIGHT );
+  if ( vkAllocateDescriptorSets( vulkanDevice_->device, &allocInfo,
+                                 descriptorSets_.data() ) != VK_SUCCESS ) {
+    Logger::log( "failed to allocate descriptor sets!", Logger::CRITICAL );
   }
 }
 

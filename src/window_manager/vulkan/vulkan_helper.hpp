@@ -85,6 +85,12 @@ struct Vertex {
   }
 };
 
+struct UniformBufferObject {
+  glm::mat4 model;
+  glm::mat4 view;
+  glm::mat4 proj;
+};
+
 bool check_validation_layer_support();
 
 std::vector<const char *> get_required_extensions();

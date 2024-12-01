@@ -224,6 +224,24 @@ void VulkanWindow::create_uniform_buffers() {
   }
 }
 
+void VulkanWindow::create_descriptor_pool() {
+  VkDescriptorPoolSize poolSize{};
+  poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  poolSize.descriptorCount = static_cast<uint32_t>( MAX_FRAMES_IN_FLIGHT );
+
+  VkDescriptorPoolCreateInfo poolInfo{};
+  poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  poolInfo.poolSizeCount = 1;
+  poolInfo.pPoolSizes = &poolSize;
+
+  poolInfo.maxSets = static_cast<uint32_t>( MAX_FRAMES_IN_FLIGHT );
+
+  if ( vkCreateDescriptorPool( vulkanDevice_->device, &poolInfo, nullptr,
+                               &descriptorPool_ ) != VK_SUCCESS ) {
+    Logger::log( "failed to create descriptor pool!", Logger::CRITICAL );
+  }
+}
+
 }  // namespace Vulkan
 }  // namespace Windows
 }  // namespace Core

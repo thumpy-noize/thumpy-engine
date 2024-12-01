@@ -82,6 +82,8 @@ void VulkanWindow::init_vulkan() {
                                indexBufferMemory_, commandPool_ );
 
   create_uniform_buffers();
+  create_descriptor_pool();
+  create_descriptor_sets();
 
   // Create command buffer
   create_command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
@@ -256,6 +258,25 @@ void VulkanWindow::create_descriptor_sets() {
   if ( vkAllocateDescriptorSets( vulkanDevice_->device, &allocInfo,
                                  descriptorSets_.data() ) != VK_SUCCESS ) {
     Logger::log( "failed to allocate descriptor sets!", Logger::CRITICAL );
+  }
+
+  for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+    VkDescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = uniformBuffers_[i];
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof( UniformBufferObject );
+
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.dstSet = descriptorSets_[i];
+    descriptorWrite.dstBinding = 0;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    vkUpdateDescriptorSets( vulkanDevice_->device, 1, &descriptorWrite, 0,
+                            nullptr );
   }
 }
 

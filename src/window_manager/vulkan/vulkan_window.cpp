@@ -135,7 +135,8 @@ void VulkanWindow::deconstruct_window() {
 void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ),
-                       indexBuffer_, static_cast<uint32_t>( indices_.size() ) );
+                       indexBuffer_, static_cast<uint32_t>( indices_.size() ),
+                       uniformBuffersMapped_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

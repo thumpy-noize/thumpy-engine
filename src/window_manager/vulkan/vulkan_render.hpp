@@ -64,12 +64,16 @@ class VulkanRender {
    *
    */
   void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
-                   VkBuffer indexBuffer, uint32_t indexCount );
+                   VkBuffer indexBuffer, uint32_t indexCount,
+                   std::vector<void *> uniformBuffersMapped );
 
   void record_command_buffer( VkCommandBuffer commandBuffer,
                               uint32_t imageIndex, VulkanSwapChain *swapChain,
                               VkBuffer vertexBuffer, uint32_t vertexCount,
                               VkBuffer indexBuffer, uint32_t indexCount );
+
+  void update_uniform_buffer( uint32_t currentImage,
+                              std::vector<void *> uniformBuffersMapped );
 
  protected:
   int maxFramesInFlight_;

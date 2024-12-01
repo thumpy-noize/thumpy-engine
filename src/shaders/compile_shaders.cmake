@@ -1,5 +1,5 @@
 
-macro(add_shaders)
+macro(compile_shaders)
     cmake_parse_arguments("MY" "TARGET" "SOURCES" ${ARGN})
 
     foreach(src ${MY_SOURCES})
@@ -20,17 +20,28 @@ macro(add_shaders)
     endforeach()
 endmacro()
 
-if(Vulkan_GLSLC_EXECUTABLE-NOTFOUND)
+macro(copy_shaders)
+    cmake_parse_arguments("MY" "TARGET" "SOURCES" ${ARGN})
+    message("Copying shader: ${CMAKE_CURRENT_LIST_DIR}/${MY_SOURCES}")
+    set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/shaders/${MY_SOURCES}.spv")
+    message("Copying to: ${OUTF}")
 
-    message("GLSLC not found")
+    configure_file("${CMAKE_CURRENT_LIST_DIR}/compiled/${MY_SOURCES}.spv" "${OUTF}" COPYONLY)
+endmacro()
 
-else() 
 
-    message("GLSLC found")
+
+if( $ENV{COMPILE_SHADERS} )
     message("Compiling shaders...")
-    add_shaders(engine SOURCES "vert.vert")
-    add_shaders(engine SOURCES "vert.frag")
+    compile_shaders(engine SOURCES "vert.vert")
+    compile_shaders(engine SOURCES "vert.frag")
+
+else()
+    message("Copying shaders...")
+    copy_shaders(engine SOURCES "vert.vert")
+    copy_shaders(engine SOURCES "vert.frag")
 
 endif()
+
 
 

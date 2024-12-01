@@ -153,13 +153,14 @@ inline VkPipelineColorBlendAttachmentState color_blend_attachment() {
   return colorBlendAttachment;
 }
 
-inline VkPipelineLayoutCreateInfo pipeline_layout_info() {
+inline VkPipelineLayoutCreateInfo pipeline_layout_info(
+    VkDescriptorSetLayout &descriptorSetLayout ) {
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 0;             // Optional
-  pipelineLayoutInfo.pSetLayouts = nullptr;          // Optional
-  pipelineLayoutInfo.pushConstantRangeCount = 0;     // Optional
-  pipelineLayoutInfo.pPushConstantRanges = nullptr;  // Optional
+  pipelineLayoutInfo.setLayoutCount = 0;                  // Optional
+  pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;  // Optional
+  pipelineLayoutInfo.pushConstantRangeCount = 0;          // Optional
+  pipelineLayoutInfo.pPushConstantRanges = nullptr;       // Optional
   return pipelineLayoutInfo;
 }
 

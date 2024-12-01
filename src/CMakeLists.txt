@@ -28,7 +28,7 @@ target_link_libraries(engine
     logger
     window_manager
 
-    vulkan
+    Vulkan::Vulkan
     glm::glm
 )
 

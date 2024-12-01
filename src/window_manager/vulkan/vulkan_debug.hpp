@@ -16,7 +16,7 @@
 #include <string>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {

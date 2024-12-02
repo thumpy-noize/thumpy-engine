@@ -11,12 +11,17 @@
 
 #pragma once
 
+#include <vulkan/vulkan_core.h>
+
 #include "vulkan_device.hpp"
 
 namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
+namespace Construct {
+
+void create_instance( VkInstance &instance );
 
 void create_command_pool( VulkanDevice *vulkanDevice,
                           VkCommandPool &commandPool );
@@ -24,7 +29,7 @@ void create_command_pool( VulkanDevice *vulkanDevice,
 void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
                             VkCommandPool commandPool, VkDevice device,
                             int maxFramesInFlight );
-
+}  // namespace Construct
 }  // namespace Vulkan
 }  // namespace Windows
 }  // namespace Core

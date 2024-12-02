@@ -10,6 +10,7 @@
 #include "vulkan_initializers.hpp"
 
 #ifdef _WIN32
+#include <windows.h>
 #include <libloaderapi.h>
 #include <filesystem>
 #endif  // _WIN32

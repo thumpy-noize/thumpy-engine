@@ -4,7 +4,7 @@ name: Windows
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "develop", "windows_patch" ]
   pull_request:
     branches: [ "develop" ]
 

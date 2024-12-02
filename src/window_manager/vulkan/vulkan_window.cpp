@@ -27,7 +27,6 @@
 #include "vulkan_construct.hpp"
 #include "vulkan_debug.hpp"
 #include "vulkan_helper.hpp"
-#include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
 
 namespace Thumpy {
@@ -81,7 +80,9 @@ void VulkanWindow::init_vulkan() {
   Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_,
                                indexBufferMemory_, commandPool_ );
 
-  create_uniform_buffers();
+  Construct::create_uniform_buffers(
+      vulkanDevice_, uniformBuffers_, uniformBuffersMemory_,
+      uniformBuffersMapped_, MAX_FRAMES_IN_FLIGHT );
   create_descriptor_pool();
   create_descriptor_sets();
 
@@ -145,42 +146,6 @@ void VulkanWindow::loop() {
   vkDeviceWaitIdle( vulkanDevice_->device );
 }
 
-// void VulkanWindow::create_instance() {
-//   if ( enableValidationLayers && !check_validation_layer_support() ) {
-//     Logger::log( "validation layers requested, but not available!",
-//                  Logger::CRITICAL );
-//   }
-
-//   VkApplicationInfo appInfo = Initializer::application_info();
-
-//   VkInstanceCreateInfo createInfo{};
-//   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-//   createInfo.pApplicationInfo = &appInfo;
-
-//   auto extensions = get_required_extensions();
-//   createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size()
-//   ); createInfo.ppEnabledExtensionNames = extensions.data();
-
-//   VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-//   if ( enableValidationLayers ) {
-//     createInfo.enabledLayerCount =
-//         static_cast<uint32_t>( validationLayers.size() );
-//     createInfo.ppEnabledLayerNames = validationLayers.data();
-
-//     Debug::populate_debug_messenger_create_info( debugCreateInfo );
-//     createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT
-//     *)&debugCreateInfo;
-//   } else {
-//     createInfo.enabledLayerCount = 0;
-
-//     createInfo.pNext = nullptr;
-//   }
-
-//   if ( vkCreateInstance( &createInfo, nullptr, &instance_ ) != VK_SUCCESS ) {
-//     Logger::log( "Failed to create instance!", Logger::CRITICAL );
-//   }
-// }
-
 void VulkanWindow::create_surface() {
   if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) !=
        VK_SUCCESS ) {
@@ -210,24 +175,25 @@ void VulkanWindow::create_descriptor_set_layout() {
   }
 }
 
-void VulkanWindow::create_uniform_buffers() {
-  VkDeviceSize bufferSize = sizeof( UniformBufferObject );
+// void VulkanWindow::create_uniform_buffers() {
+//   VkDeviceSize bufferSize = sizeof( UniformBufferObject );
 
-  uniformBuffers_.resize( MAX_FRAMES_IN_FLIGHT );
-  uniformBuffersMemory_.resize( MAX_FRAMES_IN_FLIGHT );
-  uniformBuffersMapped_.resize( MAX_FRAMES_IN_FLIGHT );
+//   uniformBuffers_.resize( MAX_FRAMES_IN_FLIGHT );
+//   uniformBuffersMemory_.resize( MAX_FRAMES_IN_FLIGHT );
+//   uniformBuffersMapped_.resize( MAX_FRAMES_IN_FLIGHT );
 
-  for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
-    Buffer::create_buffer( bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                               VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                           uniformBuffers_[i], uniformBuffersMemory_[i],
-                           vulkanDevice_ );
+//   for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+//     Buffer::create_buffer( bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+//                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+//                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+//                            uniformBuffers_[i], uniformBuffersMemory_[i],
+//                            vulkanDevice_ );
 
-    vkMapMemory( vulkanDevice_->device, uniformBuffersMemory_[i], 0, bufferSize,
-                 0, &uniformBuffersMapped_[i] );
-  }
-}
+//     vkMapMemory( vulkanDevice_->device, uniformBuffersMemory_[i], 0,
+//     bufferSize,
+//                  0, &uniformBuffersMapped_[i] );
+//   }
+// }
 
 void VulkanWindow::create_descriptor_pool() {
   VkDescriptorPoolSize poolSize{};

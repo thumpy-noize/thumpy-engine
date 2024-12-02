@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <GLFW/glfw3.h>
 #include <vulkan/vulkan_core.h>
 
 #include "vulkan_device.hpp"
@@ -23,12 +24,22 @@ namespace Construct {
 
 void create_instance( VkInstance &instance );
 
+void create_surface( VkInstance instance, GLFWwindow *window,
+                     VkSurfaceKHR &surface );
+
 void create_command_pool( VulkanDevice *vulkanDevice,
                           VkCommandPool &commandPool );
 
 void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
                             VkCommandPool commandPool, VkDevice device,
                             int maxFramesInFlight );
+
+void create_uniform_buffers( VulkanDevice *vulkanDevice,
+                             std::vector<VkBuffer> &uniformBuffers,
+                             std::vector<VkDeviceMemory> &uniformBuffersMemory,
+                             std::vector<void *> &uniformBuffersMapped,
+                             int maxFramesInFlight );
+
 }  // namespace Construct
 }  // namespace Vulkan
 }  // namespace Windows

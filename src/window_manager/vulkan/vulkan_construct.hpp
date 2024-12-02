@@ -40,6 +40,11 @@ void create_uniform_buffers( VulkanDevice *vulkanDevice,
                              std::vector<void *> &uniformBuffersMapped,
                              int maxFramesInFlight );
 
+void create_descriptor_set_layout( VulkanDevice *vulkanDevice,
+                                   VkDescriptorSetLayout &descriptorSetLayout );
+void create_descriptor_pool();
+void create_descriptor_sets();
+
 }  // namespace Construct
 }  // namespace Vulkan
 }  // namespace Windows

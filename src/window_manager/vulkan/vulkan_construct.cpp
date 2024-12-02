@@ -112,6 +112,30 @@ void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
   }
 }
 
+void create_descriptor_set_layout(
+    VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout ) {
+  VkDescriptorSetLayoutBinding uboLayoutBinding{};
+  uboLayoutBinding.binding = 0;
+  uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  uboLayoutBinding.descriptorCount = 1;
+
+  uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  uboLayoutBinding.pImmutableSamplers = nullptr;  // Optional
+
+  VkDescriptorSetLayoutCreateInfo layoutInfo{};
+  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+  layoutInfo.bindingCount = 1;
+  layoutInfo.pBindings = &uboLayoutBinding;
+
+  if ( vkCreateDescriptorSetLayout( vulkanDevice->device, &layoutInfo, nullptr,
+                                    &descriptorSetLayout ) != VK_SUCCESS ) {
+    Logger::log( "Failed to create descriptor set layout!", Logger::CRITICAL );
+  }
+}
+
+void create_descriptor_pool() {}
+void create_descriptor_sets() {}
+
 }  // namespace Construct
 }  // namespace Vulkan
 }  // namespace Windows

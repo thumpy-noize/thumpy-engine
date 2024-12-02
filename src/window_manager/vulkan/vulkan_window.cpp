@@ -57,7 +57,8 @@ void VulkanWindow::init_vulkan() {
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
   // Create descriptor layouts
-  create_descriptor_set_layout();
+  Construct::create_descriptor_set_layout( vulkanDevice_,
+                                           descriptorSetLayout_ );
 
   // Create graphics pipeline
   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device,
@@ -155,43 +156,25 @@ void VulkanWindow::create_surface() {
 
 #pragma endregion Core
 
-void VulkanWindow::create_descriptor_set_layout() {
-  VkDescriptorSetLayoutBinding uboLayoutBinding{};
-  uboLayoutBinding.binding = 0;
-  uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  uboLayoutBinding.descriptorCount = 1;
+// void VulkanWindow::create_descriptor_set_layout() {
+//   VkDescriptorSetLayoutBinding uboLayoutBinding{};
+//   uboLayoutBinding.binding = 0;
+//   uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//   uboLayoutBinding.descriptorCount = 1;
 
-  uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-  uboLayoutBinding.pImmutableSamplers = nullptr;  // Optional
+//   uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+//   uboLayoutBinding.pImmutableSamplers = nullptr;  // Optional
 
-  VkDescriptorSetLayoutCreateInfo layoutInfo{};
-  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  layoutInfo.bindingCount = 1;
-  layoutInfo.pBindings = &uboLayoutBinding;
+//   VkDescriptorSetLayoutCreateInfo layoutInfo{};
+//   layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+//   layoutInfo.bindingCount = 1;
+//   layoutInfo.pBindings = &uboLayoutBinding;
 
-  if ( vkCreateDescriptorSetLayout( vulkanDevice_->device, &layoutInfo, nullptr,
-                                    &descriptorSetLayout_ ) != VK_SUCCESS ) {
-    Logger::log( "Failed to create descriptor set layout!", Logger::CRITICAL );
-  }
-}
-
-// void VulkanWindow::create_uniform_buffers() {
-//   VkDeviceSize bufferSize = sizeof( UniformBufferObject );
-
-//   uniformBuffers_.resize( MAX_FRAMES_IN_FLIGHT );
-//   uniformBuffersMemory_.resize( MAX_FRAMES_IN_FLIGHT );
-//   uniformBuffersMapped_.resize( MAX_FRAMES_IN_FLIGHT );
-
-//   for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
-//     Buffer::create_buffer( bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-//                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-//                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-//                            uniformBuffers_[i], uniformBuffersMemory_[i],
-//                            vulkanDevice_ );
-
-//     vkMapMemory( vulkanDevice_->device, uniformBuffersMemory_[i], 0,
-//     bufferSize,
-//                  0, &uniformBuffersMapped_[i] );
+//   if ( vkCreateDescriptorSetLayout( vulkanDevice_->device, &layoutInfo,
+//   nullptr,
+//                                     &descriptorSetLayout_ ) != VK_SUCCESS ) {
+//     Logger::log( "Failed to create descriptor set layout!", Logger::CRITICAL
+//     );
 //   }
 // }
 

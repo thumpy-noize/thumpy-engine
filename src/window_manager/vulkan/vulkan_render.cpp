@@ -35,9 +35,13 @@ namespace Vulkan {
 VulkanRender::VulkanRender( int maxFramesInFlight, VulkanDevice *vulkanDevice,
                             VulkanSwapChain *swapChain,
                             std::vector<VkCommandBuffer> *commandBuffers,
-                            VulkanPipeline pipeline ) {
-  set_context( maxFramesInFlight, vulkanDevice, swapChain, commandBuffers,
-               pipeline );
+                            VulkanPipeline *pipeline ) {
+  maxFramesInFlight_ = maxFramesInFlight;
+  vulkanDevice_ = vulkanDevice;
+  swapChain_ = swapChain;
+  commandBuffers_ = *commandBuffers;
+  pipeline_ = pipeline;
+
   create_sync_objects();
 }
 
@@ -49,18 +53,6 @@ void VulkanRender::destroy() {
                         nullptr );
     vkDestroyFence( vulkanDevice_->device, inFlightFences_[i], nullptr );
   }
-}
-
-void VulkanRender::set_context( int maxFramesInFlight,
-                                VulkanDevice *vulkanDevice,
-                                VulkanSwapChain *swapChain,
-                                std::vector<VkCommandBuffer> *commandBuffers,
-                                VulkanPipeline pipeline ) {
-  maxFramesInFlight_ = maxFramesInFlight;
-  vulkanDevice_ = vulkanDevice;
-  swapChain_ = swapChain;
-  commandBuffers_ = *commandBuffers;
-  pipeline_ = pipeline;
 }
 
 void VulkanRender::create_sync_objects() {
@@ -87,7 +79,8 @@ void VulkanRender::create_sync_objects() {
 
 void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
                                VkBuffer indexBuffer, uint32_t indexCount,
-                               std::vector<void *> uniformBuffersMapped ) {
+                               std::vector<void *> uniformBuffersMapped,
+                               std::vector<VkDescriptorSet> descriptorSets ) {
   vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_],
                    VK_TRUE, UINT64_MAX );
 
@@ -110,7 +103,8 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
   vkResetCommandBuffer( commandBuffers_[currentFrame_],
                         /*VkCommandBufferResetFlagBits*/ 0 );
   record_command_buffer( commandBuffers_[currentFrame_], imageIndex, swapChain_,
-                         vertexBuffer, vertexCount, indexBuffer, indexCount );
+                         vertexBuffer, vertexCount, indexBuffer, indexCount,
+                         descriptorSets );
 
   // vkAcquireNextImageKHR(vulkanDevice_->device, swapChain_->swapChain,
   //                       UINT64_MAX, imageAvailableSemaphores_[currentFrame_],
@@ -165,7 +159,8 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
 void VulkanRender::record_command_buffer(
     VkCommandBuffer commandBuffer, uint32_t imageIndex,
     VulkanSwapChain *swapChain, VkBuffer vertexBuffer, uint32_t vertexCount,
-    VkBuffer indexBuffer, uint32_t indexCount ) {
+    VkBuffer indexBuffer, uint32_t indexCount,
+    std::vector<VkDescriptorSet> descriptorSets ) {
   VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
 
   if ( vkBeginCommandBuffer( commandBuffer, &beginInfo ) != VK_SUCCESS ) {
@@ -186,7 +181,7 @@ void VulkanRender::record_command_buffer(
                         VK_SUBPASS_CONTENTS_INLINE );
 
   vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                     pipeline_.graphicsPipeline );
+                     pipeline_->graphicsPipeline );
 
   VkViewport viewport =
       Initializer::viewport( static_cast<float>( swapChain->extent.height ),
@@ -208,6 +203,10 @@ void VulkanRender::record_command_buffer(
   // vkCmdDraw( commandBuffer, vertexCount, 1, 0, 0 );
 
   vkCmdBindIndexBuffer( commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
+
+  vkCmdBindDescriptorSets( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                           pipeline_->pipelineLayout, 0, 1,
+                           &descriptorSets[currentFrame_], 0, nullptr );
 
   vkCmdDrawIndexed( commandBuffer, indexCount, 1, 0, 0, 0 );
   vkCmdEndRenderPass( commandBuffer );

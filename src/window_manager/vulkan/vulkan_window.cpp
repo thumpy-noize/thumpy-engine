@@ -91,7 +91,7 @@ void VulkanWindow::init_vulkan() {
 
   // Create render
   render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,
-                              &commandBuffers_, pipeline_ );
+                              &commandBuffers_, &pipeline_ );
 }
 
 void VulkanWindow::deconstruct_window() {
@@ -139,7 +139,7 @@ void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ),
                        indexBuffer_, static_cast<uint32_t>( indices_.size() ),
-                       uniformBuffersMapped_ );
+                       uniformBuffersMapped_, descriptorSets_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }
@@ -274,6 +274,8 @@ void VulkanWindow::create_descriptor_sets() {
     descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
+    descriptorWrite.pImageInfo = nullptr;        // Optional
+    descriptorWrite.pTexelBufferView = nullptr;  // Optional
 
     vkUpdateDescriptorSets( vulkanDevice_->device, 1, &descriptorWrite, 0,
                             nullptr );

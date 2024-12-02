@@ -40,10 +40,23 @@ void create_uniform_buffers( VulkanDevice *vulkanDevice,
                              std::vector<void *> &uniformBuffersMapped,
                              int maxFramesInFlight );
 
+#pragma region Descriptor
+
 void create_descriptor_set_layout( VulkanDevice *vulkanDevice,
                                    VkDescriptorSetLayout &descriptorSetLayout );
-void create_descriptor_pool();
-void create_descriptor_sets();
+
+void create_descriptor_pool( VulkanDevice *vulkanDevice,
+                             VkDescriptorPool &descriptorPool,
+                             int maxFramesInFlight );
+
+void create_descriptor_sets( VulkanDevice *vulkanDevice,
+                             VkDescriptorSetLayout &descriptorSetLayout,
+                             VkDescriptorPool &descriptorPool,
+                             std::vector<VkDescriptorSet> &descriptorSets,
+                             std::vector<VkBuffer> &uniformBuffers,
+                             int maxFramesInFlight );
+
+#pragma endregion Descriptor
 
 }  // namespace Construct
 }  // namespace Vulkan

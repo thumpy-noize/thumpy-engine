@@ -84,8 +84,11 @@ void VulkanWindow::init_vulkan() {
   Construct::create_uniform_buffers(
       vulkanDevice_, uniformBuffers_, uniformBuffersMemory_,
       uniformBuffersMapped_, MAX_FRAMES_IN_FLIGHT );
-  create_descriptor_pool();
-  create_descriptor_sets();
+  Construct::create_descriptor_pool( vulkanDevice_, descriptorPool_,
+                                     MAX_FRAMES_IN_FLIGHT );
+  Construct::create_descriptor_sets( vulkanDevice_, descriptorSetLayout_,
+                                     descriptorPool_, descriptorSets_,
+                                     uniformBuffers_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
   Construct::create_command_buffer( commandBuffers_, commandPool_,
@@ -155,83 +158,6 @@ void VulkanWindow::create_surface() {
 }
 
 #pragma endregion Core
-
-// void VulkanWindow::create_descriptor_set_layout() {
-//   VkDescriptorSetLayoutBinding uboLayoutBinding{};
-//   uboLayoutBinding.binding = 0;
-//   uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-//   uboLayoutBinding.descriptorCount = 1;
-
-//   uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-//   uboLayoutBinding.pImmutableSamplers = nullptr;  // Optional
-
-//   VkDescriptorSetLayoutCreateInfo layoutInfo{};
-//   layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-//   layoutInfo.bindingCount = 1;
-//   layoutInfo.pBindings = &uboLayoutBinding;
-
-//   if ( vkCreateDescriptorSetLayout( vulkanDevice_->device, &layoutInfo,
-//   nullptr,
-//                                     &descriptorSetLayout_ ) != VK_SUCCESS ) {
-//     Logger::log( "Failed to create descriptor set layout!", Logger::CRITICAL
-//     );
-//   }
-// }
-
-void VulkanWindow::create_descriptor_pool() {
-  VkDescriptorPoolSize poolSize{};
-  poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  poolSize.descriptorCount = static_cast<uint32_t>( MAX_FRAMES_IN_FLIGHT );
-
-  VkDescriptorPoolCreateInfo poolInfo{};
-  poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-  poolInfo.poolSizeCount = 1;
-  poolInfo.pPoolSizes = &poolSize;
-
-  poolInfo.maxSets = static_cast<uint32_t>( MAX_FRAMES_IN_FLIGHT );
-
-  if ( vkCreateDescriptorPool( vulkanDevice_->device, &poolInfo, nullptr,
-                               &descriptorPool_ ) != VK_SUCCESS ) {
-    Logger::log( "Failed to create descriptor pool!", Logger::CRITICAL );
-  }
-}
-
-void VulkanWindow::create_descriptor_sets() {
-  std::vector<VkDescriptorSetLayout> layouts( MAX_FRAMES_IN_FLIGHT,
-                                              descriptorSetLayout_ );
-  VkDescriptorSetAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  allocInfo.descriptorPool = descriptorPool_;
-  allocInfo.descriptorSetCount = static_cast<uint32_t>( MAX_FRAMES_IN_FLIGHT );
-  allocInfo.pSetLayouts = layouts.data();
-
-  descriptorSets_.resize( MAX_FRAMES_IN_FLIGHT );
-  if ( vkAllocateDescriptorSets( vulkanDevice_->device, &allocInfo,
-                                 descriptorSets_.data() ) != VK_SUCCESS ) {
-    Logger::log( "Failed to allocate descriptor sets!", Logger::CRITICAL );
-  }
-
-  for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
-    VkDescriptorBufferInfo bufferInfo{};
-    bufferInfo.buffer = uniformBuffers_[i];
-    bufferInfo.offset = 0;
-    bufferInfo.range = sizeof( UniformBufferObject );
-
-    VkWriteDescriptorSet descriptorWrite{};
-    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = descriptorSets_[i];
-    descriptorWrite.dstBinding = 0;
-    descriptorWrite.dstArrayElement = 0;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrite.descriptorCount = 1;
-    descriptorWrite.pBufferInfo = &bufferInfo;
-    descriptorWrite.pImageInfo = nullptr;        // Optional
-    descriptorWrite.pTexelBufferView = nullptr;  // Optional
-
-    vkUpdateDescriptorSets( vulkanDevice_->device, 1, &descriptorWrite, 0,
-                            nullptr );
-  }
-}
 
 }  // namespace Vulkan
 }  // namespace Windows

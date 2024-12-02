@@ -14,6 +14,7 @@
 
 #include <array>
 #include <cstdint>
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <optional>
 #include <vector>

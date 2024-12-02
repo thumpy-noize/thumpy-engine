@@ -60,8 +60,6 @@ class VulkanWindow : public Window {
   void create_descriptor_pool();
   void create_descriptor_sets();
 
-  void bind_descriptor_sets( VkCommandBuffer commandBuffer );
-
 #pragma endregion Core
 
  private:

@@ -48,7 +48,7 @@ std::string get_time_as_string() {
   std::string time_string;
 
   time_t current_time = std::chrono::system_clock::to_time_t(
-      std::chrono::high_resolution_clock::now() );
+      std::chrono::system_clock::now() );
 
   std::time_t now = std::time( &current_time );
   std::tm *ptm = std::localtime( &now );

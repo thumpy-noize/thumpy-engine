@@ -42,7 +42,7 @@ VulkanWindow::VulkanWindow( std::string title ) : Window( title ) {
 
 void VulkanWindow::init_vulkan() {
   // Create our instance
-  Construct::create_instance( instance_ );
+  Construct::instance( instance_ );
 
   // Setup debug messenger
   Debug::setup_debug_messenger( instance_, &debugMessenger_ );
@@ -57,8 +57,7 @@ void VulkanWindow::init_vulkan() {
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
   // Create descriptor layouts
-  Construct::create_descriptor_set_layout( vulkanDevice_,
-                                           descriptorSetLayout_ );
+  Construct::descriptor_set_layout( vulkanDevice_, descriptorSetLayout_ );
 
   // Create graphics pipeline
   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device,
@@ -68,7 +67,7 @@ void VulkanWindow::init_vulkan() {
   Buffer::create_framebuffers( swapChain_, vulkanDevice_->device );
 
   // Create command pool & buffer
-  Construct::create_command_pool( vulkanDevice_, commandPool_ );
+  Construct::command_pool( vulkanDevice_, commandPool_ );
 
   // Create vertex buffer
   // Generate sierpinski triangle (broken with index buffer)
@@ -81,19 +80,23 @@ void VulkanWindow::init_vulkan() {
   Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_,
                                indexBufferMemory_, commandPool_ );
 
-  Construct::create_uniform_buffers(
-      vulkanDevice_, uniformBuffers_, uniformBuffersMemory_,
-      uniformBuffersMapped_, MAX_FRAMES_IN_FLIGHT );
-  Construct::create_descriptor_pool( vulkanDevice_, descriptorPool_,
-                                     MAX_FRAMES_IN_FLIGHT );
-  Construct::create_descriptor_sets( vulkanDevice_, descriptorSetLayout_,
-                                     descriptorPool_, descriptorSets_,
-                                     uniformBuffers_, MAX_FRAMES_IN_FLIGHT );
+  // Create uniform buffers
+  Construct::uniform_buffers( vulkanDevice_, uniformBuffers_,
+                              uniformBuffersMemory_, uniformBuffersMapped_,
+                              MAX_FRAMES_IN_FLIGHT );
+
+  // Create descriptor pool
+  Construct::descriptor_pool( vulkanDevice_, descriptorPool_,
+                              MAX_FRAMES_IN_FLIGHT );
+
+  // Create descriptor sets
+  Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_,
+                              descriptorPool_, descriptorSets_, uniformBuffers_,
+                              MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
-  Construct::create_command_buffer( commandBuffers_, commandPool_,
-                                    vulkanDevice_->device,
-                                    MAX_FRAMES_IN_FLIGHT );
+  Construct::command_buffer( commandBuffers_, commandPool_,
+                             vulkanDevice_->device, MAX_FRAMES_IN_FLIGHT );
 
   // Create render
   render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,

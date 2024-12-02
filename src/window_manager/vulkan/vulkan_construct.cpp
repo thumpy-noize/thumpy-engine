@@ -14,10 +14,11 @@
 #include <vulkan/vulkan_core.h>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
-#include "vulkan/vulkan_debug.hpp"
-#include "vulkan/vulkan_helper.hpp"
-#include "vulkan/vulkan_initializers.hpp"
+#include "vulkan_buffers.hpp"
+#include "vulkan_debug.hpp"
+#include "vulkan_device.hpp"
+#include "vulkan_helper.hpp"
+#include "vulkan_initializers.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -57,6 +58,29 @@ void create_instance( VkInstance &instance ) {
 
   if ( vkCreateInstance( &createInfo, nullptr, &instance ) != VK_SUCCESS ) {
     Logger::log( "Failed to create instance!", Logger::CRITICAL );
+  }
+}
+
+void create_uniform_buffers( VulkanDevice *vulkanDevice,
+                             std::vector<VkBuffer> &uniformBuffers,
+                             std::vector<VkDeviceMemory> &uniformBuffersMemory,
+                             std::vector<void *> &uniformBuffersMapped,
+                             int maxFramesInFlight ) {
+  VkDeviceSize bufferSize = sizeof( UniformBufferObject );
+
+  uniformBuffers.resize( maxFramesInFlight );
+  uniformBuffersMemory.resize( maxFramesInFlight );
+  uniformBuffersMapped.resize( maxFramesInFlight );
+
+  for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
+    Buffer::create_buffer( bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                               VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                           uniformBuffers[i], uniformBuffersMemory[i],
+                           vulkanDevice );
+
+    vkMapMemory( vulkanDevice->device, uniformBuffersMemory[i], 0, bufferSize,
+                 0, &uniformBuffersMapped[i] );
   }
 }
 

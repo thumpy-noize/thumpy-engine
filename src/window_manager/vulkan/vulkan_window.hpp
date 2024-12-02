@@ -15,10 +15,10 @@
 
 #include <vector>
 
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_pipeline.hpp"
-#include "vulkan/vulkan_render.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
+#include "vulkan_device.hpp"
+#include "vulkan_pipeline.hpp"
+#include "vulkan_render.hpp"
+#include "vulkan_swap_chain.hpp"
 #include "window.hpp"
 
 namespace Thumpy {
@@ -50,14 +50,13 @@ class VulkanWindow : public Window {
    */
   void loop();
 
-  void create_instance();
+  // move this to vulkan_construct
   void create_surface();
 
 #pragma endregion Core
 
  private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
-  uint32_t currentFrame_ = 0;
 
   VkInstance instance_;
   VkSurfaceKHR surface_;
@@ -70,6 +69,19 @@ class VulkanWindow : public Window {
   VkCommandPool commandPool_;
   std::vector<VkCommandBuffer> commandBuffers_;
   VkDebugUtilsMessengerEXT debugMessenger_;
+  VkDescriptorSetLayout descriptorSetLayout_;
+
+  std::vector<VkBuffer> uniformBuffers_;
+  std::vector<VkDeviceMemory> uniformBuffersMemory_;
+  std::vector<void *> uniformBuffersMapped_;
+
+  VkBuffer vertexBuffer_;
+  VkDeviceMemory vertexBufferMemory_;
+  VkBuffer indexBuffer_;
+  VkDeviceMemory indexBufferMemory_;
+
+  VkDescriptorPool descriptorPool_;
+  std::vector<VkDescriptorSet> descriptorSets_;
 
   // warp t
   // std::vector<Vertex> vertices_ = {
@@ -128,11 +140,6 @@ class VulkanWindow : public Window {
                                     { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } } };
 
   const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
-
-  VkBuffer vertexBuffer_;
-  VkDeviceMemory vertexBufferMemory_;
-  VkBuffer indexBuffer_;
-  VkDeviceMemory indexBufferMemory_;
 };
 }  // namespace Vulkan
 }  // namespace Windows

@@ -20,9 +20,7 @@ namespace Buffer {
 
 void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage,
                     VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                    VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice,
-                    VkCommandPool &commandPool,
-                    VkCommandBuffer &commandBuffer );
+                    VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice );
 
 void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
                   VulkanDevice *vulkanDevice, VkCommandPool &commandPool );

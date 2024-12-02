@@ -50,10 +50,12 @@ std::string get_exe_path() {
   Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
 }
 
-VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain,
-                                         VkDevice vulkanDevice ) {
+VulkanPipeline create_graphics_pipeline(
+    VulkanSwapChain *swapChain, VkDevice vulkanDevice,
+    VkDescriptorSetLayout descriptorSetLayout ) {
   Logger::log( "Loading shaders from: " + get_exe_path(), Logger::INFO );
-  auto vertShaderCode = read_file( get_exe_path() + "/shaders/vert.vert.spv" );
+  auto vertShaderCode =
+      read_file( get_exe_path() + "/shaders/uniform_buffer.vert.spv" );
   auto fragShaderCode = read_file( get_exe_path() + +"/shaders/vert.frag.spv" );
 
   VkShaderModule vertShaderModule =
@@ -141,7 +143,7 @@ VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain,
 
   VulkanPipeline pipeline;
   VkPipelineLayoutCreateInfo pipelineLayoutInfo =
-      Initializer::pipeline_layout_info();
+      Initializer::pipeline_layout_info( descriptorSetLayout );
 
   if ( vkCreatePipelineLayout( vulkanDevice, &pipelineLayoutInfo, nullptr,
                                &pipeline.pipelineLayout ) != VK_SUCCESS ) {

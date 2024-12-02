@@ -14,6 +14,7 @@
 
 #include <array>
 #include <cstdint>
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <optional>
 #include <vector>
@@ -83,6 +84,12 @@ struct Vertex {
     vert.color = ( a.color + b.color ) / glm::vec3( 2 );
     return vert;
   }
+};
+
+struct UniformBufferObject {
+  glm::mat4 model;
+  glm::mat4 view;
+  glm::mat4 proj;
 };
 
 bool check_validation_layer_support();

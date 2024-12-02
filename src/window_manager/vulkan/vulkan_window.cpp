@@ -23,11 +23,10 @@
 #include <vector>
 
 #include "logger.hpp"
-#include "vulkan/vulkan_debug.hpp"
 #include "vulkan_buffers.hpp"
-#include "vulkan_command.hpp"
+#include "vulkan_construct.hpp"
+#include "vulkan_debug.hpp"
 #include "vulkan_helper.hpp"
-#include "vulkan_initializers.hpp"
 #include "vulkan_pipeline.hpp"
 
 namespace Thumpy {
@@ -43,24 +42,32 @@ VulkanWindow::VulkanWindow( std::string title ) : Window( title ) {
 
 void VulkanWindow::init_vulkan() {
   // Create our instance
-  create_instance();
+  Construct::instance( instance_ );
+
   // Setup debug messenger
   Debug::setup_debug_messenger( instance_, &debugMessenger_ );
+
   // Create surface
   create_surface();
+
   // Find & create vulkan device
   vulkanDevice_ = new VulkanDevice( instance_, surface_ );
+
   // Create swap chain / image views / render pass
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
+  // Create descriptor layouts
+  Construct::descriptor_set_layout( vulkanDevice_, descriptorSetLayout_ );
+
   // Create graphics pipeline
-  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device );
+  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device,
+                                        descriptorSetLayout_ );
 
   // Create frame buffers
   Buffer::create_framebuffers( swapChain_, vulkanDevice_->device );
 
   // Create command pool & buffer
-  create_command_pool( vulkanDevice_, commandPool_ );
+  Construct::command_pool( vulkanDevice_, commandPool_ );
 
   // Create vertex buffer
   // Generate sierpinski triangle (broken with index buffer)
@@ -73,13 +80,27 @@ void VulkanWindow::init_vulkan() {
   Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_,
                                indexBufferMemory_, commandPool_ );
 
+  // Create uniform buffers
+  Construct::uniform_buffers( vulkanDevice_, uniformBuffers_,
+                              uniformBuffersMemory_, uniformBuffersMapped_,
+                              MAX_FRAMES_IN_FLIGHT );
+
+  // Create descriptor pool
+  Construct::descriptor_pool( vulkanDevice_, descriptorPool_,
+                              MAX_FRAMES_IN_FLIGHT );
+
+  // Create descriptor sets
+  Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_,
+                              descriptorPool_, descriptorSets_, uniformBuffers_,
+                              MAX_FRAMES_IN_FLIGHT );
+
   // Create command buffer
-  create_command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
-                         MAX_FRAMES_IN_FLIGHT );
+  Construct::command_buffer( commandBuffers_, commandPool_,
+                             vulkanDevice_->device, MAX_FRAMES_IN_FLIGHT );
 
   // Create render
   render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,
-                              &commandBuffers_, pipeline_ );
+                              &commandBuffers_, &pipeline_ );
 }
 
 void VulkanWindow::deconstruct_window() {
@@ -92,6 +113,15 @@ void VulkanWindow::deconstruct_window() {
   vkDestroyRenderPass( vulkanDevice_->device, swapChain_->renderPass, nullptr );
 
   render_->destroy();
+
+  for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+    vkDestroyBuffer( vulkanDevice_->device, uniformBuffers_[i], nullptr );
+    vkFreeMemory( vulkanDevice_->device, uniformBuffersMemory_[i], nullptr );
+  }
+
+  vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
+  vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_,
+                                nullptr );
 
   vkDestroyBuffer( vulkanDevice_->device, indexBuffer_, nullptr );
   vkFreeMemory( vulkanDevice_->device, indexBufferMemory_, nullptr );
@@ -117,50 +147,16 @@ void VulkanWindow::deconstruct_window() {
 void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ),
-                       indexBuffer_, static_cast<uint32_t>( indices_.size() ) );
+                       indexBuffer_, static_cast<uint32_t>( indices_.size() ),
+                       uniformBuffersMapped_, descriptorSets_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
-}
-
-void VulkanWindow::create_instance() {
-  if ( enableValidationLayers && !check_validation_layer_support() ) {
-    Logger::log( "validation layers requested, but not available!",
-                 Logger::CRITICAL );
-  }
-
-  VkApplicationInfo appInfo = Initializer::application_info();
-
-  VkInstanceCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  createInfo.pApplicationInfo = &appInfo;
-
-  auto extensions = get_required_extensions();
-  createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
-  createInfo.ppEnabledExtensionNames = extensions.data();
-
-  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-  if ( enableValidationLayers ) {
-    createInfo.enabledLayerCount =
-        static_cast<uint32_t>( validationLayers.size() );
-    createInfo.ppEnabledLayerNames = validationLayers.data();
-
-    Debug::populate_debug_messenger_create_info( debugCreateInfo );
-    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
-  } else {
-    createInfo.enabledLayerCount = 0;
-
-    createInfo.pNext = nullptr;
-  }
-
-  if ( vkCreateInstance( &createInfo, nullptr, &instance_ ) != VK_SUCCESS ) {
-    Logger::log( "failed to create instance!", Logger::CRITICAL );
-  }
 }
 
 void VulkanWindow::create_surface() {
   if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) !=
        VK_SUCCESS ) {
-    Logger::log( "failed to create window surface!", Logger::CRITICAL );
+    Logger::log( "Failed to create window surface!", Logger::CRITICAL );
   }
 }
 

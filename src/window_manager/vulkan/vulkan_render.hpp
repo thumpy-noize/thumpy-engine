@@ -17,6 +17,7 @@
 #include "vulkan_device.hpp"
 #include "vulkan_pipeline.hpp"
 #include "vulkan_swap_chain.hpp"
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -35,27 +36,13 @@ class VulkanRender {
   VulkanRender( int maxFramesInFlight, VulkanDevice *vulkanDevice,
                 VulkanSwapChain *swapchain,
                 std::vector<VkCommandBuffer> *commandBuffers,
-                VulkanPipeline pipeline );
+                VulkanPipeline *pipeline );
 
   /**
    * @brief Destroy render
    *
    */
   void destroy();
-
-  /**
-   * @brief Set the context for this render
-   *
-   * @param max_frames_in_flight
-   * @param vulkanDevice
-   * @param swapchain
-   * @param commandBuffers
-   * @param pipeline
-   */
-  void set_context( int maxFramesInFlight, VulkanDevice *vulkanDevice,
-                    VulkanSwapChain *swapchain,
-                    std::vector<VkCommandBuffer> *commandBuffers,
-                    VulkanPipeline pipeline );
 
   void create_sync_objects();
 
@@ -64,12 +51,18 @@ class VulkanRender {
    *
    */
   void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
-                   VkBuffer indexBuffer, uint32_t indexCount );
+                   VkBuffer indexBuffer, uint32_t indexCount,
+                   std::vector<void *> uniformBuffersMapped,
+                   std::vector<VkDescriptorSet> descriptorSets );
 
   void record_command_buffer( VkCommandBuffer commandBuffer,
                               uint32_t imageIndex, VulkanSwapChain *swapChain,
                               VkBuffer vertexBuffer, uint32_t vertexCount,
-                              VkBuffer indexBuffer, uint32_t indexCount );
+                              VkBuffer indexBuffer, uint32_t indexCount,
+                              std::vector<VkDescriptorSet> descriptorSets );
+
+  void update_uniform_buffer( uint32_t currentImage,
+                              std::vector<void *> uniformBuffersMapped );
 
  protected:
   int maxFramesInFlight_;
@@ -77,7 +70,7 @@ class VulkanRender {
 
   VulkanDevice *vulkanDevice_;
   VulkanSwapChain *swapChain_;
-  VulkanPipeline pipeline_;
+  VulkanPipeline *pipeline_;
   bool framebufferResized_;
 
   std::vector<VkCommandBuffer> commandBuffers_;

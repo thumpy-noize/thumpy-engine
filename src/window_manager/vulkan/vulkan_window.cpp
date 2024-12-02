@@ -175,14 +175,14 @@ void VulkanWindow::create_instance() {
   }
 
   if ( vkCreateInstance( &createInfo, nullptr, &instance_ ) != VK_SUCCESS ) {
-    Logger::log( "failed to create instance!", Logger::CRITICAL );
+    Logger::log( "Failed to create instance!", Logger::CRITICAL );
   }
 }
 
 void VulkanWindow::create_surface() {
   if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) !=
        VK_SUCCESS ) {
-    Logger::log( "failed to create window surface!", Logger::CRITICAL );
+    Logger::log( "Failed to create window surface!", Logger::CRITICAL );
   }
 }
 
@@ -204,7 +204,7 @@ void VulkanWindow::create_descriptor_set_layout() {
 
   if ( vkCreateDescriptorSetLayout( vulkanDevice_->device, &layoutInfo, nullptr,
                                     &descriptorSetLayout_ ) != VK_SUCCESS ) {
-    Logger::log( "failed to create descriptor set layout!", Logger::CRITICAL );
+    Logger::log( "Failed to create descriptor set layout!", Logger::CRITICAL );
   }
 }
 
@@ -241,7 +241,7 @@ void VulkanWindow::create_descriptor_pool() {
 
   if ( vkCreateDescriptorPool( vulkanDevice_->device, &poolInfo, nullptr,
                                &descriptorPool_ ) != VK_SUCCESS ) {
-    Logger::log( "failed to create descriptor pool!", Logger::CRITICAL );
+    Logger::log( "Failed to create descriptor pool!", Logger::CRITICAL );
   }
 }
 
@@ -257,7 +257,7 @@ void VulkanWindow::create_descriptor_sets() {
   descriptorSets_.resize( MAX_FRAMES_IN_FLIGHT );
   if ( vkAllocateDescriptorSets( vulkanDevice_->device, &allocInfo,
                                  descriptorSets_.data() ) != VK_SUCCESS ) {
-    Logger::log( "failed to allocate descriptor sets!", Logger::CRITICAL );
+    Logger::log( "Failed to allocate descriptor sets!", Logger::CRITICAL );
   }
 
   for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {

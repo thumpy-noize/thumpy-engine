@@ -54,10 +54,6 @@ class VulkanWindow : public Window {
   // vulkan_constructors
   void create_surface();
 
-  // void create_descriptor_set_layout();
-  void create_descriptor_pool();
-  void create_descriptor_sets();
-
 #pragma endregion Core
 
  private:

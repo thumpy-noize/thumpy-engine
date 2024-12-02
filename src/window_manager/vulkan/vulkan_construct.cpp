@@ -26,7 +26,7 @@ namespace Windows {
 namespace Vulkan {
 namespace Construct {
 
-void create_instance( VkInstance &instance ) {
+void instance( VkInstance &instance ) {
   if ( enableValidationLayers && !check_validation_layer_support() ) {
     Logger::log( "validation layers requested, but not available!",
                  Logger::CRITICAL );
@@ -61,11 +61,11 @@ void create_instance( VkInstance &instance ) {
   }
 }
 
-void create_uniform_buffers( VulkanDevice *vulkanDevice,
-                             std::vector<VkBuffer> &uniformBuffers,
-                             std::vector<VkDeviceMemory> &uniformBuffersMemory,
-                             std::vector<void *> &uniformBuffersMapped,
-                             int maxFramesInFlight ) {
+void uniform_buffers( VulkanDevice *vulkanDevice,
+                      std::vector<VkBuffer> &uniformBuffers,
+                      std::vector<VkDeviceMemory> &uniformBuffersMemory,
+                      std::vector<void *> &uniformBuffersMapped,
+                      int maxFramesInFlight ) {
   VkDeviceSize bufferSize = sizeof( UniformBufferObject );
 
   uniformBuffers.resize( maxFramesInFlight );
@@ -84,8 +84,7 @@ void create_uniform_buffers( VulkanDevice *vulkanDevice,
   }
 }
 
-void create_command_pool( VulkanDevice *vulkanDevice,
-                          VkCommandPool &commandPool ) {
+void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool ) {
   QueueFamilyIndices queueFamilyIndices =
       vulkanDevice->find_queue_families( vulkanDevice->physicalDevice );
 
@@ -98,9 +97,9 @@ void create_command_pool( VulkanDevice *vulkanDevice,
   }
 }
 
-void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
-                            VkCommandPool commandPool, VkDevice device,
-                            int maxFramesInFlight ) {
+void command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
+                     VkCommandPool commandPool, VkDevice device,
+                     int maxFramesInFlight ) {
   commandBuffers.resize( maxFramesInFlight );
   VkCommandBufferAllocateInfo allocInfo =
       Initializer::command_buffer_allocate_info(
@@ -114,8 +113,8 @@ void create_command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
 
 #pragma region Descriptor
 
-void create_descriptor_set_layout(
-    VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout ) {
+void descriptor_set_layout( VulkanDevice *vulkanDevice,
+                            VkDescriptorSetLayout &descriptorSetLayout ) {
   VkDescriptorSetLayoutBinding uboLayoutBinding{};
   uboLayoutBinding.binding = 0;
   uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -135,9 +134,9 @@ void create_descriptor_set_layout(
   }
 }
 
-void create_descriptor_pool( VulkanDevice *vulkanDevice,
-                             VkDescriptorPool &descriptorPool,
-                             int maxFramesInFlight ) {
+void descriptor_pool( VulkanDevice *vulkanDevice,
+                      VkDescriptorPool &descriptorPool,
+                      int maxFramesInFlight ) {
   VkDescriptorPoolSize poolSize{};
   poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   poolSize.descriptorCount = static_cast<uint32_t>( maxFramesInFlight );
@@ -155,12 +154,12 @@ void create_descriptor_pool( VulkanDevice *vulkanDevice,
   }
 }
 
-void create_descriptor_sets( VulkanDevice *vulkanDevice,
-                             VkDescriptorSetLayout &descriptorSetLayout,
-                             VkDescriptorPool &descriptorPool,
-                             std::vector<VkDescriptorSet> &descriptorSets,
-                             std::vector<VkBuffer> &uniformBuffers,
-                             int maxFramesInFlight ) {
+void descriptor_sets( VulkanDevice *vulkanDevice,
+                      VkDescriptorSetLayout &descriptorSetLayout,
+                      VkDescriptorPool &descriptorPool,
+                      std::vector<VkDescriptorSet> &descriptorSets,
+                      std::vector<VkBuffer> &uniformBuffers,
+                      int maxFramesInFlight ) {
   std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight,
                                               descriptorSetLayout );
   VkDescriptorSetAllocateInfo allocInfo{};

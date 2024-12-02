@@ -50,8 +50,7 @@ class VulkanWindow : public Window {
    */
   void loop();
 
-  // move these to vulkan_command, then rename vulkan_command ->
-  // vulkan_constructors
+  // move this to vulkan_construct
   void create_surface();
 
 #pragma endregion Core

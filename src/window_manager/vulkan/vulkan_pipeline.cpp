@@ -11,6 +11,11 @@
 #include "logger_helper.hpp"
 #include "vulkan_initializers.hpp"
 
+#ifdef _WIN32
+#include <libloaderapi.h>
+#include <filesystem>
+#endif  // _WIN32
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {
@@ -44,8 +49,11 @@ std::string get_exe_path() {
   path = path.substr( 0, path.find_last_of( "\\/" ) );
   return path;
 #elif _WIN32
-  int bytes = GetModuleFileName( NULL, pBuf, len );
-  return bytes ? bytes : -1;
+    wchar_t path[MAX_PATH] = { 0 };
+    GetModuleFileNameW(NULL, path, MAX_PATH);
+    std::string string = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(path);
+    string = string.substr(0, string.find_last_of("\\/"));
+    return string;
 #endif
   Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
 }

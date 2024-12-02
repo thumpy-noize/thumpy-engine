@@ -1,4 +1,15 @@
 
+/**
+ * @file logger_helper.cpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief logger_helper cpp file
+ * @version 0.1
+ * @date 2024-12-02
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #include "logger_helper.hpp"
 
 #include <chrono>
@@ -33,7 +44,6 @@ std::string log_level_to_string( LogLevel level ) {
   return "UNKNOWN";
 }
 
-// Replace this when we have a proper clock
 std::string get_time_as_string() {
   std::string time_string;
 
@@ -43,7 +53,7 @@ std::string get_time_as_string() {
   std::time_t now = std::time( &current_time );
   std::tm *ptm = std::localtime( &now );
   char buffer[32];
-  // Format: 15.06.2009 20:20:00
+  // Format: 02.12.2024 20:20:00
   std::strftime( buffer, 32, "%d-%m-%Y %H:%M:%S", ptm );
   return buffer;
 }

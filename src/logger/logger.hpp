@@ -1,21 +1,44 @@
+/**
+ * @file logger.hpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Logs messages to multiple places
+ * @version 0.1
+ * @date 2024-12-02
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #pragma once
 
-#include "logger_helper.hpp"
 #include <string>
+
+#include "logger_helper.hpp"
 
 namespace Thumpy {
 namespace Core {
 namespace Logger {
 
-// Starts logger / creates log file
+/**
+ * @brief Starts logger / creates log file
+ *
+ */
 void init();
 
-// Close logger
+/**
+ * @brief Closes logger / log file
+ *
+ */
 void close_logger();
 
-// Log a message
-void log(const std::string &message, LogLevel level = INFO);
+/**
+ * @brief log a message
+ *
+ * @param message
+ * @param level
+ */
+void log( const std::string &message, LogLevel level = INFO );
 
-} // namespace Logger
-} // namespace Core
-} // namespace Thumpy
+}  // namespace Logger
+}  // namespace Core
+}  // namespace Thumpy

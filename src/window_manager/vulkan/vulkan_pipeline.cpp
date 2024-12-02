@@ -2,8 +2,6 @@
 
 #include "vulkan_pipeline.hpp"
 
-#include <unistd.h>
-
 #include <fstream>
 #include <ios>
 

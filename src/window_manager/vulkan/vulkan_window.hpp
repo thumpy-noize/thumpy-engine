@@ -66,7 +66,6 @@ class VulkanWindow : public Window {
 
  private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
-  // uint32_t currentFrame_ = 0;
 
   VkInstance instance_;
   VkSurfaceKHR surface_;
@@ -84,6 +83,11 @@ class VulkanWindow : public Window {
   std::vector<VkBuffer> uniformBuffers_;
   std::vector<VkDeviceMemory> uniformBuffersMemory_;
   std::vector<void *> uniformBuffersMapped_;
+
+  VkBuffer vertexBuffer_;
+  VkDeviceMemory vertexBufferMemory_;
+  VkBuffer indexBuffer_;
+  VkDeviceMemory indexBufferMemory_;
 
   VkDescriptorPool descriptorPool_;
   std::vector<VkDescriptorSet> descriptorSets_;
@@ -145,11 +149,6 @@ class VulkanWindow : public Window {
                                     { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } } };
 
   const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
-
-  VkBuffer vertexBuffer_;
-  VkDeviceMemory vertexBufferMemory_;
-  VkBuffer indexBuffer_;
-  VkDeviceMemory indexBufferMemory_;
 };
 }  // namespace Vulkan
 }  // namespace Windows

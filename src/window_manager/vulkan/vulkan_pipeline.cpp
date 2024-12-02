@@ -54,7 +54,8 @@ VulkanPipeline create_graphics_pipeline(
     VulkanSwapChain *swapChain, VkDevice vulkanDevice,
     VkDescriptorSetLayout descriptorSetLayout ) {
   Logger::log( "Loading shaders from: " + get_exe_path(), Logger::INFO );
-  auto vertShaderCode = read_file( get_exe_path() + "/shaders/vert.vert.spv" );
+  auto vertShaderCode =
+      read_file( get_exe_path() + "/shaders/uniform_buffer.vert.spv" );
   auto fragShaderCode = read_file( get_exe_path() + +"/shaders/vert.frag.spv" );
 
   VkShaderModule vertShaderModule =

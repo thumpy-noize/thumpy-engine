@@ -15,10 +15,10 @@
 
 #include <vector>
 
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_pipeline.hpp"
-#include "vulkan/vulkan_render.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
+#include "vulkan_device.hpp"
+#include "vulkan_pipeline.hpp"
+#include "vulkan_render.hpp"
+#include "vulkan_swap_chain.hpp"
 #include "window.hpp"
 
 namespace Thumpy {
@@ -52,7 +52,6 @@ class VulkanWindow : public Window {
 
   // move these to vulkan_command, then rename vulkan_command ->
   // vulkan_constructors
-  void create_instance();
   void create_surface();
 
   void create_descriptor_set_layout();

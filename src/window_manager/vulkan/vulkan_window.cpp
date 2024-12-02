@@ -43,7 +43,7 @@ VulkanWindow::VulkanWindow( std::string title ) : Window( title ) {
 
 void VulkanWindow::init_vulkan() {
   // Create our instance
-  create_instance();
+  Construct::create_instance( instance_ );
 
   // Setup debug messenger
   Debug::setup_debug_messenger( instance_, &debugMessenger_ );
@@ -68,7 +68,7 @@ void VulkanWindow::init_vulkan() {
   Buffer::create_framebuffers( swapChain_, vulkanDevice_->device );
 
   // Create command pool & buffer
-  create_command_pool( vulkanDevice_, commandPool_ );
+  Construct::create_command_pool( vulkanDevice_, commandPool_ );
 
   // Create vertex buffer
   // Generate sierpinski triangle (broken with index buffer)
@@ -86,8 +86,9 @@ void VulkanWindow::init_vulkan() {
   create_descriptor_sets();
 
   // Create command buffer
-  create_command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
-                         MAX_FRAMES_IN_FLIGHT );
+  Construct::create_command_buffer( commandBuffers_, commandPool_,
+                                    vulkanDevice_->device,
+                                    MAX_FRAMES_IN_FLIGHT );
 
   // Create render
   render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,
@@ -144,40 +145,41 @@ void VulkanWindow::loop() {
   vkDeviceWaitIdle( vulkanDevice_->device );
 }
 
-void VulkanWindow::create_instance() {
-  if ( enableValidationLayers && !check_validation_layer_support() ) {
-    Logger::log( "validation layers requested, but not available!",
-                 Logger::CRITICAL );
-  }
+// void VulkanWindow::create_instance() {
+//   if ( enableValidationLayers && !check_validation_layer_support() ) {
+//     Logger::log( "validation layers requested, but not available!",
+//                  Logger::CRITICAL );
+//   }
 
-  VkApplicationInfo appInfo = Initializer::application_info();
+//   VkApplicationInfo appInfo = Initializer::application_info();
 
-  VkInstanceCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  createInfo.pApplicationInfo = &appInfo;
+//   VkInstanceCreateInfo createInfo{};
+//   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+//   createInfo.pApplicationInfo = &appInfo;
 
-  auto extensions = get_required_extensions();
-  createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
-  createInfo.ppEnabledExtensionNames = extensions.data();
+//   auto extensions = get_required_extensions();
+//   createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size()
+//   ); createInfo.ppEnabledExtensionNames = extensions.data();
 
-  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-  if ( enableValidationLayers ) {
-    createInfo.enabledLayerCount =
-        static_cast<uint32_t>( validationLayers.size() );
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+//   VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+//   if ( enableValidationLayers ) {
+//     createInfo.enabledLayerCount =
+//         static_cast<uint32_t>( validationLayers.size() );
+//     createInfo.ppEnabledLayerNames = validationLayers.data();
 
-    Debug::populate_debug_messenger_create_info( debugCreateInfo );
-    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
-  } else {
-    createInfo.enabledLayerCount = 0;
+//     Debug::populate_debug_messenger_create_info( debugCreateInfo );
+//     createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT
+//     *)&debugCreateInfo;
+//   } else {
+//     createInfo.enabledLayerCount = 0;
 
-    createInfo.pNext = nullptr;
-  }
+//     createInfo.pNext = nullptr;
+//   }
 
-  if ( vkCreateInstance( &createInfo, nullptr, &instance_ ) != VK_SUCCESS ) {
-    Logger::log( "Failed to create instance!", Logger::CRITICAL );
-  }
-}
+//   if ( vkCreateInstance( &createInfo, nullptr, &instance_ ) != VK_SUCCESS ) {
+//     Logger::log( "Failed to create instance!", Logger::CRITICAL );
+//   }
+// }
 
 void VulkanWindow::create_surface() {
   if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) !=

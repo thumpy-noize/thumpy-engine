@@ -7,6 +7,7 @@ target_sources(window_manager
   # base
   ${CMAKE_CURRENT_LIST_DIR}/window_manager.hpp
   ${CMAKE_CURRENT_LIST_DIR}/window_manager.cpp
+  
   ${CMAKE_CURRENT_LIST_DIR}/window.hpp
   ${CMAKE_CURRENT_LIST_DIR}/window.cpp
 

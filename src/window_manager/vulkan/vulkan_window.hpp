@@ -64,6 +64,7 @@ class VulkanWindow : public Window {
   VulkanDevice *vulkanDevice_;
   VulkanSwapChain *swapChain_;
   VulkanPipeline pipeline_;
+  TextureImage textureImage_;
   VulkanRender *render_;
 
   VkCommandPool commandPool_;
@@ -82,8 +83,6 @@ class VulkanWindow : public Window {
 
   VkDescriptorPool descriptorPool_;
   std::vector<VkDescriptorSet> descriptorSets_;
-
-  TextureImage textureImage_;
 
   // warp t
   // std::vector<Vertex> vertices_ = {

@@ -258,6 +258,30 @@ inline VkImageCreateInfo image_info( uint32_t width, uint32_t height,
   return imageInfo;
 }
 
+inline VkImageMemoryBarrier image_memory_barrier( VkImage image,
+                                                  VkImageLayout oldLayout,
+                                                  VkImageLayout newLayout ) {
+  VkImageMemoryBarrier barrier{};
+  barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  barrier.oldLayout = oldLayout;
+  barrier.newLayout = newLayout;
+
+  barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+  barrier.image = image;
+  barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  barrier.subresourceRange.baseMipLevel = 0;
+  barrier.subresourceRange.levelCount = 1;
+  barrier.subresourceRange.baseArrayLayer = 0;
+  barrier.subresourceRange.layerCount = 1;
+
+  barrier.srcAccessMask = 0;  // TODO
+  barrier.dstAccessMask = 0;  // TODO
+
+  return barrier;
+}
+
 }  // namespace Initializer
 }  // namespace Vulkan
 }  // namespace Windows

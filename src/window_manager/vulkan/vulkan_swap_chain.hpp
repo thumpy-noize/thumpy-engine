@@ -62,7 +62,7 @@ class VulkanSwapChain {
    */
   VkExtent2D choose_swap_extent( const VkSurfaceCapabilitiesKHR &capabilities );
 
-  void create_image_views();
+  void create_image_views( VkDevice device );
   void create_framebuffers();
   void create_render_pass();
 
@@ -75,14 +75,13 @@ class VulkanSwapChain {
 
   std::vector<VkImageView> swapChainImageViews;
   std::vector<VkFramebuffer> swapChainFramebuffers;
+  std::vector<VkImage> swapChainImages;
 
  private:
   VkInstance instance_;
   VkSurfaceKHR surface_;
   GLFWwindow *window_;
-  VulkanDevice *device_;
-
-  std::vector<VkImage> swapChainImages_;
+  VulkanDevice *vulkanDevice_;
 };
 }  // namespace Vulkan
 }  // namespace Windows

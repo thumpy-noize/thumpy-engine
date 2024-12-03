@@ -3,9 +3,12 @@
 #include <vulkan/vulkan_core.h>
 
 #include <set>
+#include <stdexcept>
 #include <vector>
 
 #include "logger.hpp"
+#include "logger_helper.hpp"
+#include "vulkan/vulkan_helper.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -27,7 +30,7 @@ void VulkanDevice::pick_physical_device( VkInstance instance ) {
   vkEnumeratePhysicalDevices( instance, &deviceCount, nullptr );
 
   if ( deviceCount == 0 ) {
-    Logger::log( "failed to find GPUs with Vulkan support!", Logger::CRITICAL );
+    throw VulkanNotCompatible( "Failed to find GPUs with Vulkan support!" );
   }
 
   std::vector<VkPhysicalDevice> devices( deviceCount );
@@ -41,7 +44,7 @@ void VulkanDevice::pick_physical_device( VkInstance instance ) {
   }
 
   if ( physicalDevice == VK_NULL_HANDLE ) {
-    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::CRITICAL );
+    throw VulkanNotCompatible( "Failed to find GPUs with Vulkan support!" );
   }
 }
 
@@ -87,7 +90,7 @@ void VulkanDevice::create_logical_device() {
 
   if ( vkCreateDevice( physicalDevice, &createInfo, nullptr, &device ) !=
        VK_SUCCESS ) {
-    Logger::log( "Failed to create logical device!", Logger::CRITICAL );
+    throw VulkanNotCompatible( "Failed to create logical device!" );
   }
 
   vkGetDeviceQueue( device, indices.graphicsFamily.value(), 0, &graphicsQueue );

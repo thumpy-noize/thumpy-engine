@@ -224,7 +224,7 @@ void VulkanRender::update_uniform_buffer(
   float run_time = std::chrono::duration<float, std::chrono::seconds::period>(
                        currentTime - startTime )
                        .count();
-  Logger::log( "Run time: " + std::to_string( run_time ), Logger::DEBUG );
+  // Logger::log( "Run time: " + std::to_string( run_time ), Logger::DEBUG );
 
   UniformBufferObject ubo{};
   ubo.model = glm::rotate( glm::mat4( 1.0f ), run_time * glm::radians( 90.0f ),

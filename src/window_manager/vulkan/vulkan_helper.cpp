@@ -10,9 +10,7 @@
 #ifdef __unix__
 #include <unistd.h>
 #elif _WIN32
-#include <libloaderapi.h>
 #include <windows.h>
-
 #include <filesystem>
 #endif  // _WIN32
 

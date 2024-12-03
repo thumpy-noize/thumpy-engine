@@ -50,11 +50,18 @@ std::string get_exe_path() {
 #elif _WIN32
     wchar_t path[MAX_PATH] = { 0 };
     GetModuleFileNameW(NULL, path, MAX_PATH);
-    std::string string = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(path);
+
+    std::wstring ws = std::wstring(path);
+    size_t len = wcstombs(nullptr, ws.c_str(), 0) + 1;
+    char* buffer = new char[len];
+
+    wcstombs(buffer, ws.c_str(), len);
+    std::string string = std::string(buffer);
     string = string.substr(0, string.find_last_of("\\/"));
     return string;
 #endif
   Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
+  return "";
 }
 
 VulkanPipeline create_graphics_pipeline(

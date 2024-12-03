@@ -13,7 +13,11 @@
 
 #include <vulkan/vulkan_core.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "logger.hpp"
+#include "logger_helper.hpp"
 #include "vulkan_buffers.hpp"
 #include "vulkan_debug.hpp"
 #include "vulkan_device.hpp"
@@ -108,6 +112,17 @@ void command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
   if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) !=
        VK_SUCCESS ) {
     Logger::log( "Failed to allocate command buffers!", Logger::CRITICAL );
+  }
+}
+
+void texture_image() {
+  int texWidth, texHeight, texChannels;
+  stbi_uc *pixels = stbi_load( "textures/texture.jpg", &texWidth, &texHeight,
+                               &texChannels, STBI_rgb_alpha );
+  VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+  if ( !pixels ) {
+    Logger::log( "Failed to load texture image!", Logger::CRITICAL );
   }
 }
 

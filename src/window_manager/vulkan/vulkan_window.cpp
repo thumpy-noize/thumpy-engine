@@ -69,8 +69,11 @@ void VulkanWindow::init_vulkan() {
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
+  Construct::texture_image();
+
   // Create vertex buffer
-  // Generate sierpinski triangle (broken with index buffer)
+  // Generate sierpinski triangle (broken with index buffer,
+  // but it would be really cool if you fixed that)
   // vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
 
   Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_,

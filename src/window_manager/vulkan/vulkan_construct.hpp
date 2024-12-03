@@ -38,6 +38,8 @@ void uniform_buffers( VulkanDevice *vulkanDevice,
                       std::vector<void *> &uniformBuffersMapped,
                       int maxFramesInFlight );
 
+void texture_image();
+
 #pragma region Descriptor
 
 void descriptor_set_layout( VulkanDevice *vulkanDevice,

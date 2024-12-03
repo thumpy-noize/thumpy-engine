@@ -7,17 +7,7 @@
 #include <string>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
 #include "vulkan_initializers.hpp"
-
-#ifdef __unix
-#include <unistd.h>
-#elif _WIN32
-#include <libloaderapi.h>
-#include <windows.h>
-
-#include <filesystem>
-#endif  // _WIN32
 
 namespace Thumpy {
 namespace Core {

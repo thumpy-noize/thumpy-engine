@@ -40,10 +40,30 @@ if( $ENV{COMPILE_SHADERS} )
 
 else()
     message("Copying shaders...")
-    # This too
-    copy_shaders(engine SOURCES "vert.vert")
-    copy_shaders(engine SOURCES "uniform_buffer.vert")
-    copy_shaders(engine SOURCES "vert.frag")
+    # copy_shaders(engine SOURCES "vert.vert")
+    # copy_shaders(engine SOURCES "uniform_buffer.vert")
+    # copy_shaders(engine SOURCES "vert.frag")
+
+
+    message("Copying shaders...")
+    set(srcDir ${CMAKE_CURRENT_LIST_DIR})
+    set(destDir ${CMAKE_CURRENT_BINARY_DIR}/assets/shaders)
+
+    message("Coping shaders from: ${srcDir}")
+    message("Coping shaders to: ${destDir}")
+    make_directory(${destDir})
+
+    # Get all files with the following extentions
+    # png
+    # jpg
+    file( GLOB_RECURSE  textures "${srcDir}/*.vert" "${srcDir}/*.frag")
+
+    foreach(texture ${textures})
+        file(RELATIVE_PATH relative_path ${srcDir} ${texture})
+        message("Copying shader: ${texture}")
+        message("Copying to: ${destDir}/${relative_path}.spv")
+        configure_file(${texture} "${destDir}/${relative_path.spv}" COPYONLY)
+    endforeach(texture ${textures})
 
 endif()
 

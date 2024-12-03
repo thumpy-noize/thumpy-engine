@@ -13,9 +13,6 @@
 
 #include <vulkan/vulkan_core.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include "logger.hpp"
 #include "logger_helper.hpp"
 #include "vulkan_buffers.hpp"
@@ -112,20 +109,6 @@ void command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
   if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) !=
        VK_SUCCESS ) {
     Logger::log( "Failed to allocate command buffers!", Logger::CRITICAL );
-  }
-}
-
-void texture_image() {
-  Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png",
-               Logger::WARNING );
-  int texWidth, texHeight, texChannels;
-  stbi_uc *pixels =
-      stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
-                 &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
-  VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-  if ( !pixels ) {
-    Logger::log( "Failed to load texture image!", Logger::CRITICAL );
   }
 }
 

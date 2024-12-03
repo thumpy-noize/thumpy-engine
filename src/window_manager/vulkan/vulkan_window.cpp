@@ -69,7 +69,7 @@ void VulkanWindow::init_vulkan() {
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
-  Construct::texture_image();
+  Buffer::create_texture_image( vulkanDevice_, textureImage_ );
 
   // Create vertex buffer
   // Generate sierpinski triangle (broken with index buffer,

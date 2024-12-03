@@ -83,6 +83,8 @@ class VulkanWindow : public Window {
   VkDescriptorPool descriptorPool_;
   std::vector<VkDescriptorSet> descriptorSets_;
 
+  TextureImage textureImage_;
+
   // warp t
   // std::vector<Vertex> vertices_ = {
   //     {{0.0f, -1.0f}, {1.0f, 0.0f, 1.0f}}, {{1.0f, 1.0f}, {0.0f, 1.0f,
@@ -117,20 +119,25 @@ class VulkanWindow : public Window {
   //     0.0f, 1.0f}}};
 
   // fill screen
-  // std::vector<Vertex> vertices_ = { { { 0.0f, -1.0f }, { 1.0f, 0.0f, 1.0f }
+  // std::vector<Vertex> vertices_ = { { { 0.0f, -1.0f }, { 1.0f, 0.0f, 1.0f
+  // }
   // },
-  //                                   { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
-  //                                   { { -1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }
-  //                                   }, { { 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f }
-  //                                   }, { { -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f
-  //                                   } }, { { 1.0f, -1.0f }, { 0.0f,
+  //                                   { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f
+  //                                   } }, { { -1.0f, 1.0f }, { 0.0f,
+  //                                   0.0f, 1.0f }
+  //                                   }, { { 0.0f, 1.0f }, { 1.0f,
+  //                                   0.0f, 1.0f }
+  //                                   }, { { -1.0f, -1.0f }, { 0.0f, 1.0f,
+  //                                   0.0f } }, { { 1.0f, -1.0f }, { 0.0f,
   //                                   0.0f, 1.0f } }, { { -1.0f, 1.0f },
-  //                                   { 1.0f, 0.0f, 1.0f } }, { { -1.0f, -1.0f
+  //                                   { 1.0f, 0.0f, 1.0f } }, { { -1.0f,
+  //                                   -1.0f
   //                                   }, { 0.0f, 1.0f, 0.0f } }, { { -0.5f,
-  //                                   0.0f }, { 0.0f, 0.0f, 1.0f } }, { { 1.0f,
-  //                                   -1.0f }, { 1.0f, 0.0f, 1.0f } }, {
-  //                                   { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
-  //                                   { { 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+  //                                   0.0f }, { 0.0f, 0.0f, 1.0f } }, {
+  //                                   { 1.0f, -1.0f }, { 1.0f, 0.0f, 1.0f }
+  //                                   }, { { 1.0f, 1.0f }, { 0.0f, 1.0f,
+  //                                   0.0f } }, { { 0.5f, 0.0f }, { 0.0f,
+  //                                   0.0f, 1.0f } }
   //                                   };
 
   // square

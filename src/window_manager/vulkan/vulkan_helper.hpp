@@ -95,6 +95,11 @@ struct UniformBufferObject {
   glm::mat4 proj;
 };
 
+struct TextureImage {
+  VkImage image;
+  VkDeviceMemory imageMemory;
+};
+
 class VulkanNotCompatible : public std::exception {
  private:
   std::string message_;

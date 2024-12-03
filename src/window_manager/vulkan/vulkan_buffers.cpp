@@ -11,6 +11,10 @@
 
 #include "vulkan_buffers.hpp"
 
+#include "vulkan/vulkan_helper.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 #include <vulkan/vulkan_core.h>
 
 #include <cstring>
@@ -174,6 +178,74 @@ void create_index_buffer( std::vector<uint16_t> indices,
 
   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
+}
+
+void create_texture_image( VulkanDevice *vulkanDevice,
+                           TextureImage textureImage ) {
+  Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png",
+               Logger::WARNING );
+  int texWidth, texHeight, texChannels;
+  stbi_uc *pixels =
+      stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
+                 &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
+  VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+  if ( !pixels ) {
+    Logger::log( "Failed to load texture image!", Logger::CRITICAL );
+  }
+
+  VkBuffer stagingBuffer;
+  VkDeviceMemory stagingBufferMemory;
+
+  create_buffer( imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 stagingBuffer, stagingBufferMemory, vulkanDevice );
+
+  void *data;
+  vkMapMemory( vulkanDevice->device, stagingBufferMemory, 0, imageSize, 0,
+               &data );
+  memcpy( data, pixels, static_cast<size_t>( imageSize ) );
+  vkUnmapMemory( vulkanDevice->device, stagingBufferMemory );
+
+  stbi_image_free( pixels );
+
+  create_image(
+      texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, vulkanDevice );
+}
+
+void create_image( uint32_t width, uint32_t height, VkFormat format,
+                   VkImageTiling tiling, VkImageUsageFlags usage,
+                   VkMemoryPropertyFlags properties, TextureImage textureImage,
+                   VulkanDevice *vulkanDevice ) {
+  VkImageCreateInfo imageInfo =
+      Initializer::image_info( width, height, format, tiling, usage );
+
+  if ( vkCreateImage( vulkanDevice->device, &imageInfo, nullptr,
+                      &textureImage.image ) != VK_SUCCESS ) {
+    Logger::log( "Failed to create image!", Logger::CRITICAL );
+  }
+
+  VkMemoryRequirements memRequirements;
+  vkGetImageMemoryRequirements( vulkanDevice->device, textureImage.image,
+                                &memRequirements );
+
+  VkMemoryAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  allocInfo.allocationSize = memRequirements.size;
+  allocInfo.memoryTypeIndex =
+      find_memory_type( vulkanDevice->physicalDevice,
+                        memRequirements.memoryTypeBits, properties );
+
+  if ( vkAllocateMemory( vulkanDevice->device, &allocInfo, nullptr,
+                         &textureImage.imageMemory ) != VK_SUCCESS ) {
+    Logger::log( "failed to allocate image memory!", Logger::CRITICAL );
+  }
+
+  vkBindImageMemory( vulkanDevice->device, textureImage.image,
+                     textureImage.imageMemory, 0 );
 }
 
 }  // namespace Buffer

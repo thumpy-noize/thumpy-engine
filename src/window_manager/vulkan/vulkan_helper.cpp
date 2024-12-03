@@ -2,7 +2,6 @@
 #include "vulkan_helper.hpp"
 
 #include <GLFW/glfw3.h>
-#include <unistd.h>
 
 #include <cstring>
 

@@ -1,8 +1,9 @@
 
 #pragma once
 
-#include "window.hpp"
 #include <vector>
+
+#include "window.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -11,25 +12,25 @@ namespace Windows {
 enum RenderAPI { NONE, VULKAN };
 
 class WindowManager {
-public:
-  WindowManager();
+ public:
+  WindowManager( RenderAPI api );
   ~WindowManager();
 
   // Create new window
   void create_new_window(
-      RenderAPI api,
-      std::string title = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+      RenderAPI api, std::string title =
+                         "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" );
 
   // Run loop
   void loop();
 
   void terminate();
 
-protected:
+ protected:
   std::vector<Window *> windows_;
 };
-} // namespace Windows
+}  // namespace Windows
 
-} // namespace Core
+}  // namespace Core
 
-} // namespace Thumpy
+}  // namespace Thumpy

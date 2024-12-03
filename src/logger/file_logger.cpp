@@ -44,9 +44,11 @@ void close_log_file() {
 }
 
 void log_to_file( const std::string &message, LogLevel level ) {
-  if ( ( level & file_log_vision ) != 0 ) {
-    // Append to file
-    *log_file << message << std::endl;
+  if ( log_file->is_open() ) {
+    if ( ( level & file_log_vision ) != 0 ) {
+      // Append to file
+      *log_file << message << std::endl;
+    }
   }
 }
 

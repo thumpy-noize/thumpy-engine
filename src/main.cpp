@@ -11,15 +11,15 @@ bool APPLICATION_RUNNING = true;
 Thumpy::Core::Windows::WindowManager *window_manager;
 
 int main() {
-
   Thumpy::Core::Logger::init();
-  Thumpy::Core::Logger::log("Starting Engine...", Thumpy::Core::Logger::INFO);
+  Thumpy::Core::Logger::log( "Starting Engine...", Thumpy::Core::Logger::INFO );
 
   Thumpy::Core::IO::init();
 
-  window_manager = new Thumpy::Core::Windows::WindowManager();
+  window_manager = new Thumpy::Core::Windows::WindowManager(
+      Thumpy::Core::Windows::RenderAPI::VULKAN );
 
-  while (APPLICATION_RUNNING) {
+  while ( APPLICATION_RUNNING ) {
     // Thumpy::Core::IO::poll_input();
 
     // Update window manager

@@ -13,7 +13,7 @@
 namespace Thumpy {
 namespace Core {
 // Demonstrate some basic assertions.
-TEST( engine_unit_test, test_file_logger_open ) {
+TEST( logger, test_file_logger_open ) {
   // Create file
   Logger::init();
   EXPECT_TRUE( Logger::get_log_file()->is_open() );
@@ -23,7 +23,7 @@ TEST( engine_unit_test, test_file_logger_open ) {
   EXPECT_FALSE( Logger::get_log_file()->is_open() );
 }
 
-TEST( engine_unit_test, test_file_logger_write ) {
+TEST( logger, test_file_logger_write ) {
   std::string test_string = "test_message";
 
   // Create file

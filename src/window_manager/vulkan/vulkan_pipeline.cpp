@@ -2,14 +2,20 @@
 
 #include "vulkan_pipeline.hpp"
 
-#include <unistd.h>
-
 #include <fstream>
 #include <ios>
 
 #include "logger.hpp"
 #include "logger_helper.hpp"
 #include "vulkan_initializers.hpp"
+
+#ifdef __unix
+#include <unistd.h>
+#elif _WIN32
+#include <windows.h>
+#include <libloaderapi.h>
+#include <filesystem>
+#endif  // _WIN32
 
 namespace Thumpy {
 namespace Core {
@@ -44,10 +50,20 @@ std::string get_exe_path() {
   path = path.substr( 0, path.find_last_of( "\\/" ) );
   return path;
 #elif _WIN32
-  int bytes = GetModuleFileName( NULL, pBuf, len );
-  return bytes ? bytes : -1;
+    wchar_t path[MAX_PATH] = { 0 };
+    GetModuleFileNameW(NULL, path, MAX_PATH);
+
+    std::wstring ws = std::wstring(path);
+    size_t len = wcstombs(nullptr, ws.c_str(), 0) + 1;
+    char* buffer = new char[len];
+
+    wcstombs(buffer, ws.c_str(), len);
+    std::string string = std::string(buffer);
+    string = string.substr(0, string.find_last_of("\\/"));
+    return string;
 #endif
   Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
+  return "";
 }
 
 VulkanPipeline create_graphics_pipeline(

@@ -14,6 +14,9 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
+
+#include "logger.hpp"
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <optional>
@@ -90,6 +93,21 @@ struct UniformBufferObject {
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 proj;
+};
+
+class VulkanNotCompatible : public std::exception {
+ private:
+  std::string message_;
+
+ public:
+  // Constructor accepts a const char* that is used to set
+  // the exception message
+  VulkanNotCompatible( const char *msg ) : message_( msg ) {
+    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR );
+  }
+
+  // Override the what() method to return our message
+  const char *what() const throw() { return message_.c_str(); }
 };
 
 bool check_validation_layer_support();

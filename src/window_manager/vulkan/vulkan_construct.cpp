@@ -28,8 +28,8 @@ namespace Construct {
 
 void instance( VkInstance &instance ) {
   if ( enableValidationLayers && !check_validation_layer_support() ) {
-    Logger::log( "validation layers requested, but not available!",
-                 Logger::CRITICAL );
+    throw VulkanNotCompatible(
+        "validation layers requested, but not available!" );
   }
 
   VkApplicationInfo appInfo = Initializer::application_info();
@@ -57,7 +57,7 @@ void instance( VkInstance &instance ) {
   }
 
   if ( vkCreateInstance( &createInfo, nullptr, &instance ) != VK_SUCCESS ) {
-    Logger::log( "Failed to create instance!", Logger::CRITICAL );
+    throw VulkanNotCompatible( "Failed to create instance!" );
   }
 }
 

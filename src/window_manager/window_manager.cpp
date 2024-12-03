@@ -1,11 +1,11 @@
 
+#include "logger_helper.hpp"
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLFW_INCLUDE_VULKAN
 
-#include "window_manager.hpp"
-
 #include "logger.hpp"
 #include "vulkan/vulkan_window.hpp"
+#include "window_manager.hpp"
 
 extern bool APPLICATION_RUNNING;
 
@@ -15,13 +15,13 @@ namespace Windows {
 
 WindowManager::WindowManager( RenderAPI api ) {
   create_new_window( api );
-  loop();
+  // loop();
 }
 
 WindowManager::~WindowManager() { terminate(); }
 
 void WindowManager::create_new_window( RenderAPI api, std::string title ) {
-  Window *window;
+  Window* window;
   switch ( api ) {
     case VULKAN: {
       window = new Vulkan::VulkanWindow( title );

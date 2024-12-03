@@ -22,7 +22,7 @@ endmacro()
 
 macro(copy_shaders)
     cmake_parse_arguments("MY" "TARGET" "SOURCES" ${ARGN})
-    message("Copying shader: ${CMAKE_CURRENT_LIST_DIR}/${MY_SOURCES}")
+    message("Copying shader: ${CMAKE_CURRENT_LIST_DIR}/compiled/${MY_SOURCES}.spv")
     set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/shaders/${MY_SOURCES}.spv")
     message("Copying to: ${OUTF}")
 

@@ -9,7 +9,9 @@
 #include "logger_helper.hpp"
 #include "vulkan_initializers.hpp"
 
-#ifdef _WIN32
+#ifdef __unix
+#include <unistd.h>
+#elif _WIN32
 #include <windows.h>
 #include <libloaderapi.h>
 #include <filesystem>

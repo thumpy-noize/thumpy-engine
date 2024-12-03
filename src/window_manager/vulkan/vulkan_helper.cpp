@@ -7,7 +7,15 @@
 #include <cstring>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
+
+#ifdef __unix__
+#include <unistd.h>
+#elif _WIN32
+#include <libloaderapi.h>
+#include <windows.h>
+
+#include <filesystem>
+#endif  // _WIN32
 
 namespace Thumpy {
 namespace Core {
@@ -153,16 +161,16 @@ std::string get_exe_path() {
   path = path.substr( 0, path.find_last_of( "\\/" ) );
   return path;
 #elif _WIN32
-  wchar_t path[MAX_PATH] = { 0 };
-  GetModuleFileNameW( NULL, path, MAX_PATH );
+  wchar_t modulePath[MAX_PATH] = { 0 };
+  GetModuleFileNameW( NULL, modulePath, MAX_PATH );
 
-  std::wstring ws = std::wstring( path );
+  std::wstring ws = std::wstring( modulePath );
   size_t len = wcstombs( nullptr, ws.c_str(), 0 ) + 1;
   char *buffer = new char[len];
 
   wcstombs( buffer, ws.c_str(), len );
   std::string path = std::string( buffer );
-  path = string.substr( 0, path.find_last_of( "\\/" ) );
+  path = path.substr( 0, path.find_last_of( "\\/" ) );
   return path;
 #endif
   Logger::log( "Error determining os for filepath.", Logger::CRITICAL );

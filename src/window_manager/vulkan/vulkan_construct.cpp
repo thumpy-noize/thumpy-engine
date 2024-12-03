@@ -116,9 +116,12 @@ void command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
 }
 
 void texture_image() {
+  Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png",
+               Logger::WARNING );
   int texWidth, texHeight, texChannels;
-  stbi_uc *pixels = stbi_load( "textures/texture.jpg", &texWidth, &texHeight,
-                               &texChannels, STBI_rgb_alpha );
+  stbi_uc *pixels =
+      stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
+                 &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
   VkDeviceSize imageSize = texWidth * texHeight * 4;
 
   if ( !pixels ) {

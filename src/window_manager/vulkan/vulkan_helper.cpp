@@ -188,7 +188,7 @@ std::string get_shader_path() {
 std::string texturePath_;
 std::string get_texture_path() {
   if ( texturePath_.empty() ) {
-    texturePath_ = get_assets_path() + "shaders/";
+    texturePath_ = get_assets_path() + "textures/";
   }
   return texturePath_;
 }

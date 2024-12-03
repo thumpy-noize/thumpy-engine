@@ -11,8 +11,11 @@ find_package(GTest CONFIG REQUIRED)
 # Add executable
 add_executable(engine ${SOURCES})
 
-# Compile shaders
+# Compile / copy shaders
 include("assets/shaders/compile_shaders.cmake")
+
+# Copy textures
+include("assets/textures/migrate_textures.cmake")
 
 set_target_properties(engine PROPERTIES LINKER_LANGUAGE CXX)
 

@@ -4,6 +4,7 @@
     "gtest",
     "glfw3",
     "vulkan",
-    "glm"
+    "glm",
+    "stb"
   ]
 }

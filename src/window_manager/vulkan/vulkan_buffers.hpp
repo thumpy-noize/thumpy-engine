@@ -10,7 +10,9 @@
  */
 #pragma once
 
-#include "vulkan/vulkan_swap_chain.hpp"
+#include "vulkan/vulkan_helper.hpp"
+#include "vulkan_device.hpp"
+#include "vulkan_swap_chain.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -36,6 +38,14 @@ void create_index_buffer( std::vector<uint16_t> indices,
                           VulkanDevice *vulkanDevice, VkBuffer &indexBuffer,
                           VkDeviceMemory &indexBufferMemory,
                           VkCommandPool &commandPool );
+
+void create_texture_image( VulkanDevice *vulkanDevice,
+                           TextureImage textureImage );
+
+void create_image( uint32_t width, uint32_t height, VkFormat format,
+                   VkImageTiling tiling, VkImageUsageFlags usage,
+                   VkMemoryPropertyFlags properties, TextureImage textureImage,
+                   VulkanDevice *vulkanDevice );
 
 }  // namespace Buffer
 }  // namespace Vulkan

@@ -3,19 +3,13 @@
 #include <string>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
+#include "vulkan_helper.hpp"
 
 namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
 namespace Debug {
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
 
 void setup_debug_messenger( VkInstance instance,
                             VkDebugUtilsMessengerEXT *debugMessenger ) {

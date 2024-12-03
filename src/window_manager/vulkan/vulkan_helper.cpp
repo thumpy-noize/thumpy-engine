@@ -152,13 +152,16 @@ std::vector<Vertex> generate_sierpinski_triangle(
 
 #pragma region Paths
 
+std::string exePath_;
 std::string get_exe_path() {
+  if(exePath_.empty())
+  {
 #ifdef __unix__
   char result[PATH_MAX];
   ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
-  std::string path = std::string( result, ( count > 0 ) ? count : 0 );
-  path = path.substr( 0, path.find_last_of( "\\/" ) );
-  return path;
+  exePath_ = std::string( result, ( count > 0 ) ? count : 0 );
+  exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
+  return exePath_;
 #elif _WIN32
   wchar_t modulePath[MAX_PATH] = { 0 };
   GetModuleFileNameW( NULL, modulePath, MAX_PATH );
@@ -168,12 +171,14 @@ std::string get_exe_path() {
   char *buffer = new char[len];
 
   wcstombs( buffer, ws.c_str(), len );
-  std::string path = std::string( buffer );
-  path = path.substr( 0, path.find_last_of( "\\/" ) );
-  return path;
+  exePath_ = std::string( buffer );
+  exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
+  return exePath_;
 #endif
   Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
   return "";
+  } 
+  return exePath_;
 }
 
 std::string assetsPath_;

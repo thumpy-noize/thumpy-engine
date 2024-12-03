@@ -4,7 +4,7 @@ macro(compile_shaders)
 
     foreach(src ${MY_SOURCES})
     message("Compiling shader: ${CMAKE_CURRENT_LIST_DIR}/${src}")
-        set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/shaders/${src}.spv")
+        set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/${src}.spv")
         get_filename_component(PARENT_DIR "${OUTF}" DIRECTORY)
         message("Output file: ${OUTF}")
 
@@ -23,7 +23,7 @@ endmacro()
 macro(copy_shaders)
     cmake_parse_arguments("MY" "TARGET" "SOURCES" ${ARGN})
     message("Copying shader: ${CMAKE_CURRENT_LIST_DIR}/compiled/${MY_SOURCES}.spv")
-    set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/shaders/${MY_SOURCES}.spv")
+    set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/${MY_SOURCES}.spv")
     message("Copying to: ${OUTF}")
 
     configure_file("${CMAKE_CURRENT_LIST_DIR}/compiled/${MY_SOURCES}.spv" "${OUTF}" COPYONLY)

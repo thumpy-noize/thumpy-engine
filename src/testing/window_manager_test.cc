@@ -101,7 +101,7 @@ class WindowManagerVulkanTest : public testing::Test {
       return;
     }
 
-    // EXPECT_TRUE( APPLICATION_RUNNING );
+    EXPECT_TRUE( APPLICATION_RUNNING );
   }
 
   void TearDown() override {

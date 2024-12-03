@@ -1,6 +1,11 @@
 
 add_library(window_manager "")
 
+find_package(glfw3 CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(Vulkan REQUIRED)
+find_package(Stb REQUIRED)
+
 target_sources(window_manager
   PUBLIC
 
@@ -39,6 +44,7 @@ target_include_directories(window_manager
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
     ${GLFW_LIBRARIES}
+    ${Stb_INCLUDE_DIR}
   )
 
   target_link_libraries(window_manager

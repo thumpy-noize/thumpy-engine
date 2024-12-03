@@ -2,6 +2,7 @@
 #include "vulkan_helper.hpp"
 
 #include <GLFW/glfw3.h>
+#include <unistd.h>
 
 #include <cstring>
 
@@ -141,6 +142,56 @@ std::vector<Vertex> generate_sierpinski_triangle(
 }  // namespace Shapes
 
 #pragma endregion Shape generation
+
+#pragma region Paths
+
+std::string get_exe_path() {
+#ifdef __unix__
+  char result[PATH_MAX];
+  ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+  std::string path = std::string( result, ( count > 0 ) ? count : 0 );
+  path = path.substr( 0, path.find_last_of( "\\/" ) );
+  return path;
+#elif _WIN32
+  wchar_t path[MAX_PATH] = { 0 };
+  GetModuleFileNameW( NULL, path, MAX_PATH );
+
+  std::wstring ws = std::wstring( path );
+  size_t len = wcstombs( nullptr, ws.c_str(), 0 ) + 1;
+  char *buffer = new char[len];
+
+  wcstombs( buffer, ws.c_str(), len );
+  std::string path = std::string( buffer );
+  path = string.substr( 0, path.find_last_of( "\\/" ) );
+  return path;
+#endif
+  Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
+  return "";
+}
+
+std::string assetsPath_;
+std::string get_assets_path() {
+  if ( assetsPath_.empty() ) {
+    assetsPath_ = get_exe_path() + "/assets/";
+  }
+  return assetsPath_;
+}
+
+std::string shaderPath_;
+std::string get_shader_path() {
+  if ( shaderPath_.empty() ) {
+    shaderPath_ = get_assets_path() + "shaders/";
+  }
+  return shaderPath_;
+}
+
+std::string texturePath_;
+std::string get_texture_path() {
+  if ( texturePath_.empty() ) {
+    texturePath_ = get_assets_path() + "shaders/";
+  }
+  return texturePath_;
+}
 
 }  // namespace Vulkan
 }  // namespace Windows

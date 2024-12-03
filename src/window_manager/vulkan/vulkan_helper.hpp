@@ -95,6 +95,11 @@ struct UniformBufferObject {
   glm::mat4 proj;
 };
 
+struct TextureImage {
+  VkImage image;
+  VkDeviceMemory imageMemory;
+};
+
 class VulkanNotCompatible : public std::exception {
  private:
   std::string message_;
@@ -122,6 +127,13 @@ namespace Shapes {
 std::vector<Vertex> generate_sierpinski_triangle(
     uint32_t recursions, std::vector<Vertex> startingTriangle );
 }
+
+#pragma region Paths
+std::string get_exe_path();
+std::string get_assets_path();
+std::string get_shader_path();
+std::string get_texture_path();
+#pragma endregion
 
 }  // namespace Vulkan
 }  // namespace Windows

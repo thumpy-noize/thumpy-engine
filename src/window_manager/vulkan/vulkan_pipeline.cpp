@@ -4,18 +4,10 @@
 
 #include <fstream>
 #include <ios>
+#include <string>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
 #include "vulkan_initializers.hpp"
-
-#ifdef __unix
-#include <unistd.h>
-#elif _WIN32
-#include <windows.h>
-#include <libloaderapi.h>
-#include <filesystem>
-#endif  // _WIN32
 
 namespace Thumpy {
 namespace Core {
@@ -42,37 +34,13 @@ static std::vector<char> read_file( const std::string &filename ) {
   return buffer;
 }
 
-std::string get_exe_path() {
-#ifdef __unix__
-  char result[PATH_MAX];
-  ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
-  std::string path = std::string( result, ( count > 0 ) ? count : 0 );
-  path = path.substr( 0, path.find_last_of( "\\/" ) );
-  return path;
-#elif _WIN32
-    wchar_t path[MAX_PATH] = { 0 };
-    GetModuleFileNameW(NULL, path, MAX_PATH);
-
-    std::wstring ws = std::wstring(path);
-    size_t len = wcstombs(nullptr, ws.c_str(), 0) + 1;
-    char* buffer = new char[len];
-
-    wcstombs(buffer, ws.c_str(), len);
-    std::string string = std::string(buffer);
-    string = string.substr(0, string.find_last_of("\\/"));
-    return string;
-#endif
-  Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
-  return "";
-}
-
 VulkanPipeline create_graphics_pipeline(
     VulkanSwapChain *swapChain, VkDevice vulkanDevice,
     VkDescriptorSetLayout descriptorSetLayout ) {
-  Logger::log( "Loading shaders from: " + get_exe_path(), Logger::INFO );
+  Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
   auto vertShaderCode =
-      read_file( get_exe_path() + "/shaders/uniform_buffer.vert.spv" );
-  auto fragShaderCode = read_file( get_exe_path() + +"/shaders/vert.frag.spv" );
+      read_file( get_shader_path() + "uniform_buffer.vert.spv" );
+  auto fragShaderCode = read_file( get_shader_path() + +"vert.frag.spv" );
 
   VkShaderModule vertShaderModule =
       create_shader_module( vertShaderCode, vulkanDevice );

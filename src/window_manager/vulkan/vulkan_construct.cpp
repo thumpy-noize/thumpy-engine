@@ -14,6 +14,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "logger.hpp"
+#include "logger_helper.hpp"
 #include "vulkan_buffers.hpp"
 #include "vulkan_debug.hpp"
 #include "vulkan_device.hpp"

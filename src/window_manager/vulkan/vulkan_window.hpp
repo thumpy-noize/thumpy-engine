@@ -64,6 +64,7 @@ class VulkanWindow : public Window {
   VulkanDevice *vulkanDevice_;
   VulkanSwapChain *swapChain_;
   VulkanPipeline pipeline_;
+  TextureImage textureImage_;
   VulkanRender *render_;
 
   VkCommandPool commandPool_;
@@ -117,20 +118,25 @@ class VulkanWindow : public Window {
   //     0.0f, 1.0f}}};
 
   // fill screen
-  // std::vector<Vertex> vertices_ = { { { 0.0f, -1.0f }, { 1.0f, 0.0f, 1.0f }
+  // std::vector<Vertex> vertices_ = { { { 0.0f, -1.0f }, { 1.0f, 0.0f, 1.0f
+  // }
   // },
-  //                                   { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
-  //                                   { { -1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }
-  //                                   }, { { 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f }
-  //                                   }, { { -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f
-  //                                   } }, { { 1.0f, -1.0f }, { 0.0f,
+  //                                   { { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f
+  //                                   } }, { { -1.0f, 1.0f }, { 0.0f,
+  //                                   0.0f, 1.0f }
+  //                                   }, { { 0.0f, 1.0f }, { 1.0f,
+  //                                   0.0f, 1.0f }
+  //                                   }, { { -1.0f, -1.0f }, { 0.0f, 1.0f,
+  //                                   0.0f } }, { { 1.0f, -1.0f }, { 0.0f,
   //                                   0.0f, 1.0f } }, { { -1.0f, 1.0f },
-  //                                   { 1.0f, 0.0f, 1.0f } }, { { -1.0f, -1.0f
+  //                                   { 1.0f, 0.0f, 1.0f } }, { { -1.0f,
+  //                                   -1.0f
   //                                   }, { 0.0f, 1.0f, 0.0f } }, { { -0.5f,
-  //                                   0.0f }, { 0.0f, 0.0f, 1.0f } }, { { 1.0f,
-  //                                   -1.0f }, { 1.0f, 0.0f, 1.0f } }, {
-  //                                   { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
-  //                                   { { 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+  //                                   0.0f }, { 0.0f, 0.0f, 1.0f } }, {
+  //                                   { 1.0f, -1.0f }, { 1.0f, 0.0f, 1.0f }
+  //                                   }, { { 1.0f, 1.0f }, { 0.0f, 1.0f,
+  //                                   0.0f } }, { { 0.5f, 0.0f }, { 0.0f,
+  //                                   0.0f, 1.0f } }
   //                                   };
 
   // square

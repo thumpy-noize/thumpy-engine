@@ -80,7 +80,7 @@ class VulkanSwapChain {
   VkInstance instance_;
   VkSurfaceKHR surface_;
   GLFWwindow *window_;
-  VulkanDevice *device_;
+  VulkanDevice *vulkanDevice_;
 
   std::vector<VkImage> swapChainImages_;
 };

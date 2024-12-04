@@ -42,7 +42,7 @@ else() # Copy shaders
         file(RELATIVE_PATH relative_path ${srcDir} ${texture})
         message("Copying shader: ${texture}")
         message("Copying to: ${destDir}/${relative_path}.spv")
-        configure_file(${texture} "${destDir}/${relative_path.spv}" COPYONLY)
+        configure_file(${texture} "${destDir}/${relative_path}.spv" COPYONLY)
     endforeach(texture ${textures})
 
 endif()

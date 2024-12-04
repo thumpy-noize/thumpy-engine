@@ -27,6 +27,7 @@
 #include "vulkan_construct.hpp"
 #include "vulkan_debug.hpp"
 #include "vulkan_helper.hpp"
+#include "vulkan_image.hpp"
 #include "vulkan_pipeline.hpp"
 
 namespace Thumpy {
@@ -69,7 +70,10 @@ void VulkanWindow::init_vulkan() {
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
-  Buffer::create_texture_image( vulkanDevice_, &textureImage_, commandPool_ );
+  // Create texture image / view / sampler
+  Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_ );
+  Image::create_texture_image_view( vulkanDevice_->device, &textureImage_ );
+  Image::create_texture_sampler( vulkanDevice_, &textureImage_ );
 
   // Create vertex buffer
   // Generate sierpinski triangle (broken with index buffer,
@@ -95,7 +99,7 @@ void VulkanWindow::init_vulkan() {
   // Create descriptor sets
   Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_,
                               descriptorPool_, descriptorSets_, uniformBuffers_,
-                              MAX_FRAMES_IN_FLIGHT );
+                              &textureImage_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
   Construct::command_buffer( commandBuffers_, commandPool_,
@@ -124,6 +128,8 @@ void VulkanWindow::deconstruct_window() {
 
   vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
 
+  vkDestroySampler( vulkanDevice_->device, textureImage_.sampler, nullptr );
+  vkDestroyImageView( vulkanDevice_->device, textureImage_.imageView, nullptr );
   vkDestroyImage( vulkanDevice_->device, textureImage_.image, nullptr );
   vkFreeMemory( vulkanDevice_->device, textureImage_.imageMemory, nullptr );
 

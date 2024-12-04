@@ -276,9 +276,6 @@ inline VkImageMemoryBarrier image_memory_barrier( VkImage image,
   barrier.subresourceRange.baseArrayLayer = 0;
   barrier.subresourceRange.layerCount = 1;
 
-  barrier.srcAccessMask = 0;  // TODO
-  barrier.dstAccessMask = 0;  // TODO
-
   return barrier;
 }
 

@@ -66,6 +66,7 @@ void VulkanDevice::create_logical_device() {
   }
 
   VkPhysicalDeviceFeatures deviceFeatures{};
+  deviceFeatures.samplerAnisotropy = VK_TRUE;
 
   VkDeviceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -110,7 +111,11 @@ bool VulkanDevice::is_device_suitable( VkPhysicalDevice device ) {
                         !swapChainSupport.presentModes.empty();
   }
 
-  return indices.is_complete() && extensionsSupported && swapChainAdequate;
+  VkPhysicalDeviceFeatures supportedFeatures;
+  vkGetPhysicalDeviceFeatures( device, &supportedFeatures );
+
+  return indices.is_complete() && extensionsSupported && swapChainAdequate &&
+         supportedFeatures.samplerAnisotropy;
 }
 
 QueueFamilyIndices VulkanDevice::find_queue_families(

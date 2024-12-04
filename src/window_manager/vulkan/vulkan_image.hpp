@@ -44,7 +44,10 @@ void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width,
 VkImageView create_image_view( VkImage image, VkFormat format,
                                VkDevice device );
 
-void create_texture_image_view( TextureImage textureImage, VkDevice device );
+void create_texture_image_view( TextureImage *textureImage, VkDevice device );
+
+void create_texture_sampler( VulkanDevice *vulkanDevice,
+                             TextureImage *textureImage );
 
 }  // namespace Image
 }  // namespace Vulkan

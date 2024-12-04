@@ -72,6 +72,7 @@ void VulkanWindow::init_vulkan() {
 
   // Create texture image
   Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_ );
+  Image::create_texture_image_view( vulkanDevice_->device, &textureImage_ );
 
   // Image::create_texture_image_view();
 
@@ -128,6 +129,7 @@ void VulkanWindow::deconstruct_window() {
 
   vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
 
+  vkDestroyImageView( vulkanDevice_->device, textureImage_.imageView, nullptr );
   vkDestroyImage( vulkanDevice_->device, textureImage_.image, nullptr );
   vkFreeMemory( vulkanDevice_->device, textureImage_.imageMemory, nullptr );
 

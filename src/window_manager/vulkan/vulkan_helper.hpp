@@ -98,6 +98,7 @@ struct UniformBufferObject {
 struct TextureImage {
   VkImage image;
   VkDeviceMemory imageMemory;
+  VkImageView imageView;
 };
 
 class VulkanNotCompatible : public std::exception {

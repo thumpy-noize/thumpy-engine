@@ -26,6 +26,7 @@ namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
+
 namespace Image {
 
 void create_texture_image( VulkanDevice *vulkanDevice,
@@ -173,6 +174,36 @@ void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region );
 
   Buffer::end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
+}
+
+void create_texture_image_view( VkDevice device, TextureImage *textureImage ) {
+  // Create image view info
+  VkImageViewCreateInfo viewInfo{};
+  viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  viewInfo.image = textureImage->image;
+
+  // Format for 2D textures
+  viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+
+  // set color mapping
+  //   viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  //   viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  //   viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  //   viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+  // setsubresource range
+  viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  viewInfo.subresourceRange.baseMipLevel = 0;
+  viewInfo.subresourceRange.levelCount = 1;
+  viewInfo.subresourceRange.baseArrayLayer = 0;
+  viewInfo.subresourceRange.layerCount = 1;
+
+  // Create image view
+  if ( vkCreateImageView( device, &viewInfo, nullptr,
+                          &textureImage->imageView ) != VK_SUCCESS ) {
+    Logger::log( "Failed to create image views!", Logger::CRITICAL );
+  }
 }
 
 }  // namespace Image

@@ -204,6 +204,40 @@ void create_texture_image_view( VkDevice device, TextureImage *textureImage ) {
       create_image_view( device, textureImage->image, VK_FORMAT_R8G8B8A8_SRGB );
 }
 
+void create_texture_sampler( VulkanDevice *vulkanDevice,
+                             TextureImage *textureImage ) {
+  VkPhysicalDeviceProperties properties{};
+  vkGetPhysicalDeviceProperties( vulkanDevice->physicalDevice, &properties );
+
+  VkSamplerCreateInfo samplerInfo{};
+  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  samplerInfo.magFilter = VK_FILTER_LINEAR;
+  samplerInfo.minFilter = VK_FILTER_LINEAR;
+
+  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+  samplerInfo.anisotropyEnable = VK_TRUE;
+  samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+  samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+  samplerInfo.unnormalizedCoordinates = VK_FALSE;
+
+  samplerInfo.compareEnable = VK_FALSE;
+  samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+
+  samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+  samplerInfo.mipLodBias = 0.0f;
+  samplerInfo.minLod = 0.0f;
+  samplerInfo.maxLod = 0.0f;
+
+  if ( vkCreateSampler( vulkanDevice->device, &samplerInfo, nullptr,
+                        &textureImage->sampler ) != VK_SUCCESS ) {
+    throw std::runtime_error( "failed to create texture sampler!" );
+  }
+}
+
 }  // namespace Image
 }  // namespace Vulkan
 }  // namespace Windows

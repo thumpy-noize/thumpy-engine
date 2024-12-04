@@ -43,6 +43,9 @@ VkImageView create_image_view( VkDevice device, VkImage image,
 
 void create_texture_image_view( VkDevice device, TextureImage *textureImage );
 
+void create_texture_sampler( VulkanDevice *vulkanDevice,
+                             TextureImage *textureImage );
+
 }  // namespace Image
 }  // namespace Vulkan
 }  // namespace Windows

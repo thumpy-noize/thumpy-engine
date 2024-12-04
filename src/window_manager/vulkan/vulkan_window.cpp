@@ -70,11 +70,10 @@ void VulkanWindow::init_vulkan() {
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
-  // Create texture image
+  // Create texture image / view / sampler
   Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_ );
   Image::create_texture_image_view( vulkanDevice_->device, &textureImage_ );
-
-  // Image::create_texture_image_view();
+  Image::create_texture_sampler( vulkanDevice_, &textureImage_ );
 
   // Create vertex buffer
   // Generate sierpinski triangle (broken with index buffer,
@@ -129,6 +128,7 @@ void VulkanWindow::deconstruct_window() {
 
   vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
 
+  vkDestroySampler( vulkanDevice_->device, textureImage_.sampler, nullptr );
   vkDestroyImageView( vulkanDevice_->device, textureImage_.imageView, nullptr );
   vkDestroyImage( vulkanDevice_->device, textureImage_.image, nullptr );
   vkFreeMemory( vulkanDevice_->device, textureImage_.imageMemory, nullptr );

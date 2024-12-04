@@ -99,6 +99,7 @@ struct TextureImage {
   VkImage image;
   VkDeviceMemory imageMemory;
   VkImageView imageView;
+  VkSampler sampler;
 };
 
 class VulkanNotCompatible : public std::exception {

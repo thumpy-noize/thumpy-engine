@@ -14,6 +14,7 @@
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan_core.h>
 
+#include "vulkan/vulkan_helper.hpp"
 #include "vulkan_device.hpp"
 
 namespace Thumpy {
@@ -51,7 +52,7 @@ void descriptor_sets( VulkanDevice *vulkanDevice,
                       VkDescriptorPool &descriptorPool,
                       std::vector<VkDescriptorSet> &descriptorSets,
                       std::vector<VkBuffer> &uniformBuffers,
-                      int maxFramesInFlight );
+                      TextureImage *textureImage, int maxFramesInFlight );
 
 #pragma endregion Descriptor
 

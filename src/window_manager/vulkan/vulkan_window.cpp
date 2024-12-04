@@ -99,7 +99,7 @@ void VulkanWindow::init_vulkan() {
   // Create descriptor sets
   Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_,
                               descriptorPool_, descriptorSets_, uniformBuffers_,
-                              MAX_FRAMES_IN_FLIGHT );
+                              &textureImage_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
   Construct::command_buffer( commandBuffers_, commandPool_,

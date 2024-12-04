@@ -13,6 +13,8 @@
 
 #include <stdexcept>
 
+#include "logger_helper.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <vulkan/vulkan_core.h>
@@ -33,7 +35,8 @@ void create_texture_image( VulkanDevice *vulkanDevice,
                            TextureImage *textureImage,
                            VkCommandPool commandPool ) {
   Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png",
-               Logger::INFO );
+               Logger::DEBUG );
+
   int texWidth, texHeight, texChannels;
   stbi_uc *pixels =
       stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
@@ -234,7 +237,7 @@ void create_texture_sampler( VulkanDevice *vulkanDevice,
 
   if ( vkCreateSampler( vulkanDevice->device, &samplerInfo, nullptr,
                         &textureImage->sampler ) != VK_SUCCESS ) {
-    throw std::runtime_error( "failed to create texture sampler!" );
+    Logger::log( "Failed to create texture sampler!", Logger::CRITICAL );
   }
 }
 

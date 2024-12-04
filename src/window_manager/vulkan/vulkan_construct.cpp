@@ -160,8 +160,6 @@ void descriptor_pool( VulkanDevice *vulkanDevice,
   poolInfo.pPoolSizes = poolSizes.data();
   poolInfo.maxSets = static_cast<uint32_t>( maxFramesInFlight );
 
-  poolInfo.maxSets = static_cast<uint32_t>( maxFramesInFlight );
-
   if ( vkCreateDescriptorPool( vulkanDevice->device, &poolInfo, nullptr,
                                &descriptorPool ) != VK_SUCCESS ) {
     Logger::log( "Failed to create descriptor pool!", Logger::CRITICAL );

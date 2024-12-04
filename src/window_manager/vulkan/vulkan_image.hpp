@@ -38,6 +38,9 @@ void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width,
                            uint32_t height, VulkanDevice *vulkanDevice,
                            VkCommandPool commandPool );
 
+VkImageView create_image_view( VkDevice device, VkImage image,
+                               VkFormat format );
+
 void create_texture_image_view( VkDevice device, TextureImage *textureImage );
 
 }  // namespace Image

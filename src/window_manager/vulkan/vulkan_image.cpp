@@ -176,34 +176,32 @@ void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width,
   Buffer::end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
 }
 
-void create_texture_image_view( VkDevice device, TextureImage *textureImage ) {
-  // Create image view info
+VkImageView create_image_view( VkDevice device, VkImage image,
+                               VkFormat format ) {
   VkImageViewCreateInfo viewInfo{};
   viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  viewInfo.image = textureImage->image;
-
-  // Format for 2D textures
+  viewInfo.image = image;
   viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-
-  // set color mapping
-  //   viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-  //   viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-  //   viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-  //   viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-  // setsubresource range
+  viewInfo.format = format;
   viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
   viewInfo.subresourceRange.baseMipLevel = 0;
   viewInfo.subresourceRange.levelCount = 1;
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = 1;
 
-  // Create image view
-  if ( vkCreateImageView( device, &viewInfo, nullptr,
-                          &textureImage->imageView ) != VK_SUCCESS ) {
-    Logger::log( "Failed to create image views!", Logger::CRITICAL );
+  VkImageView imageView;
+  if ( vkCreateImageView( device, &viewInfo, nullptr, &imageView ) !=
+       VK_SUCCESS ) {
+    throw std::runtime_error( "failed to create image view!" );
   }
+
+  return imageView;
+}
+
+void create_texture_image_view( VkDevice device, TextureImage *textureImage ) {
+  // Create image view info
+  textureImage->imageView =
+      create_image_view( device, textureImage->image, VK_FORMAT_R8G8B8A8_SRGB );
 }
 
 }  // namespace Image

@@ -11,7 +11,7 @@ make_directory(${destDir})
 file( GLOB_RECURSE  textures "${srcDir}/*.vert" "${srcDir}/*.frag")
 
 # Compile shaders
-if( true ) #$ENV{COMPILE_SHADERS} )
+if( $ENV{COMPILE_SHADERS} )
     message("Compiling shaders...")
     foreach(texture ${textures})
         file(RELATIVE_PATH relative_path ${srcDir} ${texture})

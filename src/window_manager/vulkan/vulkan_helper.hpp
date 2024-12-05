@@ -33,16 +33,13 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-const std::vector<const char *> validationLayers = {
-    "VK_LAYER_KHRONOS_validation" };
+const std::vector<const char *> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphicsFamily;
   std::optional<uint32_t> presentFamily;
 
-  bool is_complete() {
-    return graphicsFamily.has_value() && presentFamily.has_value();
-  }
+  bool is_complete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
 };
 
 struct SwapChainSupportDetails {
@@ -52,7 +49,7 @@ struct SwapChainSupportDetails {
 };
 
 struct Vertex {
-  glm::vec2 pos;
+  glm::vec3 pos;
   glm::vec3 color;
   glm::vec2 texCoord;
 
@@ -65,13 +62,12 @@ struct Vertex {
     return bindingDescription;
   }
 
-  static std::array<VkVertexInputAttributeDescription, 3>
-  get_attribute_descriptions() {
+  static std::array<VkVertexInputAttributeDescription, 3> get_attribute_descriptions() {
     std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
-    attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[0].offset = offsetof( Vertex, pos );
 
     attributeDescriptions[1].binding = 0;
@@ -89,7 +85,7 @@ struct Vertex {
 
   static Vertex mid( Vertex a, Vertex b ) {
     Vertex vert;
-    vert.pos = ( a.pos + b.pos ) / glm::vec2( 2 );
+    vert.pos = ( a.pos + b.pos ) / glm::vec3( 2 );
     vert.color = ( a.color + b.color ) / glm::vec3( 2 );
     return vert;
   }
@@ -101,7 +97,7 @@ struct UniformBufferObject {
   glm::mat4 proj;
 };
 
-struct TextureImage {
+struct VulkanImage {
   VkImage image;
   VkDeviceMemory imageMemory;
   VkImageView imageView;
@@ -132,8 +128,8 @@ uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
 
 namespace Shapes {
 
-std::vector<Vertex> generate_sierpinski_triangle(
-    uint32_t recursions, std::vector<Vertex> startingTriangle );
+std::vector<Vertex> generate_sierpinski_triangle( uint32_t recursions,
+                                                  std::vector<Vertex> startingTriangle );
 }
 
 #pragma region Paths

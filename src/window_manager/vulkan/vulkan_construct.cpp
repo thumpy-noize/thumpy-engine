@@ -29,8 +29,7 @@ namespace Construct {
 
 void instance( VkInstance &instance ) {
   if ( enableValidationLayers && !check_validation_layer_support() ) {
-    throw VulkanNotCompatible(
-        "validation layers requested, but not available!" );
+    throw VulkanNotCompatible( "validation layers requested, but not available!" );
   }
 
   VkApplicationInfo appInfo = Initializer::application_info();
@@ -45,8 +44,7 @@ void instance( VkInstance &instance ) {
 
   VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
   if ( enableValidationLayers ) {
-    createInfo.enabledLayerCount =
-        static_cast<uint32_t>( validationLayers.size() );
+    createInfo.enabledLayerCount = static_cast<uint32_t>( validationLayers.size() );
     createInfo.ppEnabledLayerNames = validationLayers.data();
 
     Debug::populate_debug_messenger_create_info( debugCreateInfo );
@@ -62,11 +60,9 @@ void instance( VkInstance &instance ) {
   }
 }
 
-void uniform_buffers( VulkanDevice *vulkanDevice,
-                      std::vector<VkBuffer> &uniformBuffers,
+void uniform_buffers( VulkanDevice *vulkanDevice, std::vector<VkBuffer> &uniformBuffers,
                       std::vector<VkDeviceMemory> &uniformBuffersMemory,
-                      std::vector<void *> &uniformBuffersMapped,
-                      int maxFramesInFlight ) {
+                      std::vector<void *> &uniformBuffersMapped, int maxFramesInFlight ) {
   VkDeviceSize bufferSize = sizeof( UniformBufferObject );
 
   uniformBuffers.resize( maxFramesInFlight );
@@ -74,14 +70,13 @@ void uniform_buffers( VulkanDevice *vulkanDevice,
   uniformBuffersMapped.resize( maxFramesInFlight );
 
   for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
-    Buffer::create_buffer( bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                               VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                           uniformBuffers[i], uniformBuffersMemory[i],
-                           vulkanDevice );
+    Buffer::create_buffer(
+        bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        uniformBuffers[i], uniformBuffersMemory[i], vulkanDevice );
 
-    vkMapMemory( vulkanDevice->device, uniformBuffersMemory[i], 0, bufferSize,
-                 0, &uniformBuffersMapped[i] );
+    vkMapMemory( vulkanDevice->device, uniformBuffersMemory[i], 0, bufferSize, 0,
+                 &uniformBuffersMapped[i] );
   }
 }
 
@@ -92,22 +87,19 @@ void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool ) {
   VkCommandPoolCreateInfo poolInfo =
       Initializer::pool_info( queueFamilyIndices.graphicsFamily.value() );
 
-  if ( vkCreateCommandPool( vulkanDevice->device, &poolInfo, nullptr,
-                            &commandPool ) != VK_SUCCESS ) {
+  if ( vkCreateCommandPool( vulkanDevice->device, &poolInfo, nullptr, &commandPool ) !=
+       VK_SUCCESS ) {
     Logger::log( "Failed to create command pool!", Logger::CRITICAL );
   }
 }
 
-void command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
-                     VkCommandPool commandPool, VkDevice device,
-                     int maxFramesInFlight ) {
+void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
+                     VkDevice device, int maxFramesInFlight ) {
   commandBuffers.resize( maxFramesInFlight );
   VkCommandBufferAllocateInfo allocInfo =
-      Initializer::command_buffer_allocate_info(
-          commandPool, (uint32_t)commandBuffers.size() );
+      Initializer::command_buffer_allocate_info( commandPool, (uint32_t)commandBuffers.size() );
 
-  if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) !=
-       VK_SUCCESS ) {
+  if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) != VK_SUCCESS ) {
     Logger::log( "Failed to allocate command buffers!", Logger::CRITICAL );
   }
 }
@@ -127,13 +119,11 @@ void descriptor_set_layout( VulkanDevice *vulkanDevice,
   VkDescriptorSetLayoutBinding samplerLayoutBinding{};
   samplerLayoutBinding.binding = 1;
   samplerLayoutBinding.descriptorCount = 1;
-  samplerLayoutBinding.descriptorType =
-      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   samplerLayoutBinding.pImmutableSamplers = nullptr;
   samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-  std::array<VkDescriptorSetLayoutBinding, 2> bindings = {
-      uboLayoutBinding, samplerLayoutBinding };
+  std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
   VkDescriptorSetLayoutCreateInfo layoutInfo{};
   layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
   layoutInfo.bindingCount = static_cast<uint32_t>( bindings.size() );
@@ -145,8 +135,7 @@ void descriptor_set_layout( VulkanDevice *vulkanDevice,
   }
 }
 
-void descriptor_pool( VulkanDevice *vulkanDevice,
-                      VkDescriptorPool &descriptorPool,
+void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
                       int maxFramesInFlight ) {
   std::array<VkDescriptorPoolSize, 2> poolSizes{};
   poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -160,20 +149,18 @@ void descriptor_pool( VulkanDevice *vulkanDevice,
   poolInfo.pPoolSizes = poolSizes.data();
   poolInfo.maxSets = static_cast<uint32_t>( maxFramesInFlight );
 
-  if ( vkCreateDescriptorPool( vulkanDevice->device, &poolInfo, nullptr,
-                               &descriptorPool ) != VK_SUCCESS ) {
+  if ( vkCreateDescriptorPool( vulkanDevice->device, &poolInfo, nullptr, &descriptorPool ) !=
+       VK_SUCCESS ) {
     Logger::log( "Failed to create descriptor pool!", Logger::CRITICAL );
   }
 }
 
-void descriptor_sets( VulkanDevice *vulkanDevice,
-                      VkDescriptorSetLayout &descriptorSetLayout,
+void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout,
                       VkDescriptorPool &descriptorPool,
                       std::vector<VkDescriptorSet> &descriptorSets,
-                      std::vector<VkBuffer> &uniformBuffers,
-                      TextureImage *textureImage, int maxFramesInFlight ) {
-  std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight,
-                                              descriptorSetLayout );
+                      std::vector<VkBuffer> &uniformBuffers, VulkanImage *textureImage,
+                      int maxFramesInFlight ) {
+  std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight, descriptorSetLayout );
   VkDescriptorSetAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
   allocInfo.descriptorPool = descriptorPool;
@@ -181,8 +168,8 @@ void descriptor_sets( VulkanDevice *vulkanDevice,
   allocInfo.pSetLayouts = layouts.data();
 
   descriptorSets.resize( maxFramesInFlight );
-  if ( vkAllocateDescriptorSets( vulkanDevice->device, &allocInfo,
-                                 descriptorSets.data() ) != VK_SUCCESS ) {
+  if ( vkAllocateDescriptorSets( vulkanDevice->device, &allocInfo, descriptorSets.data() ) !=
+       VK_SUCCESS ) {
     Logger::log( "Failed to allocate descriptor sets!", Logger::CRITICAL );
   }
 
@@ -211,13 +198,11 @@ void descriptor_sets( VulkanDevice *vulkanDevice,
     descriptorWrites[1].dstSet = descriptorSets[i];
     descriptorWrites[1].dstBinding = 1;
     descriptorWrites[1].dstArrayElement = 0;
-    descriptorWrites[1].descriptorType =
-        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptorWrites[1].descriptorCount = 1;
     descriptorWrites[1].pImageInfo = &imageInfo;
 
-    vkUpdateDescriptorSets( vulkanDevice->device,
-                            static_cast<uint32_t>( descriptorWrites.size() ),
+    vkUpdateDescriptorSets( vulkanDevice->device, static_cast<uint32_t>( descriptorWrites.size() ),
                             descriptorWrites.data(), 0, nullptr );
   }
 }

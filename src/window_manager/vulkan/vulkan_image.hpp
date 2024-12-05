@@ -20,31 +20,25 @@ namespace Windows {
 namespace Vulkan {
 namespace Image {
 
-void create_texture_image( VulkanDevice *vulkanDevice,
-                           TextureImage *textureImage,
+void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage,
                            VkCommandPool commandPool );
 
-void create_image( uint32_t width, uint32_t height, VkFormat format,
-                   VkImageTiling tiling, VkImageUsageFlags usage,
-                   VkMemoryPropertyFlags properties, TextureImage *textureImage,
-                   VulkanDevice *vulkanDevice );
+void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+                   VulkanImage *textureImage, VulkanDevice *vulkanDevice );
 
-void transition_image_layout( VkImage image, VkFormat format,
-                              VkImageLayout oldLayout, VkImageLayout newLayout,
-                              VulkanDevice *vulkanDevice,
+void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
+                              VkImageLayout newLayout, VulkanDevice *vulkanDevice,
                               VkCommandPool commandPool );
 
-void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width,
-                           uint32_t height, VulkanDevice *vulkanDevice,
-                           VkCommandPool commandPool );
+void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
+                           VulkanDevice *vulkanDevice, VkCommandPool commandPool );
 
-VkImageView create_image_view( VkDevice device, VkImage image,
-                               VkFormat format );
+VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format );
 
-void create_texture_image_view( VkDevice device, TextureImage *textureImage );
+void create_texture_image_view( VkDevice device, VulkanImage *textureImage );
 
-void create_texture_sampler( VulkanDevice *vulkanDevice,
-                             TextureImage *textureImage );
+void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanImage *textureImage );
 
 }  // namespace Image
 }  // namespace Vulkan

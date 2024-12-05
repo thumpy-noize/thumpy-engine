@@ -11,6 +11,10 @@
 
 #pragma once
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
 
@@ -34,11 +38,22 @@ void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldL
 void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
                            VulkanDevice *vulkanDevice, VkCommandPool commandPool );
 
-VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format );
+VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
+                               VkImageAspectFlags aspectFlags );
 
 void create_texture_image_view( VkDevice device, VulkanImage *textureImage );
 
 void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanImage *textureImage );
+
+void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevice,
+                             VkExtent2D swapChainExtent );
+
+VkFormat find_supported_format( const std::vector<VkFormat> &candidates, VkImageTiling tiling,
+                                VkFormatFeatureFlags features, VkPhysicalDevice physicalDevice );
+
+VkFormat find_depth_format( VkPhysicalDevice physicalDevice );
+
+bool has_stencil_component( VkFormat format );
 
 }  // namespace Image
 }  // namespace Vulkan

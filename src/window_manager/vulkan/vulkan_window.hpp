@@ -65,6 +65,7 @@ class VulkanWindow : public Window {
   VulkanSwapChain *swapChain_;
   VulkanPipeline pipeline_;
   VulkanImage textureImage_;
+  VulkanImage depthBuffer_;
   VulkanRender *render_;
 
   VkCommandPool commandPool_;

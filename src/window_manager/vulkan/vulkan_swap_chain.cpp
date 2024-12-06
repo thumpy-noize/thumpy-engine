@@ -4,6 +4,7 @@
 #include <limits>
 
 #include "logger.hpp"
+#include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_image.hpp"
 
 namespace Thumpy {
@@ -76,7 +77,7 @@ void VulkanSwapChain::create_swap_chain() {
   extent = chosen_extent;
 }
 
-void VulkanSwapChain::recreate_swap_chain() {
+void VulkanSwapChain::recreate_swap_chain( VkImageView depthImageView ) {
   Logger::log( "Recreating swap chain...", Logger::INFO );
   int width = 0, height = 0;
   glfwGetFramebufferSize( window_, &width, &height );
@@ -91,7 +92,7 @@ void VulkanSwapChain::recreate_swap_chain() {
 
   create_swap_chain();
   create_image_views();
-  create_framebuffers();
+  Buffer::create_framebuffers( this, depthImageView, vulkanDevice_->device );
 }
 
 void VulkanSwapChain::clear_swap_chain() {
@@ -187,30 +188,30 @@ void VulkanSwapChain::create_image_views() {
   }
 }
 
-void VulkanSwapChain::create_framebuffers() {
-  swapChainFramebuffers.resize( swapChainImageViews.size() );
+// void VulkanSwapChain::create_framebuffers() {
+//   swapChainFramebuffers.resize( swapChainImageViews.size() );
 
-  for ( size_t i = 0; i < swapChainImageViews.size(); i++ ) {
-    VkImageView attachments[] = { swapChainImageViews[i] };
+//   for ( size_t i = 0; i < swapChainImageViews.size(); i++ ) {
+//     VkImageView attachments[] = { swapChainImageViews[i] };
 
-    VkFramebufferCreateInfo framebufferInfo{};
-    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = renderPass;
-    framebufferInfo.attachmentCount = 1;
-    framebufferInfo.pAttachments = attachments;
-    framebufferInfo.width = extent.width;
-    framebufferInfo.height = extent.height;
-    framebufferInfo.layers = 1;
+//     VkFramebufferCreateInfo framebufferInfo{};
+//     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//     framebufferInfo.renderPass = renderPass;
+//     framebufferInfo.attachmentCount = 1;
+//     framebufferInfo.pAttachments = attachments;
+//     framebufferInfo.width = extent.width;
+//     framebufferInfo.height = extent.height;
+//     framebufferInfo.layers = 1;
 
-    if ( vkCreateFramebuffer( vulkanDevice_->device, &framebufferInfo, nullptr,
-                              &swapChainFramebuffers[i] ) != VK_SUCCESS ) {
-      Logger::log( "failed to create framebuffer!", Logger::CRITICAL );
-    }
-  }
-}
+//     if ( vkCreateFramebuffer( vulkanDevice_->device, &framebufferInfo, nullptr,
+//                               &swapChainFramebuffers[i] ) != VK_SUCCESS ) {
+//       Logger::log( "failed to create framebuffer!", Logger::CRITICAL );
+//     }
+//   }
+// }
 
 void VulkanSwapChain::create_render_pass() {
-  // ### color attachment ###
+  // ### color ###
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = swapChainImageFormat;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -225,25 +226,45 @@ void VulkanSwapChain::create_render_pass() {
   colorAttachmentRef.attachment = 0;
   colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+  // ### depth buffer ###
+  VkAttachmentDescription depthAttachment{};
+  depthAttachment.format = Image::find_depth_format( vulkanDevice_->physicalDevice );
+  depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentReference depthAttachmentRef{};
+  depthAttachmentRef.attachment = 1;
+  depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
   // ### subpass ###
   VkSubpassDescription subpass{};
   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
+  subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
   VkSubpassDependency dependency{};
   dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
   dependency.dstSubpass = 0;
-  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dependency.srcAccessMask = 0;
-  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  dependency.srcStageMask =
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+  dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+  dependency.dstStageMask =
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+  dependency.dstAccessMask =
+      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
   // ### render pass ###
+  std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = 1;
-  renderPassInfo.pAttachments = &colorAttachment;
+  renderPassInfo.attachmentCount = static_cast<uint32_t>( attachments.size() );
+  renderPassInfo.pAttachments = attachments.data();
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
   renderPassInfo.dependencyCount = 1;

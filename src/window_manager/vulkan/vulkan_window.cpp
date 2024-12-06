@@ -61,14 +61,14 @@ void VulkanWindow::init_vulkan() {
   // Create graphics pipeline
   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device, descriptorSetLayout_ );
 
+  // Depth buffer
+  Image::create_depth_resources( &depthBuffer_, vulkanDevice_, swapChain_->extent );
+
   // Create frame buffers
-  Buffer::create_framebuffers( swapChain_, vulkanDevice_->device );
+  Buffer::create_framebuffers( swapChain_, depthBuffer_.imageView, vulkanDevice_->device );
 
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
-
-  // Depth buffer
-  Image::create_depth_resources( &depthBuffer_, vulkanDevice_, swapChain_->extent );
 
   // Create texture image / view / sampler
   Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_ );
@@ -160,7 +160,7 @@ void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ), indexBuffer_,
                        static_cast<uint32_t>( indices_.size() ), uniformBuffersMapped_,
-                       descriptorSets_ );
+                       descriptorSets_, depthBuffer_.imageView );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

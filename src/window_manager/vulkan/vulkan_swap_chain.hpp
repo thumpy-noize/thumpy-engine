@@ -15,8 +15,7 @@ namespace Vulkan {
 
 class VulkanSwapChain {
  public:
-  VulkanSwapChain( VulkanDevice *vulkanDevice, GLFWwindow *window,
-                   VkSurfaceKHR surface );
+  VulkanSwapChain( VulkanDevice *vulkanDevice, GLFWwindow *window, VkSurfaceKHR surface );
 
   /**
    * @brief Create swap chain
@@ -25,7 +24,7 @@ class VulkanSwapChain {
   /**
    * @brief Recreate swap chain
    */
-  void recreate_swap_chain();
+  void recreate_swap_chain( VkImageView depthImageView );
   /**
    * @brief Clear the swap chain
    */
@@ -63,7 +62,7 @@ class VulkanSwapChain {
   VkExtent2D choose_swap_extent( const VkSurfaceCapabilitiesKHR &capabilities );
 
   void create_image_views();
-  void create_framebuffers();
+  //   void create_framebuffers();
   void create_render_pass();
 
  public:

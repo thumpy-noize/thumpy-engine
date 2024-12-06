@@ -20,30 +20,25 @@ namespace Windows {
 namespace Vulkan {
 namespace Buffer {
 
-void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage,
-                    VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                    VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice );
+void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+                    VkBuffer &buffer, VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice );
 
 void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
                   VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
-void create_framebuffers( VulkanSwapChain *swapChain, VkDevice device );
+void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView, VkDevice device );
 
-void create_vertex_buffer( std::vector<Vertex> vertices,
-                           VulkanDevice *vulkanDevice, VkBuffer &vertexBuffer,
-                           VkDeviceMemory &vertexBufferMemory,
+void create_vertex_buffer( std::vector<Vertex> vertices, VulkanDevice *vulkanDevice,
+                           VkBuffer &vertexBuffer, VkDeviceMemory &vertexBufferMemory,
                            VkCommandPool &commandPool );
 
-void create_index_buffer( std::vector<uint16_t> indices,
-                          VulkanDevice *vulkanDevice, VkBuffer &indexBuffer,
-                          VkDeviceMemory &indexBufferMemory,
+void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDevice,
+                          VkBuffer &indexBuffer, VkDeviceMemory &indexBufferMemory,
                           VkCommandPool &commandPool );
 
-VkCommandBuffer begin_single_time_commands( VkDevice device,
-                                            VkCommandPool commandPool );
+VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool );
 
-void end_single_time_commands( VulkanDevice *vulkanDevice,
-                               VkCommandBuffer commandBuffer,
+void end_single_time_commands( VulkanDevice *vulkanDevice, VkCommandBuffer commandBuffer,
                                VkCommandPool commandPool );
 
 }  // namespace Buffer

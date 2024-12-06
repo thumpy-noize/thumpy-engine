@@ -4,6 +4,7 @@
 #include <limits>
 
 #include "logger.hpp"
+#include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_image.hpp"
 
 namespace Thumpy {
@@ -11,8 +12,8 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-VulkanSwapChain::VulkanSwapChain( VulkanDevice *vulkanDevice,
-                                  GLFWwindow *window, VkSurfaceKHR surface ) {
+VulkanSwapChain::VulkanSwapChain( VulkanDevice *vulkanDevice, GLFWwindow *window,
+                                  VkSurfaceKHR surface ) {
   vulkanDevice_ = vulkanDevice;
   surface_ = surface;
   window_ = window;
@@ -24,12 +25,9 @@ VulkanSwapChain::VulkanSwapChain( VulkanDevice *vulkanDevice,
 void VulkanSwapChain::create_swap_chain() {
   SwapChainSupportDetails swapChainSupport = query_swap_chain_support();
 
-  VkSurfaceFormatKHR surfaceFormat =
-      choose_swap_surface_format( swapChainSupport.formats );
-  VkPresentModeKHR presentMode =
-      choose_swap_present_mode( swapChainSupport.presentModes );
-  VkExtent2D chosen_extent =
-      choose_swap_extent( swapChainSupport.capabilities );
+  VkSurfaceFormatKHR surfaceFormat = choose_swap_surface_format( swapChainSupport.formats );
+  VkPresentModeKHR presentMode = choose_swap_present_mode( swapChainSupport.presentModes );
+  VkExtent2D chosen_extent = choose_swap_extent( swapChainSupport.capabilities );
 
   uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
   if ( swapChainSupport.capabilities.maxImageCount > 0 &&
@@ -48,10 +46,8 @@ void VulkanSwapChain::create_swap_chain() {
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-  QueueFamilyIndices indices =
-      vulkanDevice_->find_queue_families( vulkanDevice_->physicalDevice );
-  uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(),
-                                    indices.presentFamily.value() };
+  QueueFamilyIndices indices = vulkanDevice_->find_queue_families( vulkanDevice_->physicalDevice );
+  uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
   if ( indices.graphicsFamily != indices.presentFamily ) {
     createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -68,22 +64,20 @@ void VulkanSwapChain::create_swap_chain() {
 
   createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  if ( vkCreateSwapchainKHR( vulkanDevice_->device, &createInfo, nullptr,
-                             &swapChain ) != VK_SUCCESS ) {
+  if ( vkCreateSwapchainKHR( vulkanDevice_->device, &createInfo, nullptr, &swapChain ) !=
+       VK_SUCCESS ) {
     Logger::log( "failed to create swap chain!", Logger::CRITICAL );
   }
 
-  vkGetSwapchainImagesKHR( vulkanDevice_->device, swapChain, &imageCount,
-                           nullptr );
+  vkGetSwapchainImagesKHR( vulkanDevice_->device, swapChain, &imageCount, nullptr );
   swapChainImages_.resize( imageCount );
-  vkGetSwapchainImagesKHR( vulkanDevice_->device, swapChain, &imageCount,
-                           swapChainImages_.data() );
+  vkGetSwapchainImagesKHR( vulkanDevice_->device, swapChain, &imageCount, swapChainImages_.data() );
 
   swapChainImageFormat = surfaceFormat.format;
   extent = chosen_extent;
 }
 
-void VulkanSwapChain::recreate_swap_chain() {
+void VulkanSwapChain::recreate_swap_chain( VkImageView depthImageView ) {
   Logger::log( "Recreating swap chain...", Logger::INFO );
   int width = 0, height = 0;
   glfwGetFramebufferSize( window_, &width, &height );
@@ -98,7 +92,7 @@ void VulkanSwapChain::recreate_swap_chain() {
 
   create_swap_chain();
   create_image_views();
-  create_framebuffers();
+  Buffer::create_framebuffers( this, depthImageView, vulkanDevice_->device );
 }
 
 void VulkanSwapChain::clear_swap_chain() {
@@ -116,29 +110,27 @@ void VulkanSwapChain::clear_swap_chain() {
 SwapChainSupportDetails VulkanSwapChain::query_swap_chain_support() {
   SwapChainSupportDetails details;
 
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vulkanDevice_->physicalDevice,
-                                             surface_, &details.capabilities );
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vulkanDevice_->physicalDevice, surface_,
+                                             &details.capabilities );
 
   uint32_t formatCount;
-  vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice, surface_,
-                                        &formatCount, nullptr );
+  vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice, surface_, &formatCount,
+                                        nullptr );
 
   if ( formatCount != 0 ) {
     details.formats.resize( formatCount );
-    vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice,
-                                          surface_, &formatCount,
+    vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice, surface_, &formatCount,
                                           details.formats.data() );
   }
 
   uint32_t presentModeCount;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(
-      vulkanDevice_->physicalDevice, surface_, &presentModeCount, nullptr );
+  vkGetPhysicalDeviceSurfacePresentModesKHR( vulkanDevice_->physicalDevice, surface_,
+                                             &presentModeCount, nullptr );
 
   if ( presentModeCount != 0 ) {
     details.presentModes.resize( presentModeCount );
-    vkGetPhysicalDeviceSurfacePresentModesKHR( vulkanDevice_->physicalDevice,
-                                               surface_, &presentModeCount,
-                                               details.presentModes.data() );
+    vkGetPhysicalDeviceSurfacePresentModesKHR( vulkanDevice_->physicalDevice, surface_,
+                                               &presentModeCount, details.presentModes.data() );
   }
   return details;
 }
@@ -166,24 +158,19 @@ VkPresentModeKHR VulkanSwapChain::choose_swap_present_mode(
   return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D VulkanSwapChain::choose_swap_extent(
-    const VkSurfaceCapabilitiesKHR &capabilities ) {
-  if ( capabilities.currentExtent.width !=
-       std::numeric_limits<uint32_t>::max() ) {
+VkExtent2D VulkanSwapChain::choose_swap_extent( const VkSurfaceCapabilitiesKHR &capabilities ) {
+  if ( capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() ) {
     return capabilities.currentExtent;
   } else {
     int width, height;
     glfwGetFramebufferSize( window_, &width, &height );
 
-    VkExtent2D actualExtent = { static_cast<uint32_t>( width ),
-                                static_cast<uint32_t>( height ) };
+    VkExtent2D actualExtent = { static_cast<uint32_t>( width ), static_cast<uint32_t>( height ) };
 
-    actualExtent.width =
-        std::clamp( actualExtent.width, capabilities.minImageExtent.width,
-                    capabilities.maxImageExtent.width );
-    actualExtent.height =
-        std::clamp( actualExtent.height, capabilities.minImageExtent.height,
-                    capabilities.maxImageExtent.height );
+    actualExtent.width = std::clamp( actualExtent.width, capabilities.minImageExtent.width,
+                                     capabilities.maxImageExtent.width );
+    actualExtent.height = std::clamp( actualExtent.height, capabilities.minImageExtent.height,
+                                      capabilities.maxImageExtent.height );
 
     return actualExtent;
   }
@@ -195,35 +182,36 @@ void VulkanSwapChain::create_image_views() {
 
   // iterate over swap chain images
   for ( size_t i = 0; i < swapChainImages_.size(); i++ ) {
-    swapChainImageViews[i] = Image::create_image_view(
-        vulkanDevice_->device, swapChainImages_[i], swapChainImageFormat );
+    swapChainImageViews[i] =
+        Image::create_image_view( vulkanDevice_->device, swapChainImages_[i], swapChainImageFormat,
+                                  VK_IMAGE_ASPECT_COLOR_BIT );
   }
 }
 
-void VulkanSwapChain::create_framebuffers() {
-  swapChainFramebuffers.resize( swapChainImageViews.size() );
+// void VulkanSwapChain::create_framebuffers() {
+//   swapChainFramebuffers.resize( swapChainImageViews.size() );
 
-  for ( size_t i = 0; i < swapChainImageViews.size(); i++ ) {
-    VkImageView attachments[] = { swapChainImageViews[i] };
+//   for ( size_t i = 0; i < swapChainImageViews.size(); i++ ) {
+//     VkImageView attachments[] = { swapChainImageViews[i] };
 
-    VkFramebufferCreateInfo framebufferInfo{};
-    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = renderPass;
-    framebufferInfo.attachmentCount = 1;
-    framebufferInfo.pAttachments = attachments;
-    framebufferInfo.width = extent.width;
-    framebufferInfo.height = extent.height;
-    framebufferInfo.layers = 1;
+//     VkFramebufferCreateInfo framebufferInfo{};
+//     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//     framebufferInfo.renderPass = renderPass;
+//     framebufferInfo.attachmentCount = 1;
+//     framebufferInfo.pAttachments = attachments;
+//     framebufferInfo.width = extent.width;
+//     framebufferInfo.height = extent.height;
+//     framebufferInfo.layers = 1;
 
-    if ( vkCreateFramebuffer( vulkanDevice_->device, &framebufferInfo, nullptr,
-                              &swapChainFramebuffers[i] ) != VK_SUCCESS ) {
-      Logger::log( "failed to create framebuffer!", Logger::CRITICAL );
-    }
-  }
-}
+//     if ( vkCreateFramebuffer( vulkanDevice_->device, &framebufferInfo, nullptr,
+//                               &swapChainFramebuffers[i] ) != VK_SUCCESS ) {
+//       Logger::log( "failed to create framebuffer!", Logger::CRITICAL );
+//     }
+//   }
+// }
 
 void VulkanSwapChain::create_render_pass() {
-  // ### color attachment ###
+  // ### color ###
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = swapChainImageFormat;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -238,32 +226,52 @@ void VulkanSwapChain::create_render_pass() {
   colorAttachmentRef.attachment = 0;
   colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+  // ### depth buffer ###
+  VkAttachmentDescription depthAttachment{};
+  depthAttachment.format = Image::find_depth_format( vulkanDevice_->physicalDevice );
+  depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentReference depthAttachmentRef{};
+  depthAttachmentRef.attachment = 1;
+  depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
   // ### subpass ###
   VkSubpassDescription subpass{};
   subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
+  subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
   VkSubpassDependency dependency{};
   dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
   dependency.dstSubpass = 0;
-  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dependency.srcAccessMask = 0;
-  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  dependency.srcStageMask =
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+  dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+  dependency.dstStageMask =
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+  dependency.dstAccessMask =
+      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
   // ### render pass ###
+  std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = 1;
-  renderPassInfo.pAttachments = &colorAttachment;
+  renderPassInfo.attachmentCount = static_cast<uint32_t>( attachments.size() );
+  renderPassInfo.pAttachments = attachments.data();
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
 
-  if ( vkCreateRenderPass( vulkanDevice_->device, &renderPassInfo, nullptr,
-                           &renderPass ) != VK_SUCCESS ) {
+  if ( vkCreateRenderPass( vulkanDevice_->device, &renderPassInfo, nullptr, &renderPass ) !=
+       VK_SUCCESS ) {
     Logger::log( "failed to create render pass!", Logger::CRITICAL );
   }
 }

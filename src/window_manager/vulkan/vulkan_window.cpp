@@ -37,9 +37,7 @@ namespace Vulkan {
 
 #pragma region Core
 
-VulkanWindow::VulkanWindow( std::string title ) : Window( title ) {
-  init_vulkan();
-}
+VulkanWindow::VulkanWindow( std::string title ) : Window( title ) { init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
   // Create our instance
@@ -61,11 +59,13 @@ void VulkanWindow::init_vulkan() {
   Construct::descriptor_set_layout( vulkanDevice_, descriptorSetLayout_ );
 
   // Create graphics pipeline
-  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device,
-                                        descriptorSetLayout_ );
+  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device, descriptorSetLayout_ );
+
+  // Depth buffer
+  Image::create_depth_resources( &depthBuffer_, vulkanDevice_, swapChain_->extent );
 
   // Create frame buffers
-  Buffer::create_framebuffers( swapChain_, vulkanDevice_->device );
+  Buffer::create_framebuffers( swapChain_, depthBuffer_.imageView, vulkanDevice_->device );
 
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
@@ -80,34 +80,31 @@ void VulkanWindow::init_vulkan() {
   // but it would be really cool if you fixed that)
   // vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
 
-  Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_,
-                                vertexBufferMemory_, commandPool_ );
+  Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_, vertexBufferMemory_,
+                                commandPool_ );
 
   // Create Index Buffer
-  Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_,
-                               indexBufferMemory_, commandPool_ );
+  Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_, indexBufferMemory_,
+                               commandPool_ );
 
   // Create uniform buffers
-  Construct::uniform_buffers( vulkanDevice_, uniformBuffers_,
-                              uniformBuffersMemory_, uniformBuffersMapped_,
-                              MAX_FRAMES_IN_FLIGHT );
+  Construct::uniform_buffers( vulkanDevice_, uniformBuffers_, uniformBuffersMemory_,
+                              uniformBuffersMapped_, MAX_FRAMES_IN_FLIGHT );
 
   // Create descriptor pool
-  Construct::descriptor_pool( vulkanDevice_, descriptorPool_,
-                              MAX_FRAMES_IN_FLIGHT );
+  Construct::descriptor_pool( vulkanDevice_, descriptorPool_, MAX_FRAMES_IN_FLIGHT );
 
   // Create descriptor sets
-  Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_,
-                              descriptorPool_, descriptorSets_, uniformBuffers_,
-                              &textureImage_, MAX_FRAMES_IN_FLIGHT );
+  Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_, descriptorPool_, descriptorSets_,
+                              uniformBuffers_, &textureImage_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
-  Construct::command_buffer( commandBuffers_, commandPool_,
-                             vulkanDevice_->device, MAX_FRAMES_IN_FLIGHT );
+  Construct::command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
+                             MAX_FRAMES_IN_FLIGHT );
 
   // Create render
-  render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,
-                              &commandBuffers_, &pipeline_ );
+  render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_, &commandBuffers_,
+                              &pipeline_ );
 }
 
 void VulkanWindow::deconstruct_window() {
@@ -133,8 +130,11 @@ void VulkanWindow::deconstruct_window() {
   vkDestroyImage( vulkanDevice_->device, textureImage_.image, nullptr );
   vkFreeMemory( vulkanDevice_->device, textureImage_.imageMemory, nullptr );
 
-  vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_,
-                                nullptr );
+  vkDestroyImageView( vulkanDevice_->device, depthBuffer_.imageView, nullptr );
+  vkDestroyImage( vulkanDevice_->device, depthBuffer_.image, nullptr );
+  vkFreeMemory( vulkanDevice_->device, depthBuffer_.imageMemory, nullptr );
+
+  vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_, nullptr );
 
   vkDestroyBuffer( vulkanDevice_->device, indexBuffer_, nullptr );
   vkFreeMemory( vulkanDevice_->device, indexBufferMemory_, nullptr );
@@ -147,8 +147,7 @@ void VulkanWindow::deconstruct_window() {
   vkDestroyDevice( vulkanDevice_->device, nullptr );
 
   if ( enableValidationLayers ) {
-    Debug::destroy_debug_utils_messenger_ext( instance_, &debugMessenger_,
-                                              nullptr );
+    Debug::destroy_debug_utils_messenger_ext( instance_, &debugMessenger_, nullptr );
   }
 
   vkDestroySurfaceKHR( instance_, surface_, nullptr );
@@ -159,16 +158,15 @@ void VulkanWindow::deconstruct_window() {
 
 void VulkanWindow::loop() {
   Window::loop();
-  render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ),
-                       indexBuffer_, static_cast<uint32_t>( indices_.size() ),
-                       uniformBuffersMapped_, descriptorSets_ );
+  render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ), indexBuffer_,
+                       static_cast<uint32_t>( indices_.size() ), uniformBuffersMapped_,
+                       descriptorSets_, depthBuffer_.imageView );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }
 
 void VulkanWindow::create_surface() {
-  if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) !=
-       VK_SUCCESS ) {
+  if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) != VK_SUCCESS ) {
     Logger::log( "Failed to create window surface!", Logger::CRITICAL );
   }
 }

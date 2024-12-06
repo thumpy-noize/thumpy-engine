@@ -29,30 +29,26 @@ void surface( VkInstance instance, GLFWwindow *window, VkSurfaceKHR &surface );
 
 void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
-void command_buffer( std::vector<VkCommandBuffer> &commandBuffers,
-                     VkCommandPool commandPool, VkDevice device,
-                     int maxFramesInFlight );
+void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
+                     VkDevice device, int maxFramesInFlight );
 
-void uniform_buffers( VulkanDevice *vulkanDevice,
-                      std::vector<VkBuffer> &uniformBuffers,
+void uniform_buffers( VulkanDevice *vulkanDevice, std::vector<VkBuffer> &uniformBuffers,
                       std::vector<VkDeviceMemory> &uniformBuffersMemory,
-                      std::vector<void *> &uniformBuffersMapped,
-                      int maxFramesInFlight );
+                      std::vector<void *> &uniformBuffersMapped, int maxFramesInFlight );
 
 #pragma region Descriptor
 
 void descriptor_set_layout( VulkanDevice *vulkanDevice,
                             VkDescriptorSetLayout &descriptorSetLayout );
 
-void descriptor_pool( VulkanDevice *vulkanDevice,
-                      VkDescriptorPool &descriptorPool, int maxFramesInFlight );
+void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
+                      int maxFramesInFlight );
 
-void descriptor_sets( VulkanDevice *vulkanDevice,
-                      VkDescriptorSetLayout &descriptorSetLayout,
+void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout,
                       VkDescriptorPool &descriptorPool,
                       std::vector<VkDescriptorSet> &descriptorSets,
-                      std::vector<VkBuffer> &uniformBuffers,
-                      TextureImage *textureImage, int maxFramesInFlight );
+                      std::vector<VkBuffer> &uniformBuffers, VulkanImage *textureImage,
+                      int maxFramesInFlight );
 
 #pragma endregion Descriptor
 

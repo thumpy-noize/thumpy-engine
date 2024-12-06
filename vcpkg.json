@@ -1,6 +1,5 @@
 {
   "dependencies": [
-    "fmt",
     "gtest",
     "glfw3",
     "vulkan",

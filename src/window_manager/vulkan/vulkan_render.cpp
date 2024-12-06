@@ -47,10 +47,8 @@ VulkanRender::VulkanRender( int maxFramesInFlight, VulkanDevice *vulkanDevice,
 
 void VulkanRender::destroy() {
   for ( size_t i = 0; i < maxFramesInFlight_; i++ ) {
-    vkDestroySemaphore( vulkanDevice_->device, renderFinishedSemaphores_[i],
-                        nullptr );
-    vkDestroySemaphore( vulkanDevice_->device, imageAvailableSemaphores_[i],
-                        nullptr );
+    vkDestroySemaphore( vulkanDevice_->device, renderFinishedSemaphores_[i], nullptr );
+    vkDestroySemaphore( vulkanDevice_->device, imageAvailableSemaphores_[i], nullptr );
     vkDestroyFence( vulkanDevice_->device, inFlightFences_[i], nullptr );
   }
 }
@@ -69,28 +67,26 @@ void VulkanRender::create_sync_objects() {
                             &imageAvailableSemaphores_[i] ) != VK_SUCCESS ||
          vkCreateSemaphore( vulkanDevice_->device, &semaphoreInfo, nullptr,
                             &renderFinishedSemaphores_[i] ) != VK_SUCCESS ||
-         vkCreateFence( vulkanDevice_->device, &fenceInfo, nullptr,
-                        &inFlightFences_[i] ) != VK_SUCCESS ) {
-      Logger::log( "Failed to create synchronization objects for a frame!",
-                   Logger::CRITICAL );
+         vkCreateFence( vulkanDevice_->device, &fenceInfo, nullptr, &inFlightFences_[i] ) !=
+             VK_SUCCESS ) {
+      Logger::log( "Failed to create synchronization objects for a frame!", Logger::CRITICAL );
     }
   }
 }
 
-void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
-                               VkBuffer indexBuffer, uint32_t indexCount,
-                               std::vector<void *> uniformBuffersMapped,
-                               std::vector<VkDescriptorSet> descriptorSets ) {
-  vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_],
-                   VK_TRUE, UINT64_MAX );
+void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
+                               uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
+                               std::vector<VkDescriptorSet> descriptorSets,
+                               VkImageView depthImageView ) {
+  vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX );
 
   uint32_t imageIndex;
-  VkResult result = vkAcquireNextImageKHR(
-      vulkanDevice_->device, swapChain_->swapChain, UINT64_MAX,
-      imageAvailableSemaphores_[currentFrame_], VK_NULL_HANDLE, &imageIndex );
+  VkResult result = vkAcquireNextImageKHR( vulkanDevice_->device, swapChain_->swapChain, UINT64_MAX,
+                                           imageAvailableSemaphores_[currentFrame_], VK_NULL_HANDLE,
+                                           &imageIndex );
 
   if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
-    swapChain_->recreate_swap_chain();
+    swapChain_->recreate_swap_chain( depthImageView );
     return;
   } else if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR ) {
     Logger::log( "Failed to acquire swap chain image!", Logger::CRITICAL );
@@ -102,9 +98,8 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
 
   vkResetCommandBuffer( commandBuffers_[currentFrame_],
                         /*VkCommandBufferResetFlagBits*/ 0 );
-  record_command_buffer( commandBuffers_[currentFrame_], imageIndex, swapChain_,
-                         vertexBuffer, vertexCount, indexBuffer, indexCount,
-                         descriptorSets );
+  record_command_buffer( commandBuffers_[currentFrame_], imageIndex, swapChain_, vertexBuffer,
+                         vertexCount, indexBuffer, indexCount, descriptorSets );
 
   // vkAcquireNextImageKHR(vulkanDevice_->device, swapChain_->swapChain,
   //                       UINT64_MAX, imageAvailableSemaphores_[currentFrame_],
@@ -115,8 +110,7 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
   VkSemaphore waitSemaphores[] = { imageAvailableSemaphores_[currentFrame_] };
-  VkPipelineStageFlags waitStages[] = {
-      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+  VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
   submitInfo.waitSemaphoreCount = 1;
   submitInfo.pWaitSemaphores = waitSemaphores;
   submitInfo.pWaitDstStageMask = waitStages;
@@ -147,45 +141,45 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
 
   result = vkQueuePresentKHR( vulkanDevice_->presentQueue, &presentInfo );
 
-  if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
-       framebufferResized_ ) {
+  if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_ ) {
     framebufferResized_ = false;
-    swapChain_->recreate_swap_chain();
+    swapChain_->recreate_swap_chain( depthImageView );
   } else if ( result != VK_SUCCESS ) {
     Logger::log( "Failed to present swap chain image!", Logger::CRITICAL );
   }
 }
 
-void VulkanRender::record_command_buffer(
-    VkCommandBuffer commandBuffer, uint32_t imageIndex,
-    VulkanSwapChain *swapChain, VkBuffer vertexBuffer, uint32_t vertexCount,
-    VkBuffer indexBuffer, uint32_t indexCount,
-    std::vector<VkDescriptorSet> descriptorSets ) {
+void VulkanRender::record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
+                                          VulkanSwapChain *swapChain, VkBuffer vertexBuffer,
+                                          uint32_t vertexCount, VkBuffer indexBuffer,
+                                          uint32_t indexCount,
+                                          std::vector<VkDescriptorSet> descriptorSets ) {
   VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();
 
   if ( vkBeginCommandBuffer( commandBuffer, &beginInfo ) != VK_SUCCESS ) {
-    Logger::log( "Failed to begin recording command buffer!",
-                 Logger::CRITICAL );
+    Logger::log( "Failed to begin recording command buffer!", Logger::CRITICAL );
   }
 
   VkRenderPassBeginInfo renderPassInfo = Initializer::render_pass_info(
-      swapChain->renderPass, swapChain->swapChainFramebuffers[imageIndex],
-      swapChain->extent );
+      swapChain->renderPass, swapChain->swapChainFramebuffers[imageIndex], swapChain->extent );
 
-  VkClearValue clearColor = {
-      { { 0.0f, 0.0f, 0.0f, 1.0f } } };  // background color
-  renderPassInfo.clearValueCount = 1;
-  renderPassInfo.pClearValues = &clearColor;
+  std::array<VkClearValue, 2> clearValues{};
+  clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+  clearValues[1].depthStencil = { 1.0f, 0 };
 
-  vkCmdBeginRenderPass( commandBuffer, &renderPassInfo,
-                        VK_SUBPASS_CONTENTS_INLINE );
+  renderPassInfo.clearValueCount = static_cast<uint32_t>( clearValues.size() );
+  renderPassInfo.pClearValues = clearValues.data();
 
-  vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                     pipeline_->graphicsPipeline );
+  // VkClearValue clearColor = { { { 0.0f, 0.0f, 0.0f, 1.0f } } };  // background color
+  // renderPassInfo.clearValueCount = 1;
+  // renderPassInfo.pClearValues = &clearColor;
 
-  VkViewport viewport =
-      Initializer::viewport( static_cast<float>( swapChain->extent.height ),
-                             static_cast<float>( swapChain->extent.width ) );
+  vkCmdBeginRenderPass( commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE );
+
+  vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline );
+
+  VkViewport viewport = Initializer::viewport( static_cast<float>( swapChain->extent.height ),
+                                               static_cast<float>( swapChain->extent.width ) );
   vkCmdSetViewport( commandBuffer, 0, 1, &viewport );
 
   VkRect2D scissor = Initializer::scissor( swapChain->extent );
@@ -205,8 +199,8 @@ void VulkanRender::record_command_buffer(
   vkCmdBindIndexBuffer( commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
 
   vkCmdBindDescriptorSets( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                           pipeline_->pipelineLayout, 0, 1,
-                           &descriptorSets[currentFrame_], 0, nullptr );
+                           pipeline_->pipelineLayout, 0, 1, &descriptorSets[currentFrame_], 0,
+                           nullptr );
 
   vkCmdDrawIndexed( commandBuffer, indexCount, 1, 0, 0, 0 );
   vkCmdEndRenderPass( commandBuffer );
@@ -216,26 +210,23 @@ void VulkanRender::record_command_buffer(
   }
 }
 
-void VulkanRender::update_uniform_buffer(
-    uint32_t currentImage, std::vector<void *> uniformBuffersMapped ) {
+void VulkanRender::update_uniform_buffer( uint32_t currentImage,
+                                          std::vector<void *> uniformBuffersMapped ) {
   static auto startTime = std::chrono::high_resolution_clock::now();
 
   auto currentTime = std::chrono::high_resolution_clock::now();
-  float run_time = std::chrono::duration<float, std::chrono::seconds::period>(
-                       currentTime - startTime )
-                       .count();
+  float run_time =
+      std::chrono::duration<float, std::chrono::seconds::period>( currentTime - startTime ).count();
   // Logger::log( "Run time: " + std::to_string( run_time ), Logger::DEBUG );
 
   UniformBufferObject ubo{};
   ubo.model = glm::rotate( glm::mat4( 1.0f ), run_time * glm::radians( 90.0f ),
                            glm::vec3( 0.0f, 0.0f, 1.0f ) );
-  ubo.view =
-      glm::lookAt( glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ),
-                   glm::vec3( 0.0f, 0.0f, 1.0f ) );
-  ubo.proj = glm::perspective(
-      glm::radians( 45.0f ),
-      swapChain_->extent.width / (float)swapChain_->extent.height, 0.1f,
-      10.0f );
+  ubo.view = glm::lookAt( glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ),
+                          glm::vec3( 0.0f, 0.0f, 1.0f ) );
+  ubo.proj =
+      glm::perspective( glm::radians( 45.0f ),
+                        swapChain_->extent.width / (float)swapChain_->extent.height, 0.1f, 10.0f );
   ubo.proj[1][1] *= -1;
   memcpy( uniformBuffersMapped[currentImage], &ubo, sizeof( ubo ) );
 }

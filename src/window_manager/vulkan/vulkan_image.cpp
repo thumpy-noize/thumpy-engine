@@ -14,6 +14,7 @@
 #include <stdexcept>
 
 #include "logger_helper.hpp"
+#include "vulkan/vulkan_swap_chain.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -31,16 +32,13 @@ namespace Vulkan {
 
 namespace Image {
 
-void create_texture_image( VulkanDevice *vulkanDevice,
-                           TextureImage *textureImage,
+void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage,
                            VkCommandPool commandPool ) {
-  Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png",
-               Logger::DEBUG );
+  Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png", Logger::DEBUG );
 
   int texWidth, texHeight, texChannels;
-  stbi_uc *pixels =
-      stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
-                 &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
+  stbi_uc *pixels = stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
+                               &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
   VkDeviceSize imageSize = texWidth * texHeight * 4;
 
   if ( !pixels ) {
@@ -51,81 +49,68 @@ void create_texture_image( VulkanDevice *vulkanDevice,
   VkDeviceMemory stagingBufferMemory;
 
   Buffer::create_buffer( imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                          stagingBuffer, stagingBufferMemory, vulkanDevice );
 
   void *data;
-  vkMapMemory( vulkanDevice->device, stagingBufferMemory, 0, imageSize, 0,
-               &data );
+  vkMapMemory( vulkanDevice->device, stagingBufferMemory, 0, imageSize, 0, &data );
   memcpy( data, pixels, static_cast<size_t>( imageSize ) );
   vkUnmapMemory( vulkanDevice->device, stagingBufferMemory );
 
   stbi_image_free( pixels );
 
-  create_image(
-      texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, vulkanDevice );
+  create_image( texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, vulkanDevice );
 
-  transition_image_layout(
-      textureImage->image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
-      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vulkanDevice, commandPool );
+  transition_image_layout( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vulkanDevice, commandPool );
 
-  copy_buffer_to_image(
-      stagingBuffer, textureImage->image, static_cast<uint32_t>( texWidth ),
-      static_cast<uint32_t>( texHeight ), vulkanDevice, commandPool );
+  copy_buffer_to_image( stagingBuffer, textureImage->image, static_cast<uint32_t>( texWidth ),
+                        static_cast<uint32_t>( texHeight ), vulkanDevice, commandPool );
 
   transition_image_layout( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                           vulkanDevice, commandPool );
+                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vulkanDevice, commandPool );
 
   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
 }
 
-void create_image( uint32_t width, uint32_t height, VkFormat format,
-                   VkImageTiling tiling, VkImageUsageFlags usage,
-                   VkMemoryPropertyFlags properties, TextureImage *textureImage,
-                   VulkanDevice *vulkanDevice ) {
-  VkImageCreateInfo imageInfo =
-      Initializer::image_info( width, height, format, tiling, usage );
+void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+                   VulkanImage *textureImage, VulkanDevice *vulkanDevice ) {
+  VkImageCreateInfo imageInfo = Initializer::image_info( width, height, format, tiling, usage );
 
-  if ( vkCreateImage( vulkanDevice->device, &imageInfo, nullptr,
-                      &textureImage->image ) != VK_SUCCESS ) {
+  if ( vkCreateImage( vulkanDevice->device, &imageInfo, nullptr, &textureImage->image ) !=
+       VK_SUCCESS ) {
     Logger::log( "Failed to create image!", Logger::CRITICAL );
   }
 
   VkMemoryRequirements memRequirements;
-  vkGetImageMemoryRequirements( vulkanDevice->device, textureImage->image,
-                                &memRequirements );
+  vkGetImageMemoryRequirements( vulkanDevice->device, textureImage->image, &memRequirements );
 
   VkMemoryAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   allocInfo.allocationSize = memRequirements.size;
   allocInfo.memoryTypeIndex =
-      find_memory_type( vulkanDevice->physicalDevice,
-                        memRequirements.memoryTypeBits, properties );
+      find_memory_type( vulkanDevice->physicalDevice, memRequirements.memoryTypeBits, properties );
 
-  if ( vkAllocateMemory( vulkanDevice->device, &allocInfo, nullptr,
-                         &textureImage->imageMemory ) != VK_SUCCESS ) {
+  if ( vkAllocateMemory( vulkanDevice->device, &allocInfo, nullptr, &textureImage->imageMemory ) !=
+       VK_SUCCESS ) {
     Logger::log( "failed to allocate image memory!", Logger::CRITICAL );
   }
 
-  vkBindImageMemory( vulkanDevice->device, textureImage->image,
-                     textureImage->imageMemory, 0 );
+  vkBindImageMemory( vulkanDevice->device, textureImage->image, textureImage->imageMemory, 0 );
 }
 
-void transition_image_layout( VkImage image, VkFormat format,
-                              VkImageLayout oldLayout, VkImageLayout newLayout,
-                              VulkanDevice *vulkanDevice,
+void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
+                              VkImageLayout newLayout, VulkanDevice *vulkanDevice,
                               VkCommandPool commandPool ) {
   VkCommandBuffer commandBuffer =
       Buffer::begin_single_time_commands( vulkanDevice->device, commandPool );
 
-  VkImageMemoryBarrier barrier =
-      Initializer::image_memory_barrier( image, oldLayout, newLayout );
+  VkImageMemoryBarrier barrier = Initializer::image_memory_barrier( image, oldLayout, newLayout );
 
   VkPipelineStageFlags sourceStage;
   VkPipelineStageFlags destinationStage;
@@ -148,15 +133,14 @@ void transition_image_layout( VkImage image, VkFormat format,
     throw std::invalid_argument( "Unsupported layout transition!" );
   }
 
-  vkCmdPipelineBarrier( commandBuffer, sourceStage, destinationStage, 0, 0,
-                        nullptr, 0, nullptr, 1, &barrier );
+  vkCmdPipelineBarrier( commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1,
+                        &barrier );
 
   Buffer::end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
 }
 
-void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width,
-                           uint32_t height, VulkanDevice *vulkanDevice,
-                           VkCommandPool commandPool ) {
+void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
+                           VulkanDevice *vulkanDevice, VkCommandPool commandPool ) {
   VkCommandBuffer commandBuffer =
       Buffer::begin_single_time_commands( vulkanDevice->device, commandPool );
 
@@ -173,42 +157,40 @@ void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width,
   region.imageOffset = { 0, 0, 0 };
   region.imageExtent = { width, height, 1 };
 
-  vkCmdCopyBufferToImage( commandBuffer, buffer, image,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region );
+  vkCmdCopyBufferToImage( commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+                          &region );
 
   Buffer::end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
 }
 
-VkImageView create_image_view( VkDevice device, VkImage image,
-                               VkFormat format ) {
+VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
+                               VkImageAspectFlags aspectFlags ) {
   VkImageViewCreateInfo viewInfo{};
   viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   viewInfo.image = image;
   viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
   viewInfo.format = format;
-  viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  viewInfo.subresourceRange.aspectMask = aspectFlags;
   viewInfo.subresourceRange.baseMipLevel = 0;
   viewInfo.subresourceRange.levelCount = 1;
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = 1;
 
   VkImageView imageView;
-  if ( vkCreateImageView( device, &viewInfo, nullptr, &imageView ) !=
-       VK_SUCCESS ) {
+  if ( vkCreateImageView( device, &viewInfo, nullptr, &imageView ) != VK_SUCCESS ) {
     throw std::runtime_error( "failed to create image view!" );
   }
 
   return imageView;
 }
 
-void create_texture_image_view( VkDevice device, TextureImage *textureImage ) {
+void create_texture_image_view( VkDevice device, VulkanImage *textureImage ) {
   // Create image view info
-  textureImage->imageView =
-      create_image_view( device, textureImage->image, VK_FORMAT_R8G8B8A8_SRGB );
+  textureImage->imageView = create_image_view( device, textureImage->image, VK_FORMAT_R8G8B8A8_SRGB,
+                                               VK_IMAGE_ASPECT_COLOR_BIT );
 }
 
-void create_texture_sampler( VulkanDevice *vulkanDevice,
-                             TextureImage *textureImage ) {
+void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanImage *textureImage ) {
   VkPhysicalDeviceProperties properties{};
   vkGetPhysicalDeviceProperties( vulkanDevice->physicalDevice, &properties );
 
@@ -235,10 +217,51 @@ void create_texture_sampler( VulkanDevice *vulkanDevice,
   samplerInfo.minLod = 0.0f;
   samplerInfo.maxLod = 0.0f;
 
-  if ( vkCreateSampler( vulkanDevice->device, &samplerInfo, nullptr,
-                        &textureImage->sampler ) != VK_SUCCESS ) {
+  if ( vkCreateSampler( vulkanDevice->device, &samplerInfo, nullptr, &textureImage->sampler ) !=
+       VK_SUCCESS ) {
     Logger::log( "Failed to create texture sampler!", Logger::CRITICAL );
   }
+}
+
+void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevice,
+                             VkExtent2D swapChainExtent ) {
+  VkFormat depthFormat = find_depth_format( vulkanDevice->physicalDevice );
+
+  create_image( swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
+                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                depthBuffer, vulkanDevice );
+
+  depthBuffer->imageView = create_image_view( vulkanDevice->device, depthBuffer->image, depthFormat,
+                                              VK_IMAGE_ASPECT_DEPTH_BIT );
+}
+
+VkFormat find_supported_format( const std::vector<VkFormat> &candidates, VkImageTiling tiling,
+                                VkFormatFeatureFlags features, VkPhysicalDevice physicalDevice ) {
+  for ( VkFormat format : candidates ) {
+    VkFormatProperties props;
+    vkGetPhysicalDeviceFormatProperties( physicalDevice, format, &props );
+
+    if ( tiling == VK_IMAGE_TILING_LINEAR &&
+         ( props.linearTilingFeatures & features ) == features ) {
+      return format;
+    } else if ( tiling == VK_IMAGE_TILING_OPTIMAL &&
+                ( props.optimalTilingFeatures & features ) == features ) {
+      return format;
+    }
+  }
+
+  Logger::log( "Failed to find supported format!", Logger::CRITICAL );
+  throw std::runtime_error( "Failed to find supported format!" );
+}
+
+VkFormat find_depth_format( VkPhysicalDevice physicalDevice ) {
+  return find_supported_format(
+      { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+      VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, physicalDevice );
+}
+
+bool has_stencil_component( VkFormat format ) {
+  return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
 }  // namespace Image

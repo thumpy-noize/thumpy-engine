@@ -13,6 +13,7 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include <array>
 #include <cstdint>
 #include <vector>
 
@@ -35,11 +36,9 @@ inline VkApplicationInfo application_info() {
   return appInfo;
 }
 
-inline VkPipelineShaderStageCreateInfo vert_shader_stage_info(
-    VkShaderModule vertShaderModule ) {
+inline VkPipelineShaderStageCreateInfo vert_shader_stage_info( VkShaderModule vertShaderModule ) {
   VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-  vertShaderStageInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 
   vertShaderStageInfo.module = vertShaderModule;
@@ -47,11 +46,9 @@ inline VkPipelineShaderStageCreateInfo vert_shader_stage_info(
   return vertShaderStageInfo;
 }
 
-inline VkPipelineShaderStageCreateInfo frag_shader_stage_info(
-    VkShaderModule fragShaderModule ) {
+inline VkPipelineShaderStageCreateInfo frag_shader_stage_info( VkShaderModule fragShaderModule ) {
   VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-  fragShaderStageInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
   fragShaderStageInfo.module = fragShaderModule;
   fragShaderStageInfo.pName = "main";
@@ -65,16 +62,14 @@ inline VkPipelineShaderStageCreateInfo frag_shader_stage_info(
  */
 inline VkPipelineVertexInputStateCreateInfo vertex_input_info() {
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-  vertexInputInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
   Logger::log( "vertex_input_info is deprecated", Logger::WARNING );
   return vertexInputInfo;
 }
 
 inline VkPipelineInputAssemblyStateCreateInfo input_assembly() {
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-  inputAssembly.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   inputAssembly.primitiveRestartEnable = VK_FALSE;
   return inputAssembly;
@@ -98,8 +93,7 @@ inline VkRect2D scissor( VkExtent2D extent ) {
   return scissor;
 }
 
-inline VkPipelineViewportStateCreateInfo viewport_state( VkViewport &viewport,
-                                                         VkRect2D &scissor ) {
+inline VkPipelineViewportStateCreateInfo viewport_state( VkViewport &viewport, VkRect2D &scissor ) {
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
   viewportState.viewportCount = 1;
@@ -127,8 +121,7 @@ inline VkPipelineRasterizationStateCreateInfo rasterizer() {
 
 inline VkPipelineMultisampleStateCreateInfo multisampling() {
   VkPipelineMultisampleStateCreateInfo multisampling{};
-  multisampling.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+  multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   multisampling.sampleShadingEnable = VK_FALSE;
   multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
   multisampling.minSampleShading = 1.0f;           // Optional
@@ -140,9 +133,8 @@ inline VkPipelineMultisampleStateCreateInfo multisampling() {
 
 inline VkPipelineColorBlendAttachmentState color_blend_attachment() {
   VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-  colorBlendAttachment.colorWriteMask =
-      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+  colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
   colorBlendAttachment.blendEnable = VK_FALSE;
   colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;   // Optional
   colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;  // Optional
@@ -164,8 +156,7 @@ inline VkPipelineLayoutCreateInfo pipeline_layout_info(
   return pipelineLayoutInfo;
 }
 
-inline VkShaderModuleCreateInfo shader_module_create_info(
-    const std::vector<char> &code ) {
+inline VkShaderModuleCreateInfo shader_module_create_info( const std::vector<char> &code ) {
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = code.size();
@@ -173,14 +164,13 @@ inline VkShaderModuleCreateInfo shader_module_create_info(
   return createInfo;
 }
 
-inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass,
-                                                 VkExtent2D extent,
-                                                 VkImageView attachments[] ) {
+inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass, VkExtent2D extent,
+                                                 std::array<VkImageView, 2> &attachments ) {
   VkFramebufferCreateInfo framebufferInfo{};
   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
   framebufferInfo.renderPass = renderPass;
-  framebufferInfo.attachmentCount = 1;
-  framebufferInfo.pAttachments = attachments;
+  framebufferInfo.attachmentCount = static_cast<uint32_t>( attachments.size() );
+  framebufferInfo.pAttachments = attachments.data();
   framebufferInfo.width = extent.width;
   framebufferInfo.height = extent.height;
   framebufferInfo.layers = 1;
@@ -195,8 +185,8 @@ inline VkCommandPoolCreateInfo pool_info( uint32_t queueFamilyIndex ) {
   return poolInfo;
 }
 
-inline VkCommandBufferAllocateInfo command_buffer_allocate_info(
-    VkCommandPool commandPool, uint32_t bufferCount ) {
+inline VkCommandBufferAllocateInfo command_buffer_allocate_info( VkCommandPool commandPool,
+                                                                 uint32_t bufferCount ) {
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.commandPool = commandPool;
@@ -213,8 +203,7 @@ inline VkCommandBufferBeginInfo command_buffer_begin_info() {
   return beginInfo;
 }
 
-inline VkRenderPassBeginInfo render_pass_info( VkRenderPass renderPass,
-                                               VkFramebuffer frameBuffer,
+inline VkRenderPassBeginInfo render_pass_info( VkRenderPass renderPass, VkFramebuffer frameBuffer,
                                                VkExtent2D extent ) {
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -238,9 +227,8 @@ inline VkFenceCreateInfo fence_info() {
   return fenceInfo;
 }
 
-inline VkImageCreateInfo image_info( uint32_t width, uint32_t height,
-                                     VkFormat format, VkImageTiling tiling,
-                                     VkImageUsageFlags usage ) {
+inline VkImageCreateInfo image_info( uint32_t width, uint32_t height, VkFormat format,
+                                     VkImageTiling tiling, VkImageUsageFlags usage ) {
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -258,8 +246,7 @@ inline VkImageCreateInfo image_info( uint32_t width, uint32_t height,
   return imageInfo;
 }
 
-inline VkImageMemoryBarrier image_memory_barrier( VkImage image,
-                                                  VkImageLayout oldLayout,
+inline VkImageMemoryBarrier image_memory_barrier( VkImage image, VkImageLayout oldLayout,
                                                   VkImageLayout newLayout ) {
   VkImageMemoryBarrier barrier{};
   barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

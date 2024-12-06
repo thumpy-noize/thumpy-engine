@@ -34,17 +34,14 @@ static std::vector<char> read_file( const std::string &filename ) {
   return buffer;
 }
 
-VulkanPipeline create_graphics_pipeline(
-    VulkanSwapChain *swapChain, VkDevice vulkanDevice,
-    VkDescriptorSetLayout descriptorSetLayout ) {
+VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vulkanDevice,
+                                         VkDescriptorSetLayout descriptorSetLayout ) {
   Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
   auto vertShaderCode = read_file( get_shader_path() + "texture.vert.spv" );
   auto fragShaderCode = read_file( get_shader_path() + +"texture.frag.spv" );
 
-  VkShaderModule vertShaderModule =
-      create_shader_module( vertShaderCode, vulkanDevice );
-  VkShaderModule fragShaderModule =
-      create_shader_module( fragShaderCode, vulkanDevice );
+  VkShaderModule vertShaderModule = create_shader_module( vertShaderCode, vulkanDevice );
+  VkShaderModule fragShaderModule = create_shader_module( fragShaderCode, vulkanDevice );
 
   VkPipelineShaderStageCreateInfo vertShaderStageInfo =
       Initializer::vert_shader_stage_info( vertShaderModule );
@@ -52,16 +49,14 @@ VulkanPipeline create_graphics_pipeline(
   VkPipelineShaderStageCreateInfo fragShaderStageInfo =
       Initializer::frag_shader_stage_info( fragShaderModule );
 
-  VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo,
-                                                     fragShaderStageInfo };
+  VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
   // ### vertex input ###
   //   VkPipelineVertexInputStateCreateInfo vertexInputInfo =
   //       Initializer::vertex_input_info();
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-  vertexInputInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
   auto bindingDescription = Vertex::get_binding_description();
   auto attributeDescriptions = Vertex::get_attribute_descriptions();
@@ -73,12 +68,11 @@ VulkanPipeline create_graphics_pipeline(
   vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
   // ### input assembly ###
-  VkPipelineInputAssemblyStateCreateInfo inputAssembly =
-      Initializer::input_assembly();
+  VkPipelineInputAssemblyStateCreateInfo inputAssembly = Initializer::input_assembly();
 
   // ### viewport & scissor ###
-  VkViewport viewport = Initializer::viewport( (float)swapChain->extent.height,
-                                               (float)swapChain->extent.width );
+  VkViewport viewport =
+      Initializer::viewport( (float)swapChain->extent.height, (float)swapChain->extent.width );
 
   VkRect2D scissor = Initializer::scissor( swapChain->extent );
 
@@ -93,16 +87,13 @@ VulkanPipeline create_graphics_pipeline(
   VkPipelineRasterizationStateCreateInfo rasterizer = Initializer::rasterizer();
 
   // ### multi-sampling ###
-  VkPipelineMultisampleStateCreateInfo multisampling =
-      Initializer::multisampling();
+  VkPipelineMultisampleStateCreateInfo multisampling = Initializer::multisampling();
 
   // ### color blending ###
-  VkPipelineColorBlendAttachmentState colorBlendAttachment =
-      Initializer::color_blend_attachment();
+  VkPipelineColorBlendAttachmentState colorBlendAttachment = Initializer::color_blend_attachment();
 
   VkPipelineColorBlendStateCreateInfo colorBlending{};
-  colorBlending.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
   colorBlending.logicOpEnable = VK_FALSE;
   colorBlending.logicOp = VK_LOGIC_OP_COPY;  // Optional
   colorBlending.attachmentCount = 1;
@@ -112,14 +103,26 @@ VulkanPipeline create_graphics_pipeline(
   colorBlending.blendConstants[2] = 0.0f;  // Optional
   colorBlending.blendConstants[3] = 0.0f;  // Optional
 
+  // ### depth & stencil ###
+  VkPipelineDepthStencilStateCreateInfo depthStencil{};
+  depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+  depthStencil.depthTestEnable = VK_TRUE;
+  depthStencil.depthWriteEnable = VK_TRUE;
+  depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+  depthStencil.depthBoundsTestEnable = VK_FALSE;
+  depthStencil.minDepthBounds = 0.0f;  // Optional
+  depthStencil.maxDepthBounds = 1.0f;  // Optional
+  depthStencil.stencilTestEnable = VK_FALSE;
+  depthStencil.front = {};  // Optional
+  depthStencil.back = {};   // Optional
+
   // ### dynamic state ###
   std::vector<VkDynamicState> dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT,
                                                 VK_DYNAMIC_STATE_SCISSOR };
 
   VkPipelineDynamicStateCreateInfo dynamicState{};
   dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-  dynamicState.dynamicStateCount =
-      static_cast<uint32_t>( dynamicStates.size() );
+  dynamicState.dynamicStateCount = static_cast<uint32_t>( dynamicStates.size() );
   dynamicState.pDynamicStates = dynamicStates.data();
 
   // ### pipeline layout ###
@@ -142,7 +145,7 @@ VulkanPipeline create_graphics_pipeline(
   pipelineInfo.pViewportState = &viewportState;
   pipelineInfo.pRasterizationState = &rasterizer;
   pipelineInfo.pMultisampleState = &multisampling;
-  pipelineInfo.pDepthStencilState = nullptr;  // Optional
+  pipelineInfo.pDepthStencilState = &depthStencil;  // Optional
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = &dynamicState;
   pipelineInfo.layout = pipeline.pipelineLayout;
@@ -151,8 +154,7 @@ VulkanPipeline create_graphics_pipeline(
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
   pipelineInfo.basePipelineIndex = -1;               // Optional
 
-  if ( vkCreateGraphicsPipelines( vulkanDevice, VK_NULL_HANDLE, 1,
-                                  &pipelineInfo, nullptr,
+  if ( vkCreateGraphicsPipelines( vulkanDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
                                   &pipeline.graphicsPipeline ) != VK_SUCCESS ) {
     Logger::log( "Failed to create graphics pipeline!", Logger::CRITICAL );
   }
@@ -169,14 +171,11 @@ void destroy_graphics_pipeline( VkDevice device, VulkanPipeline pipeline ) {
   vkDestroyPipelineLayout( device, pipeline.pipelineLayout, nullptr );
 }
 
-VkShaderModule create_shader_module( const std::vector<char> &code,
-                                     VkDevice vulkanDevice ) {
-  VkShaderModuleCreateInfo createInfo =
-      Initializer::shader_module_create_info( code );
+VkShaderModule create_shader_module( const std::vector<char> &code, VkDevice vulkanDevice ) {
+  VkShaderModuleCreateInfo createInfo = Initializer::shader_module_create_info( code );
 
   VkShaderModule shaderModule;
-  if ( vkCreateShaderModule( vulkanDevice, &createInfo, nullptr,
-                             &shaderModule ) != VK_SUCCESS ) {
+  if ( vkCreateShaderModule( vulkanDevice, &createInfo, nullptr, &shaderModule ) != VK_SUCCESS ) {
     Logger::log( "Failed to create shader module!", Logger::CRITICAL );
   }
 

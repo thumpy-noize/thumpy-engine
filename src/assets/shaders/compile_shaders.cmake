@@ -8,13 +8,14 @@ make_directory(${destDir})
 # Get all files with the following extentions
 # vert
 # frag
-file( GLOB_RECURSE  textures "${srcDir}/*.vert" "${srcDir}/*.frag")
 
 # Compile shaders
-if( true ) #$ENV{COMPILE_SHADERS} )
+if( $ENV{COMPILE_SHADERS} )
     message("Compiling shaders...")
-    foreach(texture ${textures})
-        file(RELATIVE_PATH relative_path ${srcDir} ${texture})
+    file( GLOB_RECURSE  shaders "${srcDir}/*.vert" "${srcDir}/*.frag")
+
+    foreach(shader ${shaders})
+        file(RELATIVE_PATH relative_path ${srcDir} ${shader})
 
         message("Compiling shader: ${CMAKE_CURRENT_LIST_DIR}/${relative_path}")
         set(OUTF "${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/${relative_path}.spv")
@@ -32,18 +33,19 @@ if( true ) #$ENV{COMPILE_SHADERS} )
 
         target_sources("engine" PRIVATE "${CMAKE_CURRENT_LIST_DIR}/${relative_path}" "${OUTF}")
 
-    endforeach(texture ${textures})
+    endforeach(shader ${shaders})
 
 
 else() # Copy shaders
     message("Copying shaders...")
+    file( GLOB_RECURSE shaders "${srcDir}/*.spv")
 
-    foreach(texture ${textures})
-        file(RELATIVE_PATH relative_path ${srcDir} ${texture})
-        message("Copying shader: ${texture}")
-        message("Copying to: ${destDir}/${relative_path}.spv")
-        configure_file(${texture} "${destDir}/${relative_path}.spv" COPYONLY)
-    endforeach(texture ${textures})
+    foreach(shader ${shaders})
+        file(RELATIVE_PATH relative_path "${srcDir}/compiled" ${shader})
+        message("Copying shader: ${shader}")
+        message("Copying to: ${destDir}/${relative_path}")
+        configure_file("${shader}" "${destDir}/${relative_path}" COPYONLY)
+    endforeach(shader ${shaders})
 
 endif()
 

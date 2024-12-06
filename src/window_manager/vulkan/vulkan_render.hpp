@@ -33,10 +33,8 @@ class VulkanRender {
    * @param commandBuffers
    * @param pipeline
    */
-  VulkanRender( int maxFramesInFlight, VulkanDevice *vulkanDevice,
-                VulkanSwapChain *swapchain,
-                std::vector<VkCommandBuffer> *commandBuffers,
-                VulkanPipeline *pipeline );
+  VulkanRender( int maxFramesInFlight, VulkanDevice *vulkanDevice, VulkanSwapChain *swapchain,
+                std::vector<VkCommandBuffer> *commandBuffers, VulkanPipeline *pipeline );
 
   /**
    * @brief Destroy render
@@ -50,19 +48,16 @@ class VulkanRender {
    * @brief Draw to frame
    *
    */
-  void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount,
-                   VkBuffer indexBuffer, uint32_t indexCount,
-                   std::vector<void *> uniformBuffersMapped,
-                   std::vector<VkDescriptorSet> descriptorSets );
+  void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
+                   uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
+                   std::vector<VkDescriptorSet> descriptorSets, VkImageView depthImageView );
 
-  void record_command_buffer( VkCommandBuffer commandBuffer,
-                              uint32_t imageIndex, VulkanSwapChain *swapChain,
-                              VkBuffer vertexBuffer, uint32_t vertexCount,
-                              VkBuffer indexBuffer, uint32_t indexCount,
+  void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
+                              VulkanSwapChain *swapChain, VkBuffer vertexBuffer,
+                              uint32_t vertexCount, VkBuffer indexBuffer, uint32_t indexCount,
                               std::vector<VkDescriptorSet> descriptorSets );
 
-  void update_uniform_buffer( uint32_t currentImage,
-                              std::vector<void *> uniformBuffersMapped );
+  void update_uniform_buffer( uint32_t currentImage, std::vector<void *> uniformBuffersMapped );
 
  protected:
   int maxFramesInFlight_;

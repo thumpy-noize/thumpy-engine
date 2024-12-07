@@ -102,6 +102,13 @@ struct VulkanImage {
   VkDeviceMemory imageMemory;
   VkImageView imageView;
   VkSampler sampler;
+
+  void destroy( VkDevice device, bool destroySampler = true ) {
+    if ( destroySampler ) vkDestroySampler( device, sampler, nullptr );
+    vkDestroyImageView( device, imageView, nullptr );
+    vkDestroyImage( device, image, nullptr );
+    vkFreeMemory( device, imageMemory, nullptr );
+  }
 };
 
 class VulkanNotCompatible : public std::exception {

@@ -9,18 +9,18 @@
  *
  */
 #pragma once
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 
 #include <vulkan/vulkan_core.h>
 
 #include <array>
 #include <cstdint>
-#include <string>
-
-#include "logger.hpp"
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <optional>
+#include <string>
 #include <vector>
+
+#include "logger.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -139,11 +139,31 @@ std::vector<Vertex> generate_sierpinski_triangle( uint32_t recursions,
                                                   std::vector<Vertex> startingTriangle );
 }
 
+#pragma region Asset loading
+
+struct Texture {
+  unsigned char *pixels;
+  int width, height, channels;
+  VkDeviceSize imageSize;
+};
+Texture *load_texture( std::string filePath );
+void free_texture( Texture *texture );
+
+struct Mesh {
+  std::vector<Vertex> vertices;
+  std::vector<uint16_t> indices;
+};
+
+Mesh *load_mesh( std::string filePath );
+
+#pragma endregion Asset loading
+
 #pragma region Paths
 std::string get_exe_path();
 std::string get_assets_path();
 std::string get_shader_path();
 std::string get_texture_path();
+std::string get_model_path();
 #pragma endregion
 
 }  // namespace Vulkan

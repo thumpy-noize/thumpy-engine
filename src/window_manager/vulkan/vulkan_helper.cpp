@@ -1,16 +1,24 @@
 
-#include "vulkan_helper.hpp"
+// #define STB_IMAGE_IMPLEMENTATION
+
+#include <string>
+#define TINYOBJLOADER_IMPLEMENTATION
 
 #include <GLFW/glfw3.h>
+#include <stb_image.h>
+#include <tiny_obj_loader.h>
 
 #include <cstring>
 
 #include "logger.hpp"
+#include "logger_helper.hpp"
+#include "vulkan_helper.hpp"
 
 #ifdef __unix__
 #include <unistd.h>
 #elif _WIN32
 #include <windows.h>
+
 #include <filesystem>
 #endif  // _WIN32
 
@@ -49,8 +57,7 @@ std::vector<const char *> get_required_extensions() {
   const char **glfwExtensions;
   glfwExtensions = glfwGetRequiredInstanceExtensions( &glfwExtensionCount );
 
-  std::vector<const char *> extensions( glfwExtensions,
-                                        glfwExtensions + glfwExtensionCount );
+  std::vector<const char *> extensions( glfwExtensions, glfwExtensions + glfwExtensionCount );
 
   if ( enableValidationLayers ) {
     extensions.push_back( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
@@ -66,8 +73,7 @@ uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
 
   for ( uint32_t i = 0; i < memProperties.memoryTypeCount; i++ ) {
     if ( ( typeFilter & ( 1 << i ) ) &&
-         ( memProperties.memoryTypes[i].propertyFlags & properties ) ==
-             properties ) {
+         ( memProperties.memoryTypes[i].propertyFlags & properties ) == properties ) {
       return i;
     }
   }
@@ -88,10 +94,9 @@ namespace Shapes {
  * @param startingTriangle starting triangles
  * @return std::vector<Vertex> sierpinski triangles
  */
-std::vector<Vertex> generate_sierpinski_triangle(
-    uint32_t recursions, std::vector<Vertex> startingTriangle ) {
-  Logger::log( "Generating sierpinski - recursions left: " +
-                   std::to_string( recursions ) + "",
+std::vector<Vertex> generate_sierpinski_triangle( uint32_t recursions,
+                                                  std::vector<Vertex> startingTriangle ) {
+  Logger::log( "Generating sierpinski - recursions left: " + std::to_string( recursions ) + "",
                Logger::INFO );
 
   std::vector<Vertex> nextTriangle;
@@ -122,11 +127,9 @@ std::vector<Vertex> generate_sierpinski_triangle(
     }
 
     // get midpoint between this vertex & next index
-    nextVertex =
-        Vertex::mid( startingTriangle[nextIndex], startingTriangle[i] );
+    nextVertex = Vertex::mid( startingTriangle[nextIndex], startingTriangle[i] );
     // get midpoint between this vertex & last index
-    lastVertex =
-        Vertex::mid( startingTriangle[lastIndex], startingTriangle[i] );
+    lastVertex = Vertex::mid( startingTriangle[lastIndex], startingTriangle[i] );
 
     nextTriangle.push_back( nextVertex );           // midpoint
     nextTriangle.push_back( lastVertex );           // midpoint
@@ -148,34 +151,90 @@ std::vector<Vertex> generate_sierpinski_triangle(
 
 #pragma endregion Shape generation
 
+#pragma region Asset loading
+
+Texture *load_texture( std::string filePath ) {
+  Logger::log( "Loading texture: " + get_texture_path() + filePath, Logger::DEBUG );
+  Texture *texture = new Texture();
+
+  texture->pixels =
+      stbi_load( std::string( get_texture_path() + filePath ).c_str(), &texture->width,
+                 &texture->height, &texture->channels, STBI_rgb_alpha );
+  texture->imageSize = texture->width * texture->height * 4;
+
+  if ( !texture->pixels ) {
+    Logger::log( "Failed to load texture image!", Logger::ERROR );
+  }
+
+  return texture;
+}
+
+void free_texture( Texture *texture ) { stbi_image_free( texture->pixels ); }
+
+Mesh *load_mesh( std::string filePath ) {
+  std::string modelPath = get_model_path() + filePath;
+
+  Logger::log( "Loading model: " + modelPath, Logger::DEBUG );
+
+  tinyobj::attrib_t attrib;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+  std::string err;
+
+  if ( !tinyobj::LoadObj( &attrib, &shapes, &materials, &err, modelPath.c_str() ) ) {
+    Logger::log( err, Logger::ERROR );
+  }
+
+  Mesh *mesh = new Mesh();
+  for ( const auto &shape : shapes ) {
+    for ( const auto &index : shape.mesh.indices ) {
+      Vertex vertex{};
+
+      vertex.pos = { attrib.vertices[3 * index.vertex_index + 0],
+                     attrib.vertices[3 * index.vertex_index + 1],
+                     attrib.vertices[3 * index.vertex_index + 2] };
+
+      vertex.texCoord = { attrib.texcoords[2 * index.texcoord_index + 0],
+                          1.0f - attrib.texcoords[2 * index.texcoord_index + 1] };
+
+      vertex.color = { 1.0f, 1.0f, 1.0f };
+
+      mesh->vertices.push_back( vertex );
+      mesh->indices.push_back( mesh->indices.size() );
+    }
+  }
+  return mesh;
+}
+
+#pragma endregion Asset loading
+
 #pragma region Paths
 
 std::string exePath_;
 std::string get_exe_path() {
-  if(exePath_.empty())
-  {
+  if ( exePath_.empty() ) {
 #ifdef __unix__
-  char result[PATH_MAX];
-  ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
-  exePath_ = std::string( result, ( count > 0 ) ? count : 0 );
-  exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
-  return exePath_;
+    char result[PATH_MAX];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+    exePath_ = std::string( result, ( count > 0 ) ? count : 0 );
+    exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
+    return exePath_;
 #elif _WIN32
-  wchar_t modulePath[MAX_PATH] = { 0 };
-  GetModuleFileNameW( NULL, modulePath, MAX_PATH );
+    wchar_t modulePath[MAX_PATH] = { 0 };
+    GetModuleFileNameW( NULL, modulePath, MAX_PATH );
 
-  std::wstring ws = std::wstring( modulePath );
-  size_t len = wcstombs( nullptr, ws.c_str(), 0 ) + 1;
-  char *buffer = new char[len];
+    std::wstring ws = std::wstring( modulePath );
+    size_t len = wcstombs( nullptr, ws.c_str(), 0 ) + 1;
+    char *buffer = new char[len];
 
-  wcstombs( buffer, ws.c_str(), len );
-  exePath_ = std::string( buffer );
-  exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
-  return exePath_;
+    wcstombs( buffer, ws.c_str(), len );
+    exePath_ = std::string( buffer );
+    exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
+    return exePath_;
 #endif
-  Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
-  return "";
-  } 
+    Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
+    return "";
+  }
   return exePath_;
 }
 
@@ -201,6 +260,14 @@ std::string get_texture_path() {
     texturePath_ = get_assets_path() + "textures/";
   }
   return texturePath_;
+}
+
+std::string modelPath_;
+std::string get_model_path() {
+  if ( modelPath_.empty() ) {
+    modelPath_ = get_assets_path() + "models/";
+  }
+  return modelPath_;
 }
 
 }  // namespace Vulkan

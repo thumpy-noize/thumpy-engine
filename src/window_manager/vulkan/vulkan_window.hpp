@@ -55,6 +55,11 @@ class VulkanWindow : public Window {
 
 #pragma endregion Core
 
+  // const std::string TEXTURE_PATH = "vj_swirl.png";
+
+  const std::string MODEL_PATH = "viking_room.obj";
+  const std::string TEXTURE_PATH = "viking_room.png";
+
  private:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 

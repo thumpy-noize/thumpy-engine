@@ -71,7 +71,7 @@ void VulkanWindow::init_vulkan() {
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
   // Create texture image / view / sampler
-  Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_ );
+  Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_, TEXTURE_PATH );
   Image::create_texture_image_view( vulkanDevice_->device, &textureImage_ );
   Image::create_texture_sampler( vulkanDevice_, &textureImage_ );
 
@@ -160,7 +160,7 @@ void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ), indexBuffer_,
                        static_cast<uint32_t>( indices_.size() ), uniformBuffersMapped_,
-                       descriptorSets_, depthBuffer_.imageView );
+                       descriptorSets_, &depthBuffer_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

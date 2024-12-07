@@ -33,12 +33,12 @@ namespace Vulkan {
 namespace Image {
 
 void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage,
-                           VkCommandPool commandPool ) {
-  Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png", Logger::DEBUG );
+                           VkCommandPool commandPool, std::string filePath ) {
+  Logger::log( "Loading texture: " + get_texture_path() + filePath, Logger::DEBUG );
 
   int texWidth, texHeight, texChannels;
-  stbi_uc *pixels = stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
-                               &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
+  stbi_uc *pixels = stbi_load( std::string( get_texture_path() + filePath ).c_str(), &texWidth,
+                               &texHeight, &texChannels, STBI_rgb_alpha );
   VkDeviceSize imageSize = texWidth * texHeight * 4;
 
   if ( !pixels ) {

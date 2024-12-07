@@ -25,7 +25,7 @@ namespace Vulkan {
 namespace Image {
 
 void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage,
-                           VkCommandPool commandPool );
+                           VkCommandPool commandPool, std::string filePath );
 
 void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
                    VkImageUsageFlags usage, VkMemoryPropertyFlags properties,

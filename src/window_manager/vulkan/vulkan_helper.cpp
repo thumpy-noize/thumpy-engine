@@ -186,6 +186,7 @@ Mesh *load_mesh( std::string filePath ) {
   }
 
   Mesh *mesh = new Mesh();
+  std::unordered_map<Vertex, uint32_t> uniqueVertices{};
   for ( const auto &shape : shapes ) {
     for ( const auto &index : shape.mesh.indices ) {
       Vertex vertex{};
@@ -199,8 +200,12 @@ Mesh *load_mesh( std::string filePath ) {
 
       vertex.color = { 1.0f, 1.0f, 1.0f };
 
-      mesh->vertices.push_back( vertex );
-      mesh->indices.push_back( mesh->indices.size() );
+      if ( uniqueVertices.count( vertex ) == 0 ) {
+        uniqueVertices[vertex] = static_cast<uint32_t>( mesh->vertices.size() );
+        mesh->vertices.push_back( vertex );
+      }
+
+      mesh->indices.push_back( uniqueVertices[vertex] );
     }
   }
   return mesh;

@@ -10,14 +10,17 @@
  */
 #pragma once
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <vulkan/vulkan_core.h>
 
 #include <array>
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "logger.hpp"
@@ -89,6 +92,10 @@ struct Vertex {
     vert.color = ( a.color + b.color ) / glm::vec3( 2 );
     return vert;
   }
+
+  bool operator==( const Vertex &other ) const {
+    return pos == other.pos && color == other.color && texCoord == other.texCoord;
+  }
 };
 
 struct UniformBufferObject {
@@ -110,7 +117,7 @@ struct VulkanImage {
     vkFreeMemory( device, imageMemory, nullptr );
   }
 };
-
+#include <unordered_map>
 class VulkanNotCompatible : public std::exception {
  private:
   std::string message_;
@@ -170,3 +177,14 @@ std::string get_model_path();
 }  // namespace Windows
 }  // namespace Core
 }  // namespace Thumpy
+
+namespace std {
+template <>
+struct hash<Thumpy::Core::Windows::Vulkan::Vertex> {
+  size_t operator()( Thumpy::Core::Windows::Vulkan::Vertex const &vertex ) const {
+    return ( ( hash<glm::vec3>()( vertex.pos ) ^ ( hash<glm::vec3>()( vertex.color ) << 1 ) ) >>
+             1 ) ^
+           ( hash<glm::vec2>()( vertex.texCoord ) << 1 );
+  }
+};
+}  // namespace std

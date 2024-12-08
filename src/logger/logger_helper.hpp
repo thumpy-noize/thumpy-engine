@@ -21,9 +21,9 @@ enum LogLevel {
   INFO = 1 << 1,
   DEBUG = 1 << 2,
   WARNING = 1 << 3,
-  ERROR = 1 << 4,
+  ERROR_LOG = 1 << 4,
   CRITICAL = 1 << 5,
-  ALL = INFO | DEBUG | WARNING | ERROR | CRITICAL
+  ALL = INFO | DEBUG | WARNING | ERROR_LOG | CRITICAL
 };
 
 /**

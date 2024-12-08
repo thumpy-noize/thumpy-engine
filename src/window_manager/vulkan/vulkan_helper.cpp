@@ -234,7 +234,7 @@ Texture *load_texture( std::string filePath ) {
   texture->imageSize = texture->width * texture->height * 4;
 
   if ( !texture->pixels ) {
-    Logger::log( "Failed to load texture image!", Logger::ERROR );
+    Logger::log( "Failed to load texture image!", Logger::ERROR_LOG );
   }
 
   return texture;
@@ -253,7 +253,7 @@ Mesh *load_mesh( std::string filePath ) {
   std::string err;
 
   if ( !tinyobj::LoadObj( &attrib, &shapes, &materials, &err, modelPath.c_str() ) ) {
-    Logger::log( err, Logger::ERROR );
+    Logger::log( err, Logger::ERROR_LOG );
   }
 
   Mesh *mesh = new Mesh();

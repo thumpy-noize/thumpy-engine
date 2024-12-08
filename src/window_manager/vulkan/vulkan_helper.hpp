@@ -127,7 +127,7 @@ class VulkanNotCompatible : public std::exception {
   // Constructor accepts a const char* that is used to set
   // the exception message
   VulkanNotCompatible( const char *msg ) : message_( msg ) {
-    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR );
+    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR_LOG );
   }
 
   // Override the what() method to return our message

@@ -9,9 +9,8 @@
  *
  */
 
+#include "vulkan/vulkan_render.hpp"
 #define GLFW_INCLUDE_VULKAN
-
-#include "vulkan_window.hpp"
 
 #include <vulkan/vulkan_core.h>
 
@@ -29,6 +28,7 @@
 #include "vulkan_helper.hpp"
 #include "vulkan_image.hpp"
 #include "vulkan_pipeline.hpp"
+#include "vulkan_window.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -62,18 +62,20 @@ void VulkanWindow::init_vulkan() {
   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device, descriptorSetLayout_ );
 
   // Depth buffer
-  Image::create_depth_resources( &depthBuffer_, vulkanDevice_, swapChain_->extent );
+  depthBuffer_ = new VulkanImage();
+  Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->extent );
 
   // Create frame buffers
-  Buffer::create_framebuffers( swapChain_, depthBuffer_.imageView, vulkanDevice_->device );
+  Buffer::create_framebuffers( swapChain_, depthBuffer_->imageView, vulkanDevice_->device );
 
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
   // Create texture image / view / sampler
-  Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_, TEXTURE_PATH );
-  Image::create_texture_image_view( vulkanDevice_->device, &textureImage_ );
-  Image::create_texture_sampler( vulkanDevice_, &textureImage_ );
+  textureImage_ = new VulkanImage();
+  Image::create_texture_image( vulkanDevice_, textureImage_, commandPool_, TEXTURE_PATH );
+  Image::create_texture_image_view( vulkanDevice_->device, textureImage_ );
+  Image::create_texture_sampler( vulkanDevice_, textureImage_ );
 
   // Create vertex buffer
   // Generate sierpinski triangle (broken with index buffer,
@@ -102,7 +104,7 @@ void VulkanWindow::init_vulkan() {
 
   // Create descriptor sets
   Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_, descriptorPool_, descriptorSets_,
-                              uniformBuffers_, &textureImage_, MAX_FRAMES_IN_FLIGHT );
+                              uniformBuffers_, textureImage_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
   Construct::command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
@@ -110,7 +112,7 @@ void VulkanWindow::init_vulkan() {
 
   // Create render
   render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_, &commandBuffers_,
-                              &pipeline_ );
+                              pipeline_ );
 }
 
 void VulkanWindow::deconstruct_window() {
@@ -131,14 +133,14 @@ void VulkanWindow::deconstruct_window() {
 
   vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
 
-  vkDestroySampler( vulkanDevice_->device, textureImage_.sampler, nullptr );
-  vkDestroyImageView( vulkanDevice_->device, textureImage_.imageView, nullptr );
-  vkDestroyImage( vulkanDevice_->device, textureImage_.image, nullptr );
-  vkFreeMemory( vulkanDevice_->device, textureImage_.imageMemory, nullptr );
+  vkDestroySampler( vulkanDevice_->device, textureImage_->sampler, nullptr );
+  vkDestroyImageView( vulkanDevice_->device, textureImage_->imageView, nullptr );
+  vkDestroyImage( vulkanDevice_->device, textureImage_->image, nullptr );
+  vkFreeMemory( vulkanDevice_->device, textureImage_->imageMemory, nullptr );
 
-  vkDestroyImageView( vulkanDevice_->device, depthBuffer_.imageView, nullptr );
-  vkDestroyImage( vulkanDevice_->device, depthBuffer_.image, nullptr );
-  vkFreeMemory( vulkanDevice_->device, depthBuffer_.imageMemory, nullptr );
+  vkDestroyImageView( vulkanDevice_->device, depthBuffer_->imageView, nullptr );
+  vkDestroyImage( vulkanDevice_->device, depthBuffer_->image, nullptr );
+  vkFreeMemory( vulkanDevice_->device, depthBuffer_->imageMemory, nullptr );
 
   vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_, nullptr );
 
@@ -166,7 +168,7 @@ void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( mesh_->vertices.size() ), indexBuffer_,
                        static_cast<uint32_t>( mesh_->indices.size() ), uniformBuffersMapped_,
-                       descriptorSets_, &depthBuffer_ );
+                       descriptorSets_, depthBuffer_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

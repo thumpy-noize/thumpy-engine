@@ -118,6 +118,7 @@ struct VulkanImage {
     vkFreeMemory( device, imageMemory, nullptr );
   }
 };
+
 #include <unordered_map>
 class VulkanNotCompatible : public std::exception {
  private:

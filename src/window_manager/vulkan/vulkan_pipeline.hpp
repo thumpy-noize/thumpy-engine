@@ -26,15 +26,12 @@ struct VulkanPipeline {
   VkPipeline graphicsPipeline;
 };
 
-VulkanPipeline create_graphics_pipeline(
-    VulkanSwapChain *swapChain, VkDevice vulkanDevice,
-    VkDescriptorSetLayout descriptorSetLayout );
+VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vulkanDevice,
+                                          VkDescriptorSetLayout descriptorSetLayout );
 
-void destroy_graphics_pipeline( VkDevice vulkanDevice,
-                                VulkanPipeline pipeline );
+void destroy_graphics_pipeline( VkDevice vulkanDevice, VulkanPipeline *pipeline );
 
-VkShaderModule create_shader_module( const std::vector<char> &code,
-                                     VkDevice vulkanDevice );
+VkShaderModule create_shader_module( const std::vector<char> &code, VkDevice vulkanDevice );
 
 }  // namespace Vulkan
 }  // namespace Windows

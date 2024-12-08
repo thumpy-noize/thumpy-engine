@@ -80,9 +80,10 @@ void VulkanWindow::init_vulkan() {
   // but it would be really cool if you fixed that)
   // vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
 
-  // mesh_ = load_mesh( MODEL_PATH );
   // mesh_ = Shapes::generate_triangle();
-  mesh_ = Shapes::generate_square();
+  // mesh_ = Shapes::generate_square();
+  mesh_ = load_mesh( MODEL_PATH );
+
   mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 2 );
 
   Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, vertexBufferMemory_,

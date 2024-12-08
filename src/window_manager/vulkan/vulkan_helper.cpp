@@ -133,7 +133,7 @@ Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions ) {
   std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
   // Create a new triangle for each vertex
-  for ( int i = 0; i < startingMesh->vertices.size(); i++ ) {
+  for ( int i = 0; i < startingMesh->indices.size(); i++ ) {
     int vertMod = i % 3;  // Vertex position in triangle
     int nextIndex;
     int lastIndex;
@@ -158,15 +158,18 @@ Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions ) {
     }
 
     // get midpoint between this vertex & next index
-    nextVertex = Vertex::mid( startingMesh->vertices[nextIndex], startingMesh->vertices[i] );
+    nextVertex = Vertex::mid( startingMesh->vertices[startingMesh->indices[nextIndex]],
+                              startingMesh->vertices[startingMesh->indices[i]] );
     // get midpoint between this vertex & last index
-    lastVertex = Vertex::mid( startingMesh->vertices[lastIndex], startingMesh->vertices[i] );
+    lastVertex = Vertex::mid( startingMesh->vertices[startingMesh->indices[lastIndex]],
+                              startingMesh->vertices[startingMesh->indices[i]] );
 
     nextMesh->vertices.push_back( nextVertex );  // midpoint
     // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
     nextMesh->vertices.push_back( lastVertex );  // midpoint
     // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
-    nextMesh->vertices.push_back( startingMesh->vertices[i] );  // this vertex
+    nextMesh->vertices.push_back(
+        startingMesh->vertices[startingMesh->indices[i]] );  // this vertex
     // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
 
     // midpoint
@@ -194,27 +197,25 @@ Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions ) {
 
     // nextMesh->indices.push_back( uniqueVertices[startingMesh->vertices[i]] );
   }
+  Mesh *finalMesh = new Mesh();
+  for ( int i = 0; i < nextMesh->vertices.size(); i++ ) {
+    if ( uniqueVertices.count( nextMesh->vertices[i] ) == 0 ) {
+      uniqueVertices[nextMesh->vertices[i]] = static_cast<uint32_t>( finalMesh->vertices.size() );
+      finalMesh->vertices.push_back( nextMesh->vertices[i] );
+    }
+
+    finalMesh->indices.push_back( uniqueVertices[nextMesh->vertices[i]] );
+  }
 
   recursions--;
   if ( recursions == 0 ) {  // If we have finished the requested recursions
                             // return the last triangle in the chain
-    Mesh *finalMesh = new Mesh();
-    for ( int i = 0; i < nextMesh->vertices.size(); i++ ) {
-      if ( uniqueVertices.count( nextMesh->vertices[i] ) == 0 ) {
-        uniqueVertices[nextMesh->vertices[i]] = static_cast<uint32_t>( finalMesh->vertices.size() );
-        finalMesh->vertices.push_back( nextMesh->vertices[i] );
-      } else {
-        Logger::log( "Found existing index: ", Logger::WARNING );
-      }
-
-      finalMesh->indices.push_back( uniqueVertices[nextMesh->vertices[i]] );
-    }
     return finalMesh;
   }
 
   // Repeat for each vertex
   // Returning the results of our new triangle sierpinskied
-  return generate_sierpinski_triangle( nextMesh, recursions );
+  return generate_sierpinski_triangle( finalMesh, recursions );
 }
 
 }  // namespace Shapes

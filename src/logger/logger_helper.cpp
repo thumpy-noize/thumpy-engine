@@ -35,7 +35,7 @@ std::string log_level_to_string( LogLevel level ) {
   if ( ( level & WARNING ) != 0 ) {
     return "WARNING";
   }
-  if ( ( level & ERROR ) != 0 ) {
+  if ( ( level & ERROR_LOG ) != 0 ) {
     return "ERROR";
   }
   if ( ( level & CRITICAL ) != 0 ) {

@@ -1,10 +1,13 @@
 #include "vulkan_swap_chain.hpp"
 
+#include <vulkan/vulkan_core.h>
+
 #include <algorithm>  // Necessary for std::clamp
 #include <limits>
 
 #include "logger.hpp"
 #include "vulkan/vulkan_buffers.hpp"
+#include "vulkan/vulkan_helper.hpp"
 #include "vulkan/vulkan_image.hpp"
 
 namespace Thumpy {
@@ -77,7 +80,7 @@ void VulkanSwapChain::create_swap_chain() {
   extent = chosen_extent;
 }
 
-void VulkanSwapChain::recreate_swap_chain( VkImageView depthImageView ) {
+void VulkanSwapChain::recreate_swap_chain( VulkanImage *depthImage ) {
   Logger::log( "Recreating swap chain...", Logger::INFO );
   int width = 0, height = 0;
   glfwGetFramebufferSize( window_, &width, &height );
@@ -89,10 +92,12 @@ void VulkanSwapChain::recreate_swap_chain( VkImageView depthImageView ) {
   vkDeviceWaitIdle( vulkanDevice_->device );
 
   clear_swap_chain();
+  depthImage->destroy( vulkanDevice_->device, false );
 
   create_swap_chain();
   create_image_views();
-  Buffer::create_framebuffers( this, depthImageView, vulkanDevice_->device );
+  Image::create_depth_resources( depthImage, vulkanDevice_, extent );
+  Buffer::create_framebuffers( this, depthImage->imageView, vulkanDevice_->device );
 }
 
 void VulkanSwapChain::clear_swap_chain() {

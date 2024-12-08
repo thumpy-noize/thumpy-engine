@@ -24,7 +24,7 @@ class VulkanSwapChain {
   /**
    * @brief Recreate swap chain
    */
-  void recreate_swap_chain( VkImageView depthImageView );
+  void recreate_swap_chain( VulkanImage *depthImageView );
   /**
    * @brief Clear the swap chain
    */

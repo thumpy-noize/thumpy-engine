@@ -77,7 +77,7 @@ void VulkanRender::create_sync_objects() {
 void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
                                uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
                                std::vector<VkDescriptorSet> descriptorSets,
-                               VkImageView depthImageView ) {
+                               VulkanImage *depthImage ) {
   vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX );
 
   uint32_t imageIndex;
@@ -86,7 +86,7 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBu
                                            &imageIndex );
 
   if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
-    swapChain_->recreate_swap_chain( depthImageView );
+    swapChain_->recreate_swap_chain( depthImage );
     return;
   } else if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR ) {
     Logger::log( "Failed to acquire swap chain image!", Logger::CRITICAL );
@@ -143,7 +143,7 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBu
 
   if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_ ) {
     framebufferResized_ = false;
-    swapChain_->recreate_swap_chain( depthImageView );
+    swapChain_->recreate_swap_chain( depthImage );
   } else if ( result != VK_SUCCESS ) {
     Logger::log( "Failed to present swap chain image!", Logger::CRITICAL );
   }

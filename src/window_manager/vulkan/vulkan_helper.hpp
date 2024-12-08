@@ -9,18 +9,21 @@
  *
  */
 #pragma once
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <vulkan/vulkan_core.h>
 
 #include <array>
 #include <cstdint>
+#include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
+#include <optional>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "logger.hpp"
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
-#include <glm/glm.hpp>
-#include <optional>
-#include <vector>
 
 namespace Thumpy {
 namespace Core {
@@ -87,7 +90,12 @@ struct Vertex {
     Vertex vert;
     vert.pos = ( a.pos + b.pos ) / glm::vec3( 2 );
     vert.color = ( a.color + b.color ) / glm::vec3( 2 );
+    vert.texCoord = ( a.texCoord + b.texCoord ) / glm::vec2( 2 );
     return vert;
+  }
+
+  bool operator==( const Vertex &other ) const {
+    return pos == other.pos && color == other.color && texCoord == other.texCoord;
   }
 };
 
@@ -102,8 +110,15 @@ struct VulkanImage {
   VkDeviceMemory imageMemory;
   VkImageView imageView;
   VkSampler sampler;
-};
 
+  void destroy( VkDevice device, bool destroySampler = true ) {
+    if ( destroySampler ) vkDestroySampler( device, sampler, nullptr );
+    vkDestroyImageView( device, imageView, nullptr );
+    vkDestroyImage( device, image, nullptr );
+    vkFreeMemory( device, imageMemory, nullptr );
+  }
+};
+#include <unordered_map>
 class VulkanNotCompatible : public std::exception {
  private:
   std::string message_;
@@ -112,7 +127,7 @@ class VulkanNotCompatible : public std::exception {
   // Constructor accepts a const char* that is used to set
   // the exception message
   VulkanNotCompatible( const char *msg ) : message_( msg ) {
-    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR );
+    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR_LOG );
   }
 
   // Override the what() method to return our message
@@ -126,20 +141,58 @@ std::vector<const char *> get_required_extensions();
 uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
                            VkMemoryPropertyFlags properties );
 
+#pragma region Asset loading
+
+struct Texture {
+  unsigned char *pixels;
+  int width, height, channels;
+  VkDeviceSize imageSize;
+};
+Texture *load_texture( std::string filePath );
+void free_texture( Texture *texture );
+
+struct Mesh {
+  std::vector<Vertex> vertices;
+  std::vector<uint16_t> indices;
+};
+
+Mesh *load_mesh( std::string filePath );
+
+#pragma endregion Asset loading
+
+#pragma region Shapes
+
 namespace Shapes {
 
-std::vector<Vertex> generate_sierpinski_triangle( uint32_t recursions,
-                                                  std::vector<Vertex> startingTriangle );
-}
+Mesh *generate_triangle();
+
+Mesh *generate_square();
+
+Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions );
+}  // namespace Shapes
+
+#pragma endregion Shapes
 
 #pragma region Paths
 std::string get_exe_path();
 std::string get_assets_path();
 std::string get_shader_path();
 std::string get_texture_path();
+std::string get_model_path();
 #pragma endregion
 
 }  // namespace Vulkan
 }  // namespace Windows
 }  // namespace Core
 }  // namespace Thumpy
+
+namespace std {
+template <>
+struct hash<Thumpy::Core::Windows::Vulkan::Vertex> {
+  size_t operator()( Thumpy::Core::Windows::Vulkan::Vertex const &vertex ) const {
+    return ( ( hash<glm::vec3>()( vertex.pos ) ^ ( hash<glm::vec3>()( vertex.color ) << 1 ) ) >>
+             1 ) ^
+           ( hash<glm::vec2>()( vertex.texCoord ) << 1 );
+  }
+};
+}  // namespace std

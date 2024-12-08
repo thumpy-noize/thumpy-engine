@@ -14,6 +14,7 @@
 
 #include <vector>
 
+#include "vulkan/vulkan_helper.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_pipeline.hpp"
 #include "vulkan_swap_chain.hpp"
@@ -50,7 +51,7 @@ class VulkanRender {
    */
   void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
                    uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
-                   std::vector<VkDescriptorSet> descriptorSets, VkImageView depthImageView );
+                   std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage );
 
   void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
                               VulkanSwapChain *swapChain, VkBuffer vertexBuffer,

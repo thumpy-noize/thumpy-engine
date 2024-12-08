@@ -20,7 +20,7 @@ namespace Thumpy {
 namespace Core {
 namespace Logger {
 
-int term_log_vision = /* INFO | */ DEBUG | WARNING | ERROR | CRITICAL;
+int term_log_vision = /* INFO | */ DEBUG | WARNING | ERROR_LOG | CRITICAL;
 
 void log_to_terminal( const std::string &message, LogLevel level ) {
   if ( ( level & term_log_vision ) != 0 ) {
@@ -34,7 +34,7 @@ std::string terminal_color_from_level( LogLevel level ) {
     return color_code.append(
         "\033[41m\033[1m" );  // Red highlighted Background
   }
-  if ( ( level & ERROR ) != 0 ) {
+  if ( ( level & ERROR_LOG ) != 0 ) {
     return color_code.append( "\033[31m" );  // Red
   }
   if ( ( level & WARNING ) != 0 ) {

@@ -71,7 +71,7 @@ void VulkanWindow::init_vulkan() {
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
   // Create texture image / view / sampler
-  Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_ );
+  Image::create_texture_image( vulkanDevice_, &textureImage_, commandPool_, TEXTURE_PATH );
   Image::create_texture_image_view( vulkanDevice_->device, &textureImage_ );
   Image::create_texture_sampler( vulkanDevice_, &textureImage_ );
 
@@ -80,11 +80,17 @@ void VulkanWindow::init_vulkan() {
   // but it would be really cool if you fixed that)
   // vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
 
-  Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_, vertexBufferMemory_,
+  // mesh_ = Shapes::generate_triangle();
+  // mesh_ = Shapes::generate_square();
+  mesh_ = load_mesh( MODEL_PATH );
+
+  mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 2 );
+
+  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, vertexBufferMemory_,
                                 commandPool_ );
 
   // Create Index Buffer
-  Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_, indexBufferMemory_,
+  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, indexBufferMemory_,
                                commandPool_ );
 
   // Create uniform buffers
@@ -158,9 +164,9 @@ void VulkanWindow::deconstruct_window() {
 
 void VulkanWindow::loop() {
   Window::loop();
-  render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( vertices_.size() ), indexBuffer_,
-                       static_cast<uint32_t>( indices_.size() ), uniformBuffersMapped_,
-                       descriptorSets_, depthBuffer_.imageView );
+  render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( mesh_->vertices.size() ), indexBuffer_,
+                       static_cast<uint32_t>( mesh_->indices.size() ), uniformBuffersMapped_,
+                       descriptorSets_, &depthBuffer_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

@@ -8,18 +8,16 @@
  * @copyright Copyright (c) 2024
  *
  */
+#define STB_IMAGE_IMPLEMENTATION
 
 #include "vulkan_image.hpp"
+
+#include <stb_image.h>
+#include <vulkan/vulkan_core.h>
 
 #include <stdexcept>
 
 #include "logger_helper.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#include <vulkan/vulkan_core.h>
-
 #include "vulkan_buffers.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
@@ -33,41 +31,32 @@ namespace Vulkan {
 namespace Image {
 
 void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage,
-                           VkCommandPool commandPool ) {
-  Logger::log( "Loading texture: " + get_texture_path() + "vj_swirl.png", Logger::DEBUG );
-
-  int texWidth, texHeight, texChannels;
-  stbi_uc *pixels = stbi_load( std::string( get_texture_path() + "vj_swirl.png" ).c_str(),
-                               &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
-  VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-  if ( !pixels ) {
-    Logger::log( "Failed to load texture image!", Logger::CRITICAL );
-  }
+                           VkCommandPool commandPool, std::string filePath ) {
+  Texture *texture = load_texture( filePath );
 
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
 
-  Buffer::create_buffer( imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+  Buffer::create_buffer( texture->imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                          stagingBuffer, stagingBufferMemory, vulkanDevice );
 
   void *data;
-  vkMapMemory( vulkanDevice->device, stagingBufferMemory, 0, imageSize, 0, &data );
-  memcpy( data, pixels, static_cast<size_t>( imageSize ) );
+  vkMapMemory( vulkanDevice->device, stagingBufferMemory, 0, texture->imageSize, 0, &data );
+  memcpy( data, texture->pixels, static_cast<size_t>( texture->imageSize ) );
   vkUnmapMemory( vulkanDevice->device, stagingBufferMemory );
 
-  stbi_image_free( pixels );
+  free_texture( texture );
 
-  create_image( texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+  create_image( texture->width, texture->height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, vulkanDevice );
 
   transition_image_layout( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vulkanDevice, commandPool );
 
-  copy_buffer_to_image( stagingBuffer, textureImage->image, static_cast<uint32_t>( texWidth ),
-                        static_cast<uint32_t>( texHeight ), vulkanDevice, commandPool );
+  copy_buffer_to_image( stagingBuffer, textureImage->image, static_cast<uint32_t>( texture->width ),
+                        static_cast<uint32_t>( texture->height ), vulkanDevice, commandPool );
 
   transition_image_layout( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

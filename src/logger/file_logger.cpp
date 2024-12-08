@@ -29,7 +29,7 @@ void start_log_file() {
   // Open log file
   log_file->open( log_path, std::ofstream::out | std::ofstream::trunc );
   if ( !log_file->is_open() ) {
-    log( "Log file failed to open.", ERROR );
+    log( "Log file failed to open.", ERROR_LOG );
   }
 }
 

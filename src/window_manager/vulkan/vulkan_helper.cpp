@@ -165,38 +165,11 @@ Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions ) {
                               startingMesh->vertices[startingMesh->indices[i]] );
 
     nextMesh->vertices.push_back( nextVertex );  // midpoint
-    // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
     nextMesh->vertices.push_back( lastVertex );  // midpoint
-    // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
     nextMesh->vertices.push_back(
         startingMesh->vertices[startingMesh->indices[i]] );  // this vertex
-    // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
-
-    // midpoint
-    // if ( uniqueVertices.count( nextVertex ) == 0 ) {
-    //   uniqueVertices[nextVertex] = static_cast<uint32_t>( nextMesh->vertices.size() );
-    //   nextMesh->vertices.push_back( nextVertex );
-    // }
-
-    // nextMesh->indices.push_back( uniqueVertices[nextVertex] );
-
-    // // midpoint
-    // if ( uniqueVertices.count( lastVertex ) == 0 ) {
-    //   uniqueVertices[lastVertex] = static_cast<uint32_t>( nextMesh->vertices.size() );
-    //   nextMesh->vertices.push_back( lastVertex );
-    // }
-
-    // nextMesh->indices.push_back( uniqueVertices[lastVertex] );
-
-    // // this vert
-    // if ( uniqueVertices.count( startingMesh->vertices[i] ) == 0 ) {
-    //   uniqueVertices[startingMesh->vertices[i]] =
-    //       static_cast<uint32_t>( nextMesh->vertices.size() );
-    //   nextMesh->vertices.push_back( startingMesh->vertices[i] );
-    // }
-
-    // nextMesh->indices.push_back( uniqueVertices[startingMesh->vertices[i]] );
   }
+
   Mesh *finalMesh = new Mesh();
   for ( int i = 0; i < nextMesh->vertices.size(); i++ ) {
     if ( uniqueVertices.count( nextMesh->vertices[i] ) == 0 ) {

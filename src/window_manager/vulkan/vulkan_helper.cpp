@@ -2,6 +2,7 @@
 // #define STB_IMAGE_IMPLEMENTATION
 
 #include <string>
+#include <vector>
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include <GLFW/glfw3.h>
@@ -86,6 +87,27 @@ uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
 
 namespace Shapes {
 
+Mesh *generate_triangle() {
+  Mesh *mesh = new Mesh();
+  mesh->vertices = { { { 0.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+                     { { 0.5f, 0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+                     { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } } };
+  mesh->indices = { 0, 1, 2 };
+  return mesh;
+
+}  // namespace Shapes
+
+Mesh *generate_square() {
+  Mesh *mesh = new Mesh();
+  mesh->vertices = { { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
+                     { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
+                     { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+                     { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } } };
+  mesh->indices = { 0, 1, 2, 2, 3, 0 };
+
+  return mesh;
+}
+
 /**
  * @brief Creates a sierpinski triangle from list of triangles
  * shout out to jacob keller for the guidance -
@@ -94,15 +116,24 @@ namespace Shapes {
  * @param startingTriangle starting triangles
  * @return std::vector<Vertex> sierpinski triangles
  */
-std::vector<Vertex> generate_sierpinski_triangle( uint32_t recursions,
-                                                  std::vector<Vertex> startingTriangle ) {
+Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions ) {
   Logger::log( "Generating sierpinski - recursions left: " + std::to_string( recursions ) + "",
                Logger::INFO );
 
-  std::vector<Vertex> nextTriangle;
+  /**
+   * For each index
+   * make a triangle out of mid points
+   * add vertices to new map if they don't already exist in that map
+   * add indexes ass you check / add verts
+   */
+
+  // std::vector<Vertex> nextTriangle;
+  Mesh *nextMesh = new Mesh();
+  nextMesh->indices = startingMesh->indices;
+  std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
   // Create a new triangle for each vertex
-  for ( int i = 0; i < startingTriangle.size(); i++ ) {
+  for ( int i = 0; i < startingMesh->vertices.size(); i++ ) {
     int vertMod = i % 3;  // Vertex position in triangle
     int nextIndex;
     int lastIndex;
@@ -127,24 +158,63 @@ std::vector<Vertex> generate_sierpinski_triangle( uint32_t recursions,
     }
 
     // get midpoint between this vertex & next index
-    nextVertex = Vertex::mid( startingTriangle[nextIndex], startingTriangle[i] );
+    nextVertex = Vertex::mid( startingMesh->vertices[nextIndex], startingMesh->vertices[i] );
     // get midpoint between this vertex & last index
-    lastVertex = Vertex::mid( startingTriangle[lastIndex], startingTriangle[i] );
+    lastVertex = Vertex::mid( startingMesh->vertices[lastIndex], startingMesh->vertices[i] );
 
-    nextTriangle.push_back( nextVertex );           // midpoint
-    nextTriangle.push_back( lastVertex );           // midpoint
-    nextTriangle.push_back( startingTriangle[i] );  // this vertex
+    nextMesh->vertices.push_back( nextVertex );  // midpoint
+    // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
+    nextMesh->vertices.push_back( lastVertex );  // midpoint
+    // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
+    nextMesh->vertices.push_back( startingMesh->vertices[i] );  // this vertex
+    // nextMesh->indices.push_back( nextMesh->indices.size() );    // midpoint
+
+    // midpoint
+    // if ( uniqueVertices.count( nextVertex ) == 0 ) {
+    //   uniqueVertices[nextVertex] = static_cast<uint32_t>( nextMesh->vertices.size() );
+    //   nextMesh->vertices.push_back( nextVertex );
+    // }
+
+    // nextMesh->indices.push_back( uniqueVertices[nextVertex] );
+
+    // // midpoint
+    // if ( uniqueVertices.count( lastVertex ) == 0 ) {
+    //   uniqueVertices[lastVertex] = static_cast<uint32_t>( nextMesh->vertices.size() );
+    //   nextMesh->vertices.push_back( lastVertex );
+    // }
+
+    // nextMesh->indices.push_back( uniqueVertices[lastVertex] );
+
+    // // this vert
+    // if ( uniqueVertices.count( startingMesh->vertices[i] ) == 0 ) {
+    //   uniqueVertices[startingMesh->vertices[i]] =
+    //       static_cast<uint32_t>( nextMesh->vertices.size() );
+    //   nextMesh->vertices.push_back( startingMesh->vertices[i] );
+    // }
+
+    // nextMesh->indices.push_back( uniqueVertices[startingMesh->vertices[i]] );
   }
 
   recursions--;
   if ( recursions == 0 ) {  // If we have finished the requested recursions
-    // return the last triangle in the chain
-    return nextTriangle;
+                            // return the last triangle in the chain
+    Mesh *finalMesh = new Mesh();
+    for ( int i = 0; i < nextMesh->vertices.size(); i++ ) {
+      if ( uniqueVertices.count( nextMesh->vertices[i] ) == 0 ) {
+        uniqueVertices[nextMesh->vertices[i]] = static_cast<uint32_t>( finalMesh->vertices.size() );
+        finalMesh->vertices.push_back( nextMesh->vertices[i] );
+      } else {
+        Logger::log( "Found existing index: ", Logger::WARNING );
+      }
+
+      finalMesh->indices.push_back( uniqueVertices[nextMesh->vertices[i]] );
+    }
+    return finalMesh;
   }
 
   // Repeat for each vertex
   // Returning the results of our new triangle sierpinskied
-  return generate_sierpinski_triangle( recursions, nextTriangle );
+  return generate_sierpinski_triangle( nextMesh, recursions );
 }
 
 }  // namespace Shapes

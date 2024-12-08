@@ -90,6 +90,7 @@ struct Vertex {
     Vertex vert;
     vert.pos = ( a.pos + b.pos ) / glm::vec3( 2 );
     vert.color = ( a.color + b.color ) / glm::vec3( 2 );
+    vert.texCoord = ( a.texCoord + b.texCoord ) / glm::vec2( 2 );
     return vert;
   }
 
@@ -140,12 +141,6 @@ std::vector<const char *> get_required_extensions();
 uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
                            VkMemoryPropertyFlags properties );
 
-namespace Shapes {
-
-std::vector<Vertex> generate_sierpinski_triangle( uint32_t recursions,
-                                                  std::vector<Vertex> startingTriangle );
-}
-
 #pragma region Asset loading
 
 struct Texture {
@@ -164,6 +159,19 @@ struct Mesh {
 Mesh *load_mesh( std::string filePath );
 
 #pragma endregion Asset loading
+
+#pragma region Shapes
+
+namespace Shapes {
+
+Mesh *generate_triangle();
+
+Mesh *generate_square();
+
+Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions );
+}  // namespace Shapes
+
+#pragma endregion Shapes
 
 #pragma region Paths
 std::string get_exe_path();

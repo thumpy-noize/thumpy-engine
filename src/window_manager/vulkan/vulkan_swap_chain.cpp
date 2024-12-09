@@ -92,7 +92,7 @@ void VulkanSwapChain::recreate_swap_chain( VulkanImage *depthImage ) {
   vkDeviceWaitIdle( vulkanDevice_->device );
 
   clear_swap_chain();
-  depthImage->destroy( vulkanDevice_->device, false );
+  depthImage->destroy( vulkanDevice_->device );
 
   create_swap_chain();
   create_image_views();

@@ -24,12 +24,12 @@ namespace Windows {
 namespace Vulkan {
 namespace Image {
 
-void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage,
-                           VkCommandPool commandPool, std::string filePath );
-
 void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
                    VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                    VulkanImage *textureImage, VulkanDevice *vulkanDevice );
+
+void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage,
+                           VkCommandPool commandPool, std::string filePath );
 
 void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
                               VkImageLayout newLayout, VulkanDevice *vulkanDevice,
@@ -41,9 +41,9 @@ void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint3
 VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
                                VkImageAspectFlags aspectFlags );
 
-void create_texture_image_view( VkDevice device, VulkanImage *textureImage );
+void create_texture_image_view( VkDevice device, VulkanTextureImage *textureImage );
 
-void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanImage *textureImage );
+void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage );
 
 void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevice,
                              VkExtent2D swapChainExtent );

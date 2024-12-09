@@ -72,7 +72,7 @@ void VulkanWindow::init_vulkan() {
   Construct::command_pool( vulkanDevice_, commandPool_ );
 
   // Create texture image / view / sampler
-  textureImage_ = new VulkanImage();
+  textureImage_ = new VulkanTextureImage();
   Image::create_texture_image( vulkanDevice_, textureImage_, commandPool_, TEXTURE_PATH );
   Image::create_texture_image_view( vulkanDevice_->device, textureImage_ );
   Image::create_texture_sampler( vulkanDevice_, textureImage_ );

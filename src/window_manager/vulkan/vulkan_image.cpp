@@ -30,7 +30,34 @@ namespace Vulkan {
 
 namespace Image {
 
-void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage,
+void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+                   VulkanImage *textureImage, VulkanDevice *vulkanDevice ) {
+  VkImageCreateInfo imageInfo = Initializer::image_info( width, height, format, tiling, usage );
+
+  if ( vkCreateImage( vulkanDevice->device, &imageInfo, nullptr, &textureImage->image ) !=
+       VK_SUCCESS ) {
+    Logger::log( "Failed to create image!", Logger::CRITICAL );
+  }
+
+  VkMemoryRequirements memRequirements;
+  vkGetImageMemoryRequirements( vulkanDevice->device, textureImage->image, &memRequirements );
+
+  VkMemoryAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  allocInfo.allocationSize = memRequirements.size;
+  allocInfo.memoryTypeIndex =
+      find_memory_type( vulkanDevice->physicalDevice, memRequirements.memoryTypeBits, properties );
+
+  if ( vkAllocateMemory( vulkanDevice->device, &allocInfo, nullptr, &textureImage->imageMemory ) !=
+       VK_SUCCESS ) {
+    Logger::log( "failed to allocate image memory!", Logger::CRITICAL );
+  }
+
+  vkBindImageMemory( vulkanDevice->device, textureImage->image, textureImage->imageMemory, 0 );
+}
+
+void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage,
                            VkCommandPool commandPool, std::string filePath ) {
   Texture *texture = load_texture( filePath );
 
@@ -64,33 +91,6 @@ void create_texture_image( VulkanDevice *vulkanDevice, VulkanImage *textureImage
 
   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
-}
-
-void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                   VulkanImage *textureImage, VulkanDevice *vulkanDevice ) {
-  VkImageCreateInfo imageInfo = Initializer::image_info( width, height, format, tiling, usage );
-
-  if ( vkCreateImage( vulkanDevice->device, &imageInfo, nullptr, &textureImage->image ) !=
-       VK_SUCCESS ) {
-    Logger::log( "Failed to create image!", Logger::CRITICAL );
-  }
-
-  VkMemoryRequirements memRequirements;
-  vkGetImageMemoryRequirements( vulkanDevice->device, textureImage->image, &memRequirements );
-
-  VkMemoryAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-  allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex =
-      find_memory_type( vulkanDevice->physicalDevice, memRequirements.memoryTypeBits, properties );
-
-  if ( vkAllocateMemory( vulkanDevice->device, &allocInfo, nullptr, &textureImage->imageMemory ) !=
-       VK_SUCCESS ) {
-    Logger::log( "failed to allocate image memory!", Logger::CRITICAL );
-  }
-
-  vkBindImageMemory( vulkanDevice->device, textureImage->image, textureImage->imageMemory, 0 );
 }
 
 void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
@@ -173,13 +173,13 @@ VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
   return imageView;
 }
 
-void create_texture_image_view( VkDevice device, VulkanImage *textureImage ) {
+void create_texture_image_view( VkDevice device, VulkanTextureImage *textureImage ) {
   // Create image view info
   textureImage->imageView = create_image_view( device, textureImage->image, VK_FORMAT_R8G8B8A8_SRGB,
                                                VK_IMAGE_ASPECT_COLOR_BIT );
 }
 
-void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanImage *textureImage ) {
+void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage ) {
   VkPhysicalDeviceProperties properties{};
   vkGetPhysicalDeviceProperties( vulkanDevice->physicalDevice, &properties );
 

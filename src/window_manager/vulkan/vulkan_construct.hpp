@@ -47,7 +47,7 @@ void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPo
 void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout,
                       VkDescriptorPool &descriptorPool,
                       std::vector<VkDescriptorSet> &descriptorSets,
-                      std::vector<VkBuffer> &uniformBuffers, VulkanImage *textureImage,
+                      std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
                       int maxFramesInFlight );
 
 #pragma endregion Descriptor

@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "vulkan/vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
 #include "window.hpp"
 
@@ -69,7 +70,7 @@ class VulkanWindow : public Window {
   VulkanDevice *vulkanDevice_;
   VulkanSwapChain *swapChain_;
   VulkanPipeline *pipeline_;
-  VulkanImage *textureImage_;
+  VulkanTextureImage *textureImage_;
   VulkanImage *depthBuffer_;
   VulkanRender *render_;
   Mesh *mesh_;

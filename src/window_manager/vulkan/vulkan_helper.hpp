@@ -109,30 +109,22 @@ struct VulkanImage {
   VkImage image;
   VkDeviceMemory imageMemory;
   VkImageView imageView;
-  VkSampler sampler;
 
-  void destroy( VkDevice device, bool destroySampler = true ) {
-    if ( destroySampler ) vkDestroySampler( device, sampler, nullptr );
+  void destroy( VkDevice device ) {
     vkDestroyImageView( device, imageView, nullptr );
     vkDestroyImage( device, image, nullptr );
     vkFreeMemory( device, imageMemory, nullptr );
   }
 };
 
-#include <unordered_map>
-class VulkanNotCompatible : public std::exception {
- private:
-  std::string message_;
+struct VulkanTextureImage : VulkanImage {
+  VkSampler sampler;
+  uint32_t mipLevels;
 
- public:
-  // Constructor accepts a const char* that is used to set
-  // the exception message
-  VulkanNotCompatible( const char *msg ) : message_( msg ) {
-    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR_LOG );
+  void destroy( VkDevice device ) {
+    vkDestroySampler( device, sampler, nullptr );
+    VulkanImage::destroy( device );
   }
-
-  // Override the what() method to return our message
-  const char *what() const throw() { return message_.c_str(); }
 };
 
 bool check_validation_layer_support();
@@ -149,6 +141,7 @@ struct Texture {
   int width, height, channels;
   VkDeviceSize imageSize;
 };
+
 Texture *load_texture( std::string filePath );
 void free_texture( Texture *texture );
 
@@ -175,11 +168,32 @@ Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions );
 #pragma endregion Shapes
 
 #pragma region Paths
+
 std::string get_exe_path();
 std::string get_assets_path();
 std::string get_shader_path();
 std::string get_texture_path();
 std::string get_model_path();
+
+#pragma endregion
+
+class VulkanNotCompatible : public std::exception {
+ private:
+  std::string message_;
+
+ public:
+  // Constructor accepts a const char* that is used to set
+  // the exception message
+  VulkanNotCompatible( const char *msg ) : message_( msg ) {
+    Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR_LOG );
+  }
+
+  // Override the what() method to return our message
+  const char *what() const throw() { return message_.c_str(); }
+};
+
+#pragma region Exceptions
+
 #pragma endregion
 
 }  // namespace Vulkan

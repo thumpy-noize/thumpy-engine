@@ -8,9 +8,11 @@
  * @copyright Copyright (c) 2024
  *
  */
-#define STB_IMAGE_IMPLEMENTATION
+#include <sys/types.h>
 
-#include "vulkan_image.hpp"
+#include <cstdint>
+#include <string>
+#define STB_IMAGE_IMPLEMENTATION
 
 #include <stb_image.h>
 #include <vulkan/vulkan_core.h>
@@ -21,6 +23,7 @@
 #include "vulkan_buffers.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
+#include "vulkan_image.hpp"
 #include "vulkan_initializers.hpp"
 
 namespace Thumpy {
@@ -30,10 +33,11 @@ namespace Vulkan {
 
 namespace Image {
 
-void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+void create_image( uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format,
+                   VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                    VulkanImage *textureImage, VulkanDevice *vulkanDevice ) {
   VkImageCreateInfo imageInfo = Initializer::image_info( width, height, format, tiling, usage );
+  imageInfo.mipLevels = mipLevels;
 
   if ( vkCreateImage( vulkanDevice->device, &imageInfo, nullptr, &textureImage->image ) !=
        VK_SUCCESS ) {
@@ -60,6 +64,9 @@ void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTili
 void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage,
                            VkCommandPool commandPool, std::string filePath ) {
   Texture *texture = load_texture( filePath );
+  textureImage->mipLevels = static_cast<uint32_t>( std::floor(
+                                std::log2( std::max( texture->height, texture->width ) ) ) ) +
+                            1;
 
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
@@ -75,19 +82,21 @@ void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textu
 
   free_texture( texture );
 
-  create_image( texture->width, texture->height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+  create_image( texture->width, texture->height, textureImage->mipLevels, VK_FORMAT_R8G8B8A8_SRGB,
+                VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, vulkanDevice );
 
   transition_image_layout( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vulkanDevice, commandPool );
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vulkanDevice, commandPool,
+                           textureImage->mipLevels );
 
   copy_buffer_to_image( stagingBuffer, textureImage->image, static_cast<uint32_t>( texture->width ),
                         static_cast<uint32_t>( texture->height ), vulkanDevice, commandPool );
 
   transition_image_layout( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vulkanDevice, commandPool );
+                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vulkanDevice, commandPool, 1 );
 
   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
@@ -95,7 +104,7 @@ void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textu
 
 void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
                               VkImageLayout newLayout, VulkanDevice *vulkanDevice,
-                              VkCommandPool commandPool ) {
+                              VkCommandPool commandPool, uint32_t mipLevels ) {
   VkCommandBuffer commandBuffer =
       Buffer::begin_single_time_commands( vulkanDevice->device, commandPool );
 
@@ -153,7 +162,7 @@ void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint3
 }
 
 VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
-                               VkImageAspectFlags aspectFlags ) {
+                               VkImageAspectFlags aspectFlags, uint32_t mipLevels ) {
   VkImageViewCreateInfo viewInfo{};
   viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   viewInfo.image = image;
@@ -161,7 +170,7 @@ VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
   viewInfo.format = format;
   viewInfo.subresourceRange.aspectMask = aspectFlags;
   viewInfo.subresourceRange.baseMipLevel = 0;
-  viewInfo.subresourceRange.levelCount = 1;
+  viewInfo.subresourceRange.levelCount = mipLevels;
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = 1;
 
@@ -176,7 +185,7 @@ VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
 void create_texture_image_view( VkDevice device, VulkanTextureImage *textureImage ) {
   // Create image view info
   textureImage->imageView = create_image_view( device, textureImage->image, VK_FORMAT_R8G8B8A8_SRGB,
-                                               VK_IMAGE_ASPECT_COLOR_BIT );
+                                               VK_IMAGE_ASPECT_COLOR_BIT, textureImage->mipLevels );
 }
 
 void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage ) {
@@ -216,12 +225,12 @@ void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevic
                              VkExtent2D swapChainExtent ) {
   VkFormat depthFormat = find_depth_format( vulkanDevice->physicalDevice );
 
-  create_image( swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                depthBuffer, vulkanDevice );
+  create_image( swapChainExtent.width, swapChainExtent.height, 1, depthFormat,
+                VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthBuffer, vulkanDevice );
 
   depthBuffer->imageView = create_image_view( vulkanDevice->device, depthBuffer->image, depthFormat,
-                                              VK_IMAGE_ASPECT_DEPTH_BIT );
+                                              VK_IMAGE_ASPECT_DEPTH_BIT, 1 );
 }
 
 VkFormat find_supported_format( const std::vector<VkFormat> &candidates, VkImageTiling tiling,

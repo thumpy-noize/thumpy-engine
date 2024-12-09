@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <cstdint>
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,8 +25,8 @@ namespace Windows {
 namespace Vulkan {
 namespace Image {
 
-void create_image( uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+void create_image( uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format,
+                   VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                    VulkanImage *textureImage, VulkanDevice *vulkanDevice );
 
 void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage,
@@ -33,13 +34,13 @@ void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textu
 
 void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
                               VkImageLayout newLayout, VulkanDevice *vulkanDevice,
-                              VkCommandPool commandPool );
+                              VkCommandPool commandPool, uint32_t mipLevels );
 
 void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
                            VulkanDevice *vulkanDevice, VkCommandPool commandPool );
 
 VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
-                               VkImageAspectFlags aspectFlags );
+                               VkImageAspectFlags aspectFlags, uint32_t mipLevels );
 
 void create_texture_image_view( VkDevice device, VulkanTextureImage *textureImage );
 

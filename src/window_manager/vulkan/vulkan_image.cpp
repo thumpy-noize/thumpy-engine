@@ -36,7 +36,8 @@ namespace Image {
 void create_image( uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format,
                    VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                    VulkanImage *textureImage, VulkanDevice *vulkanDevice ) {
-  VkImageCreateInfo imageInfo = Initializer::image_info( width, height, format, tiling, usage );
+  VkImageCreateInfo imageInfo =
+      Initializer::image_info( width, height, format, tiling, usage, mipLevels );
   imageInfo.mipLevels = mipLevels;
 
   if ( vkCreateImage( vulkanDevice->device, &imageInfo, nullptr, &textureImage->image ) !=
@@ -103,6 +104,7 @@ void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textu
 
   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
+
   generate_mipmaps( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB, texture->width, texture->height,
                     textureImage->mipLevels, vulkanDevice, commandPool );
 }
@@ -113,7 +115,8 @@ void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldL
   VkCommandBuffer commandBuffer =
       Buffer::begin_single_time_commands( vulkanDevice->device, commandPool );
 
-  VkImageMemoryBarrier barrier = Initializer::image_memory_barrier( image, oldLayout, newLayout );
+  VkImageMemoryBarrier barrier =
+      Initializer::image_memory_barrier( image, oldLayout, newLayout, mipLevels );
 
   VkPipelineStageFlags sourceStage;
   VkPipelineStageFlags destinationStage;

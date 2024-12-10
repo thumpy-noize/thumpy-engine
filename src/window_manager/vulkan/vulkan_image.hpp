@@ -56,6 +56,9 @@ VkFormat find_depth_format( VkPhysicalDevice physicalDevice );
 
 bool has_stencil_component( VkFormat format );
 
+void generate_mipmaps( VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight,
+                       uint32_t mipLevels, VulkanDevice *vulkanDevice, VkCommandPool commandPool );
+
 }  // namespace Image
 }  // namespace Vulkan
 }  // namespace Windows

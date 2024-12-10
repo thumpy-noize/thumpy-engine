@@ -228,14 +228,15 @@ inline VkFenceCreateInfo fence_info() {
 }
 
 inline VkImageCreateInfo image_info( uint32_t width, uint32_t height, VkFormat format,
-                                     VkImageTiling tiling, VkImageUsageFlags usage ) {
+                                     VkImageTiling tiling, VkImageUsageFlags usage,
+                                     uint32_t mipLevels ) {
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
   imageInfo.extent.width = width;
   imageInfo.extent.height = height;
   imageInfo.extent.depth = 1;
-  imageInfo.mipLevels = 1;
+  imageInfo.mipLevels = mipLevels;
   imageInfo.arrayLayers = 1;
   imageInfo.format = format;
   imageInfo.tiling = tiling;
@@ -247,7 +248,7 @@ inline VkImageCreateInfo image_info( uint32_t width, uint32_t height, VkFormat f
 }
 
 inline VkImageMemoryBarrier image_memory_barrier( VkImage image, VkImageLayout oldLayout,
-                                                  VkImageLayout newLayout ) {
+                                                  VkImageLayout newLayout, uint32_t mipLevels ) {
   VkImageMemoryBarrier barrier{};
   barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
   barrier.oldLayout = oldLayout;
@@ -259,7 +260,7 @@ inline VkImageMemoryBarrier image_memory_barrier( VkImage image, VkImageLayout o
   barrier.image = image;
   barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
   barrier.subresourceRange.baseMipLevel = 0;
-  barrier.subresourceRange.levelCount = 1;
+  barrier.subresourceRange.levelCount = mipLevels;
   barrier.subresourceRange.baseArrayLayer = 0;
   barrier.subresourceRange.layerCount = 1;
 

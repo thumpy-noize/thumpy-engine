@@ -15,11 +15,12 @@
 
 #include <vector>
 
-#include "vulkan_device.hpp"
+#include "vulkan/vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
-#include "vulkan_render.hpp"
-#include "vulkan_swap_chain.hpp"
 #include "window.hpp"
+
+class VulkanDevice;
+class VulkanRender;
 
 namespace Thumpy {
 namespace Core {
@@ -68,10 +69,11 @@ class VulkanWindow : public Window {
 
   VulkanDevice *vulkanDevice_;
   VulkanSwapChain *swapChain_;
-  VulkanPipeline pipeline_;
-  VulkanImage textureImage_;
-  VulkanImage depthBuffer_;
+  VulkanPipeline *pipeline_;
+  VulkanTextureImage *textureImage_;
+  VulkanImage *depthBuffer_;
   VulkanRender *render_;
+  Mesh *mesh_;
 
   VkCommandPool commandPool_;
   std::vector<VkCommandBuffer> commandBuffers_;
@@ -81,8 +83,6 @@ class VulkanWindow : public Window {
   std::vector<VkBuffer> uniformBuffers_;
   std::vector<VkDeviceMemory> uniformBuffersMemory_;
   std::vector<void *> uniformBuffersMapped_;
-
-  Mesh *mesh_;
 
   VkBuffer vertexBuffer_;
   VkDeviceMemory vertexBufferMemory_;

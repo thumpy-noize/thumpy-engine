@@ -34,8 +34,8 @@ static std::vector<char> read_file( const std::string &filename ) {
   return buffer;
 }
 
-VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vulkanDevice,
-                                         VkDescriptorSetLayout descriptorSetLayout ) {
+VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vulkanDevice,
+                                          VkDescriptorSetLayout descriptorSetLayout ) {
   Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
   auto vertShaderCode = read_file( get_shader_path() + "texture.vert.spv" );
   auto fragShaderCode = read_file( get_shader_path() + +"texture.frag.spv" );
@@ -127,12 +127,12 @@ VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vu
 
   // ### pipeline layout ###
 
-  VulkanPipeline pipeline;
+  VulkanPipeline *pipeline = new VulkanPipeline();
   VkPipelineLayoutCreateInfo pipelineLayoutInfo =
       Initializer::pipeline_layout_info( descriptorSetLayout );
 
   if ( vkCreatePipelineLayout( vulkanDevice, &pipelineLayoutInfo, nullptr,
-                               &pipeline.pipelineLayout ) != VK_SUCCESS ) {
+                               &pipeline->pipelineLayout ) != VK_SUCCESS ) {
     throw std::runtime_error( "failed to create pipeline layout!" );
   }
 
@@ -148,14 +148,14 @@ VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vu
   pipelineInfo.pDepthStencilState = &depthStencil;  // Optional
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = &dynamicState;
-  pipelineInfo.layout = pipeline.pipelineLayout;
+  pipelineInfo.layout = pipeline->pipelineLayout;
   pipelineInfo.renderPass = swapChain->renderPass;
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
   pipelineInfo.basePipelineIndex = -1;               // Optional
 
   if ( vkCreateGraphicsPipelines( vulkanDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
-                                  &pipeline.graphicsPipeline ) != VK_SUCCESS ) {
+                                  &pipeline->graphicsPipeline ) != VK_SUCCESS ) {
     Logger::log( "Failed to create graphics pipeline!", Logger::CRITICAL );
   }
 
@@ -166,9 +166,9 @@ VulkanPipeline create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vu
   return pipeline;
 }
 
-void destroy_graphics_pipeline( VkDevice device, VulkanPipeline pipeline ) {
-  vkDestroyPipeline( device, pipeline.graphicsPipeline, nullptr );
-  vkDestroyPipelineLayout( device, pipeline.pipelineLayout, nullptr );
+void destroy_graphics_pipeline( VkDevice device, VulkanPipeline *pipeline ) {
+  vkDestroyPipeline( device, pipeline->graphicsPipeline, nullptr );
+  vkDestroyPipelineLayout( device, pipeline->pipelineLayout, nullptr );
 }
 
 VkShaderModule create_shader_module( const std::vector<char> &code, VkDevice vulkanDevice ) {

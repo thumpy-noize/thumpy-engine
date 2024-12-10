@@ -92,7 +92,7 @@ void VulkanSwapChain::recreate_swap_chain( VulkanImage *depthImage ) {
   vkDeviceWaitIdle( vulkanDevice_->device );
 
   clear_swap_chain();
-  depthImage->destroy( vulkanDevice_->device, false );
+  depthImage->destroy( vulkanDevice_->device );
 
   create_swap_chain();
   create_image_views();
@@ -189,7 +189,7 @@ void VulkanSwapChain::create_image_views() {
   for ( size_t i = 0; i < swapChainImages_.size(); i++ ) {
     swapChainImageViews[i] =
         Image::create_image_view( vulkanDevice_->device, swapChainImages_[i], swapChainImageFormat,
-                                  VK_IMAGE_ASPECT_COLOR_BIT );
+                                  VK_IMAGE_ASPECT_COLOR_BIT, 1 );
   }
 }
 

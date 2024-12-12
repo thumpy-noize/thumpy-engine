@@ -83,22 +83,40 @@ uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
   return 0;
 }
 
-VkSampleCountFlagBits get_max_usable_sample_count( VkPhysicalDevice physicalDevice )
-{
-      VkPhysicalDeviceProperties physicalDeviceProperties;
-    vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+VkSampleCountFlagBits get_max_usable_sample_count( VkPhysicalDevice physicalDevice ) {
+  VkPhysicalDeviceProperties physicalDeviceProperties;
+  vkGetPhysicalDeviceProperties( physicalDevice, &physicalDeviceProperties );
 
-    VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
-    if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
-    if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
-    if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
-    if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
-    if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
-    if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+  VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts &
+                              physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+  if ( counts & VK_SAMPLE_COUNT_64_BIT ) {
+    Logger::log( "Sample count: 64 bits", Logger::WARNING );
+    return VK_SAMPLE_COUNT_64_BIT;
+  }
+  if ( counts & VK_SAMPLE_COUNT_32_BIT ) {
+    Logger::log( "Sample count: 32 bits", Logger::WARNING );
+    return VK_SAMPLE_COUNT_32_BIT;
+  }
+  if ( counts & VK_SAMPLE_COUNT_16_BIT ) {
+    Logger::log( "Sample count: 16 bits", Logger::WARNING );
+    return VK_SAMPLE_COUNT_16_BIT;
+  }
+  if ( counts & VK_SAMPLE_COUNT_8_BIT ) {
+    Logger::log( "Sample count: 8 bits", Logger::WARNING );
+    return VK_SAMPLE_COUNT_8_BIT;
+  }
+  if ( counts & VK_SAMPLE_COUNT_4_BIT ) {
+    Logger::log( "Sample count: 4 bits", Logger::WARNING );
+    return VK_SAMPLE_COUNT_4_BIT;
+  }
+  if ( counts & VK_SAMPLE_COUNT_2_BIT ) {
+    Logger::log( "Sample count: 2 bits", Logger::WARNING );
+    return VK_SAMPLE_COUNT_2_BIT;
+  }
 
-    return VK_SAMPLE_COUNT_1_BIT;
+  Logger::log( "Sample count: 1 bits", Logger::WARNING );
+  return VK_SAMPLE_COUNT_1_BIT;
 }
-
 
 #pragma region Shape generation
 

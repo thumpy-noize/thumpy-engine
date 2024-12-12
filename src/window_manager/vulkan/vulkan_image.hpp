@@ -64,8 +64,8 @@ bool has_stencil_component( VkFormat format );
 void generate_mipmaps( VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight,
                        uint32_t mipLevels, VulkanDevice *vulkanDevice, VkCommandPool commandPool );
 
-void create_color_resources( VulkanImage *msaaColorBuffer, VulkanSwapChain *swapChain,
-                             VulkanDevice *vulkanDevice );
+void create_color_resources( VulkanImage *msaaColorBuffer, VulkanDevice *vulkanDevice,
+                             VulkanSwapChain *swapChain );
 
 }  // namespace Image
 }  // namespace Vulkan

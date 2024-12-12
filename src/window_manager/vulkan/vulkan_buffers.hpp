@@ -26,7 +26,8 @@ void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropert
 void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
                   VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
-void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView, VkDevice device );
+void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView,
+                          VkImageView colorImageView, VkDevice device );
 
 void create_vertex_buffer( std::vector<Vertex> vertices, VulkanDevice *vulkanDevice,
                            VkBuffer &vertexBuffer, VkDeviceMemory &vertexBufferMemory,

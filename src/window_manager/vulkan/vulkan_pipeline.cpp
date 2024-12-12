@@ -7,6 +7,7 @@
 #include <string>
 
 #include "logger.hpp"
+#include "vulkan/vulkan_device.hpp"
 #include "vulkan_initializers.hpp"
 
 namespace Thumpy {
@@ -34,14 +35,14 @@ static std::vector<char> read_file( const std::string &filename ) {
   return buffer;
 }
 
-VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vulkanDevice,
+VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VulkanDevice *vulkanDevice,
                                           VkDescriptorSetLayout descriptorSetLayout ) {
   Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
   auto vertShaderCode = read_file( get_shader_path() + "texture.vert.spv" );
   auto fragShaderCode = read_file( get_shader_path() + +"texture.frag.spv" );
 
-  VkShaderModule vertShaderModule = create_shader_module( vertShaderCode, vulkanDevice );
-  VkShaderModule fragShaderModule = create_shader_module( fragShaderCode, vulkanDevice );
+  VkShaderModule vertShaderModule = create_shader_module( vertShaderCode, vulkanDevice->device );
+  VkShaderModule fragShaderModule = create_shader_module( fragShaderCode, vulkanDevice->device );
 
   VkPipelineShaderStageCreateInfo vertShaderStageInfo =
       Initializer::vert_shader_stage_info( vertShaderModule );
@@ -87,7 +88,8 @@ VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice v
   VkPipelineRasterizationStateCreateInfo rasterizer = Initializer::rasterizer();
 
   // ### multi-sampling ###
-  VkPipelineMultisampleStateCreateInfo multisampling = Initializer::multisampling();
+  VkPipelineMultisampleStateCreateInfo multisampling =
+      Initializer::multisampling( vulkanDevice->msaaSamples );
 
   // ### color blending ###
   VkPipelineColorBlendAttachmentState colorBlendAttachment = Initializer::color_blend_attachment();
@@ -131,7 +133,7 @@ VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice v
   VkPipelineLayoutCreateInfo pipelineLayoutInfo =
       Initializer::pipeline_layout_info( descriptorSetLayout );
 
-  if ( vkCreatePipelineLayout( vulkanDevice, &pipelineLayoutInfo, nullptr,
+  if ( vkCreatePipelineLayout( vulkanDevice->device, &pipelineLayoutInfo, nullptr,
                                &pipeline->pipelineLayout ) != VK_SUCCESS ) {
     throw std::runtime_error( "failed to create pipeline layout!" );
   }
@@ -154,14 +156,14 @@ VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice v
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
   pipelineInfo.basePipelineIndex = -1;               // Optional
 
-  if ( vkCreateGraphicsPipelines( vulkanDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
+  if ( vkCreateGraphicsPipelines( vulkanDevice->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
                                   &pipeline->graphicsPipeline ) != VK_SUCCESS ) {
     Logger::log( "Failed to create graphics pipeline!", Logger::CRITICAL );
   }
 
   // ### destroy ###
-  vkDestroyShaderModule( vulkanDevice, fragShaderModule, nullptr );
-  vkDestroyShaderModule( vulkanDevice, vertShaderModule, nullptr );
+  vkDestroyShaderModule( vulkanDevice->device, fragShaderModule, nullptr );
+  vkDestroyShaderModule( vulkanDevice->device, vertShaderModule, nullptr );
 
   return pipeline;
 }

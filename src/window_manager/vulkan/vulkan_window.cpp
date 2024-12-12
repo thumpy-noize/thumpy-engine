@@ -51,7 +51,6 @@ void VulkanWindow::init_vulkan() {
 
   // Find & create vulkan device
   vulkanDevice_ = new VulkanDevice( instance_, surface_ );
-  // vulkanDevice_->msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
   // Create swap chain / image views / render pass
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
@@ -60,18 +59,19 @@ void VulkanWindow::init_vulkan() {
   Construct::descriptor_set_layout( vulkanDevice_, descriptorSetLayout_ );
 
   // Create graphics pipeline
-  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device, descriptorSetLayout_ );
+  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_, descriptorSetLayout_ );
 
   // Multisampling
   msaaColorBuffer_ = new VulkanImage();
-  Image::create_color_resources( msaaColorBuffer_, swapChain_, vulkanDevice_ );
+  Image::create_color_resources( msaaColorBuffer_, vulkanDevice_, swapChain_ );
 
   // Depth buffer
   depthBuffer_ = new VulkanImage();
   Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->extent );
 
   // Create frame buffers
-  Buffer::create_framebuffers( swapChain_, depthBuffer_->imageView, vulkanDevice_->device );
+  Buffer::create_framebuffers( swapChain_, depthBuffer_->imageView, msaaColorBuffer_->imageView,
+                               vulkanDevice_->device );
 
   // Create command pool & buffer
   Construct::command_pool( vulkanDevice_, commandPool_ );
@@ -138,14 +138,9 @@ void VulkanWindow::deconstruct_window() {
 
   vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
 
-  vkDestroySampler( vulkanDevice_->device, textureImage_->sampler, nullptr );
-  vkDestroyImageView( vulkanDevice_->device, textureImage_->imageView, nullptr );
-  vkDestroyImage( vulkanDevice_->device, textureImage_->image, nullptr );
-  vkFreeMemory( vulkanDevice_->device, textureImage_->imageMemory, nullptr );
-
-  vkDestroyImageView( vulkanDevice_->device, depthBuffer_->imageView, nullptr );
-  vkDestroyImage( vulkanDevice_->device, depthBuffer_->image, nullptr );
-  vkFreeMemory( vulkanDevice_->device, depthBuffer_->imageMemory, nullptr );
+  textureImage_->destroy( vulkanDevice_->device );
+  depthBuffer_->destroy( vulkanDevice_->device );
+  msaaColorBuffer_->destroy( vulkanDevice_->device );
 
   vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_, nullptr );
 

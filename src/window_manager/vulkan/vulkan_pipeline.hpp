@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_swap_chain.hpp"
 namespace Thumpy {
 namespace Core {
@@ -26,7 +27,7 @@ struct VulkanPipeline {
   VkPipeline graphicsPipeline;
 };
 
-VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VkDevice vulkanDevice,
+VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VulkanDevice *vulkanDevice,
                                           VkDescriptorSetLayout descriptorSetLayout );
 
 void destroy_graphics_pipeline( VkDevice vulkanDevice, VulkanPipeline *pipeline );

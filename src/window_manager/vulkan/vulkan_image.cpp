@@ -352,8 +352,8 @@ void generate_mipmaps( VkImage image, VkFormat imageFormat, int32_t texWidth, in
   Buffer::end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
 }
 
-void create_color_resources( VulkanImage *msaaColorBuffer, VulkanSwapChain *swapChain,
-                             VulkanDevice *vulkanDevice ) {
+void create_color_resources( VulkanImage *msaaColorBuffer, VulkanDevice *vulkanDevice,
+                             VulkanSwapChain *swapChain ) {
   VkFormat colorFormat = swapChain->swapChainImageFormat;
 
   create_image( swapChain->extent.width, swapChain->extent.height, 1, vulkanDevice->msaaSamples,

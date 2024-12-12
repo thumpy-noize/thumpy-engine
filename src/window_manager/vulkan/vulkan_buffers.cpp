@@ -68,11 +68,12 @@ void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
 }
 
 void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView,
-                          VkDevice device ) {
+                          VkImageView colorImageView, VkDevice device ) {
   swapChain->swapChainFramebuffers.resize( swapChain->swapChainImageViews.size() );
 
   for ( size_t i = 0; i < swapChain->swapChainImageViews.size(); i++ ) {
-    std::array<VkImageView, 2> attachments = { swapChain->swapChainImageViews[i], depthImageView };
+    std::array<VkImageView, 3> attachments = { colorImageView, depthImageView,
+                                               swapChain->swapChainImageViews[i] };
 
     VkFramebufferCreateInfo framebufferInfo =
         Initializer::framebuffer_info( swapChain->renderPass, swapChain->extent, attachments );

@@ -51,7 +51,8 @@ class VulkanRender {
    */
   void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
                    uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
-                   std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage );
+                   std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
+                   VulkanImage *colorImage );
 
   void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
                               VulkanSwapChain *swapChain, VkBuffer vertexBuffer,

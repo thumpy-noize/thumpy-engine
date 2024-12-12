@@ -134,6 +134,8 @@ std::vector<const char *> get_required_extensions();
 uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
                            VkMemoryPropertyFlags properties );
 
+VkSampleCountFlagBits get_max_usable_sample_count( VkPhysicalDevice physicalDevice );
+
 #pragma region Asset loading
 
 struct Texture {
@@ -177,6 +179,8 @@ std::string get_model_path();
 
 #pragma endregion
 
+#pragma region Exceptions
+
 class VulkanNotCompatible : public std::exception {
  private:
   std::string message_;
@@ -191,8 +195,6 @@ class VulkanNotCompatible : public std::exception {
   // Override the what() method to return our message
   const char *what() const throw() { return message_.c_str(); }
 };
-
-#pragma region Exceptions
 
 #pragma endregion
 

@@ -119,11 +119,11 @@ inline VkPipelineRasterizationStateCreateInfo rasterizer() {
   return rasterizer;
 }
 
-inline VkPipelineMultisampleStateCreateInfo multisampling() {
+inline VkPipelineMultisampleStateCreateInfo multisampling( VkSampleCountFlagBits msaaSamples ) {
   VkPipelineMultisampleStateCreateInfo multisampling{};
   multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   multisampling.sampleShadingEnable = VK_FALSE;
-  multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+  multisampling.rasterizationSamples = msaaSamples;
   multisampling.minSampleShading = 1.0f;           // Optional
   multisampling.pSampleMask = nullptr;             // Optional
   multisampling.alphaToCoverageEnable = VK_FALSE;  // Optional
@@ -165,7 +165,7 @@ inline VkShaderModuleCreateInfo shader_module_create_info( const std::vector<cha
 }
 
 inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass, VkExtent2D extent,
-                                                 std::array<VkImageView, 2> &attachments ) {
+                                                 std::array<VkImageView, 3> &attachments ) {
   VkFramebufferCreateInfo framebufferInfo{};
   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
   framebufferInfo.renderPass = renderPass;
@@ -229,7 +229,7 @@ inline VkFenceCreateInfo fence_info() {
 
 inline VkImageCreateInfo image_info( uint32_t width, uint32_t height, VkFormat format,
                                      VkImageTiling tiling, VkImageUsageFlags usage,
-                                     uint32_t mipLevels ) {
+                                     uint32_t mipLevels, VkSampleCountFlagBits numSamples ) {
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -242,7 +242,7 @@ inline VkImageCreateInfo image_info( uint32_t width, uint32_t height, VkFormat f
   imageInfo.tiling = tiling;
   imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   imageInfo.usage = usage;
-  imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+  imageInfo.samples = numSamples;
   imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
   return imageInfo;
 }

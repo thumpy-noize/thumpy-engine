@@ -76,8 +76,8 @@ void VulkanRender::create_sync_objects() {
 
 void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
                                uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
-                               std::vector<VkDescriptorSet> descriptorSets,
-                               VulkanImage *depthImage ) {
+                               std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
+                               VulkanImage *colorImage ) {
   vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX );
 
   uint32_t imageIndex;
@@ -86,7 +86,7 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBu
                                            &imageIndex );
 
   if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
-    swapChain_->recreate_swap_chain( depthImage );
+    swapChain_->recreate_swap_chain( depthImage, colorImage );
     return;
   } else if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR ) {
     Logger::log( "Failed to acquire swap chain image!", Logger::CRITICAL );
@@ -143,7 +143,7 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBu
 
   if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_ ) {
     framebufferResized_ = false;
-    swapChain_->recreate_swap_chain( depthImage );
+    swapChain_->recreate_swap_chain( depthImage, colorImage );
   } else if ( result != VK_SUCCESS ) {
     Logger::log( "Failed to present swap chain image!", Logger::CRITICAL );
   }
@@ -151,7 +151,7 @@ void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBu
 
 void VulkanRender::record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
                                           VulkanSwapChain *swapChain, VkBuffer vertexBuffer,
-                                          uint32_t vertexCount, VkBuffer indexBuffer,
+                                          uint32_t vertexCoundeptht, VkBuffer indexBuffer,
                                           uint32_t indexCount,
                                           std::vector<VkDescriptorSet> descriptorSets ) {
   VkCommandBufferBeginInfo beginInfo = Initializer::command_buffer_begin_info();

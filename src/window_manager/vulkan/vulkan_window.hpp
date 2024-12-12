@@ -72,6 +72,7 @@ class VulkanWindow : public Window {
   VulkanPipeline *pipeline_;
   VulkanTextureImage *textureImage_;
   VulkanImage *depthBuffer_;
+  VulkanImage *msaaColorBuffer_;
   VulkanRender *render_;
   Mesh *mesh_;
 

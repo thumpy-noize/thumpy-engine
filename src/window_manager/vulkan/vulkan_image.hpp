@@ -11,7 +11,11 @@
 
 #pragma once
 
+#include <vulkan/vulkan_core.h>
+
 #include <cstdint>
+
+#include "vulkan/vulkan_swap_chain.hpp"
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -25,8 +29,9 @@ namespace Windows {
 namespace Vulkan {
 namespace Image {
 
-void create_image( uint32_t width, uint32_t height, uint32_t mipLevels, VkFormat format,
-                   VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
+                   VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling,
+                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                    VulkanImage *textureImage, VulkanDevice *vulkanDevice );
 
 void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage,
@@ -58,6 +63,9 @@ bool has_stencil_component( VkFormat format );
 
 void generate_mipmaps( VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight,
                        uint32_t mipLevels, VulkanDevice *vulkanDevice, VkCommandPool commandPool );
+
+void create_color_resources( VulkanImage *msaaColorBuffer, VulkanDevice *vulkanDevice,
+                             VulkanSwapChain *swapChain );
 
 }  // namespace Image
 }  // namespace Vulkan

@@ -90,31 +90,31 @@ VkSampleCountFlagBits get_max_usable_sample_count( VkPhysicalDevice physicalDevi
   VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts &
                               physicalDeviceProperties.limits.framebufferDepthSampleCounts;
   if ( counts & VK_SAMPLE_COUNT_64_BIT ) {
-    Logger::log( "Sample count: 64 bits", Logger::WARNING );
+    Logger::log( "Sample count: 64 bits", Logger::DEBUG );
     return VK_SAMPLE_COUNT_64_BIT;
   }
   if ( counts & VK_SAMPLE_COUNT_32_BIT ) {
-    Logger::log( "Sample count: 32 bits", Logger::WARNING );
+    Logger::log( "Sample count: 32 bits", Logger::DEBUG );
     return VK_SAMPLE_COUNT_32_BIT;
   }
   if ( counts & VK_SAMPLE_COUNT_16_BIT ) {
-    Logger::log( "Sample count: 16 bits", Logger::WARNING );
+    Logger::log( "Sample count: 16 bits", Logger::DEBUG );
     return VK_SAMPLE_COUNT_16_BIT;
   }
   if ( counts & VK_SAMPLE_COUNT_8_BIT ) {
-    Logger::log( "Sample count: 8 bits", Logger::WARNING );
+    Logger::log( "Sample count: 8 bits", Logger::INFO );
     return VK_SAMPLE_COUNT_8_BIT;
   }
   if ( counts & VK_SAMPLE_COUNT_4_BIT ) {
-    Logger::log( "Sample count: 4 bits", Logger::WARNING );
+    Logger::log( "Sample count: 4 bits", Logger::INFO );
     return VK_SAMPLE_COUNT_4_BIT;
   }
   if ( counts & VK_SAMPLE_COUNT_2_BIT ) {
-    Logger::log( "Sample count: 2 bits", Logger::WARNING );
+    Logger::log( "Sample count: 2 bits", Logger::INFO );
     return VK_SAMPLE_COUNT_2_BIT;
   }
 
-  Logger::log( "Sample count: 1 bits", Logger::WARNING );
+  Logger::log( "Sample count: 1 bits", Logger::INFO );
   return VK_SAMPLE_COUNT_1_BIT;
 }
 

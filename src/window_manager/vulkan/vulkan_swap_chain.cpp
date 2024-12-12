@@ -80,7 +80,7 @@ void VulkanSwapChain::create_swap_chain() {
   extent = chosen_extent;
 }
 
-void VulkanSwapChain::recreate_swap_chain( VulkanImage *depthImage ) {
+void VulkanSwapChain::recreate_swap_chain( VulkanImage *depthImage, VulkanImage *colorImage ) {
   Logger::log( "Recreating swap chain...", Logger::INFO );
   int width = 0, height = 0;
   glfwGetFramebufferSize( window_, &width, &height );
@@ -93,9 +93,11 @@ void VulkanSwapChain::recreate_swap_chain( VulkanImage *depthImage ) {
 
   clear_swap_chain();
   depthImage->destroy( vulkanDevice_->device );
+  colorImage->destroy( vulkanDevice_->device );
 
   create_swap_chain();
   create_image_views();
+  Image::create_color_resources( depthImage, this, vulkanDevice_ );
   Image::create_depth_resources( depthImage, vulkanDevice_, extent );
   Buffer::create_framebuffers( this, depthImage->imageView, vulkanDevice_->device );
 }

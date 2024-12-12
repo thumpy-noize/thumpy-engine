@@ -45,6 +45,8 @@ class VulkanDevice {
   VkQueue graphicsQueue;
   VkQueue presentQueue;
 
+  VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+
  private:
   VkSurfaceKHR surface_;
 };

@@ -51,6 +51,7 @@ void VulkanWindow::init_vulkan() {
 
   // Find & create vulkan device
   vulkanDevice_ = new VulkanDevice( instance_, surface_ );
+  // vulkanDevice_->msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
   // Create swap chain / image views / render pass
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
@@ -60,6 +61,10 @@ void VulkanWindow::init_vulkan() {
 
   // Create graphics pipeline
   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_->device, descriptorSetLayout_ );
+
+  // Multisampling
+  msaaColorBuffer_ = new VulkanImage();
+  Image::create_color_resources( msaaColorBuffer_, swapChain_, vulkanDevice_ );
 
   // Depth buffer
   depthBuffer_ = new VulkanImage();
@@ -168,7 +173,7 @@ void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( mesh_->vertices.size() ), indexBuffer_,
                        static_cast<uint32_t>( mesh_->indices.size() ), uniformBuffersMapped_,
-                       descriptorSets_, depthBuffer_ );
+                       descriptorSets_, depthBuffer_, msaaColorBuffer_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

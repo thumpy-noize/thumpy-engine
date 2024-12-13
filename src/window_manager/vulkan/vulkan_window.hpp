@@ -15,7 +15,7 @@
 
 #include <vector>
 
-#include "vulkan/vulkan_helper.hpp"
+#include "vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
 #include "window.hpp"
 

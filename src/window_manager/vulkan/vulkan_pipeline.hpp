@@ -15,8 +15,9 @@
 
 #include <vector>
 
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
+#include "vulkan_device.hpp"
+#include "vulkan_swap_chain.hpp"
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {

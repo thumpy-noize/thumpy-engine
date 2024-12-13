@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "vulkan_helper.hpp"
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {

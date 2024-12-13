@@ -1,5 +1,16 @@
 
 
+/**
+ * @file vulkan_pipeline.cpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Vulkan pipeline cpp file
+ * @version 0.1
+ * @date 2024-12-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #include "vulkan_pipeline.hpp"
 
 #include <fstream>
@@ -7,7 +18,6 @@
 #include <string>
 
 #include "logger.hpp"
-#include "vulkan/vulkan_device.hpp"
 #include "vulkan_initializers.hpp"
 
 namespace Thumpy {

@@ -1,3 +1,14 @@
+/**
+ * @file vulkan_swap_chain.cpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Vulkan swapchain cpp file
+ * @version 0.1
+ * @date 2024-12-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #include "vulkan_swap_chain.hpp"
 
 #include <vulkan/vulkan_core.h>
@@ -6,9 +17,8 @@
 #include <limits>
 
 #include "logger.hpp"
-#include "vulkan/vulkan_buffers.hpp"
-#include "vulkan/vulkan_helper.hpp"
-#include "vulkan/vulkan_image.hpp"
+#include "vulkan_buffers.hpp"
+#include "vulkan_image.hpp"
 
 namespace Thumpy {
 namespace Core {

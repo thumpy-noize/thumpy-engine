@@ -9,8 +9,9 @@
  *
  */
 
-#include "vulkan/vulkan_render.hpp"
 #define GLFW_INCLUDE_VULKAN
+
+#include "vulkan_window.hpp"
 
 #include <vulkan/vulkan_core.h>
 
@@ -25,10 +26,8 @@
 #include "vulkan_buffers.hpp"
 #include "vulkan_construct.hpp"
 #include "vulkan_debug.hpp"
-#include "vulkan_helper.hpp"
 #include "vulkan_image.hpp"
-#include "vulkan_pipeline.hpp"
-#include "vulkan_window.hpp"
+#include "vulkan_render.hpp"
 
 namespace Thumpy {
 namespace Core {

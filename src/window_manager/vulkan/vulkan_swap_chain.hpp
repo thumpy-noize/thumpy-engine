@@ -1,3 +1,14 @@
+/**
+ * @file vulkan_swap_chain.hpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Vulkan swapchain variables and methods
+ * @version 0.1
+ * @date 2024-12-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #pragma once
 
 #include <GLFW/glfw3.h>

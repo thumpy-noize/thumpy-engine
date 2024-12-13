@@ -11,15 +11,15 @@
 
 #pragma once
 
+#define GLM_FORCE_DEPTH_xZERO_TO_ONE
+
 #include <vulkan/vulkan_core.h>
 
 #include <cstdint>
-
-#include "vulkan/vulkan_swap_chain.hpp"
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "vulkan/vulkan_swap_chain.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
 

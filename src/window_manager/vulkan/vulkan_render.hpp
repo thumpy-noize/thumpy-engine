@@ -10,12 +10,13 @@
  */
 
 #pragma once
+
 #include <vulkan/vulkan_core.h>
 
 #include <vector>
 
-#include "vulkan/vulkan_helper.hpp"
 #include "vulkan_device.hpp"
+#include "vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
 #include "vulkan_swap_chain.hpp"
 

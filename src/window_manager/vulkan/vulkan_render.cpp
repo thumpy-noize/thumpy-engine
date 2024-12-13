@@ -21,11 +21,7 @@
 #include <string>
 
 #include "logger.hpp"
-#include "logger_helper.hpp"
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_initializers.hpp"
-#include "vulkan/vulkan_pipeline.hpp"
-#include "vulkan/vulkan_swap_chain.hpp"
+#include "vulkan_initializers.hpp"
 
 namespace Thumpy {
 namespace Core {

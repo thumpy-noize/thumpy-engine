@@ -8,25 +8,22 @@
  * @copyright Copyright (c) 2024
  *
  */
-#include <sys/types.h>
-
-#include <cstdint>
-#include <string>
-
-#include "vulkan/vulkan_swap_chain.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 
+#include "vulkan_image.hpp"
+
 #include <stb_image.h>
+#include <sys/types.h>
 #include <vulkan/vulkan_core.h>
 
+#include <cstdint>
 #include <stdexcept>
+#include <string>
 
-#include "logger_helper.hpp"
+#include "logger.hpp"
 #include "vulkan_buffers.hpp"
-#include "vulkan_device.hpp"
-#include "vulkan_helper.hpp"
-#include "vulkan_image.hpp"
 #include "vulkan_initializers.hpp"
+#include "vulkan_swap_chain.hpp"
 
 namespace Thumpy {
 namespace Core {

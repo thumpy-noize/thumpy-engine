@@ -13,8 +13,6 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include <vector>
-
 #include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_construct.hpp"
 #include "vulkan_helper.hpp"

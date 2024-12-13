@@ -4,9 +4,6 @@ set(SOURCES
   main.cpp
 )
 
-find_package(GTest CONFIG REQUIRED)
-
-
 # Add executable
 add_executable(engine ${SOURCES})
 

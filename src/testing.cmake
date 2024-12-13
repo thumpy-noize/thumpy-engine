@@ -4,6 +4,8 @@
 ########## Unit Testing ##########
 ##################################
 
+find_package(GTest CONFIG REQUIRED)
+
 enable_testing()
 
 set(TEST_SOURCES

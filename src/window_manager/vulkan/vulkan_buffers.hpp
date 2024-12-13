@@ -20,6 +20,16 @@ namespace Windows {
 namespace Vulkan {
 namespace Buffer {
 
+struct Buffer {
+  VkBuffer buffer;
+  VkDeviceMemory memory;
+
+  void destroy( VkDevice device ) {
+    vkDestroyBuffer( device, buffer, nullptr );
+    vkFreeMemory( device, memory, nullptr );
+  }
+};
+
 void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
                     VkBuffer &buffer, VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice );
 
@@ -30,12 +40,10 @@ void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView
                           VkImageView colorImageView, VkDevice device );
 
 void create_vertex_buffer( std::vector<Vertex> vertices, VulkanDevice *vulkanDevice,
-                           VkBuffer &vertexBuffer, VkDeviceMemory &vertexBufferMemory,
-                           VkCommandPool &commandPool );
+                           Buffer *vertexBuffer, VkCommandPool &commandPool );
 
 void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDevice,
-                          VkBuffer &indexBuffer, VkDeviceMemory &indexBufferMemory,
-                          VkCommandPool &commandPool );
+                          Buffer *indexBuffer, VkCommandPool &commandPool );
 
 VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool );
 

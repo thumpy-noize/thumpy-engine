@@ -45,9 +45,14 @@ void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool
 
 #pragma region Uniform buffers
 
-void uniform_buffers( VulkanDevice *vulkanDevice, std::vector<VkBuffer> &uniformBuffers,
-                      std::vector<VkDeviceMemory> &uniformBuffersMemory,
-                      std::vector<void *> &uniformBuffersMapped, int maxFramesInFlight );
+struct UniformBuffers {
+  std::vector<VkBuffer> buffers;
+  std::vector<VkDeviceMemory> memory;
+  std::vector<void *> mapped;
+};
+
+void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
+                      int maxFramesInFlight );
 
 #pragma endregion Uniform buffers
 

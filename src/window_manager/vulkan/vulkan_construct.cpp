@@ -60,23 +60,22 @@ void instance( VkInstance &instance ) {
   }
 }
 
-void uniform_buffers( VulkanDevice *vulkanDevice, std::vector<VkBuffer> &uniformBuffers,
-                      std::vector<VkDeviceMemory> &uniformBuffersMemory,
-                      std::vector<void *> &uniformBuffersMapped, int maxFramesInFlight ) {
+void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
+                      int maxFramesInFlight ) {
   VkDeviceSize bufferSize = sizeof( UniformBufferObject );
 
-  uniformBuffers.resize( maxFramesInFlight );
-  uniformBuffersMemory.resize( maxFramesInFlight );
-  uniformBuffersMapped.resize( maxFramesInFlight );
+  uniformBuffers->buffers.resize( maxFramesInFlight );
+  uniformBuffers->memory.resize( maxFramesInFlight );
+  uniformBuffers->mapped.resize( maxFramesInFlight );
 
   for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
     Buffer::create_buffer(
         bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        uniformBuffers[i], uniformBuffersMemory[i], vulkanDevice );
+        uniformBuffers->buffers[i], uniformBuffers->memory[i], vulkanDevice );
 
-    vkMapMemory( vulkanDevice->device, uniformBuffersMemory[i], 0, bufferSize, 0,
-                 &uniformBuffersMapped[i] );
+    vkMapMemory( vulkanDevice->device, uniformBuffers->memory[i], 0, bufferSize, 0,
+                 &uniformBuffers->mapped[i] );
   }
 }
 

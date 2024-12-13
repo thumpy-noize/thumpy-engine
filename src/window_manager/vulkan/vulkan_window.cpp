@@ -83,33 +83,30 @@ void VulkanWindow::init_vulkan() {
   Image::create_texture_sampler( vulkanDevice_, textureImage_ );
 
   // Create vertex buffer
-  // Generate sierpinski triangle (broken with index buffer,
-  // but it would be really cool if you fixed that)
-  // vertices_ = Shapes::generate_sierpinski_triangle( 6, vertices_ );
 
   // mesh_ = Shapes::generate_triangle();
   // mesh_ = Shapes::generate_square();
   mesh_ = load_mesh( MODEL_PATH );
 
-  // mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 2 );
+  // mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 1 );
 
-  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, vertexBufferMemory_,
-                                commandPool_->pool );
+  vertexBuffer_ = new Buffer::Buffer();
+  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool );
 
   // Create Index Buffer
-  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, indexBufferMemory_,
-                               commandPool_->pool );
+  indexBuffer_ = new Buffer::Buffer();
+  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
 
   // Create uniform buffers
-  Construct::uniform_buffers( vulkanDevice_, uniformBuffers_, uniformBuffersMemory_,
-                              uniformBuffersMapped_, MAX_FRAMES_IN_FLIGHT );
+  uniformBuffers_ = new Construct::UniformBuffers();
+  Construct::uniform_buffers( vulkanDevice_, uniformBuffers_, MAX_FRAMES_IN_FLIGHT );
 
   // Create descriptor pool
   Construct::descriptor_pool( vulkanDevice_, descriptorPool_, MAX_FRAMES_IN_FLIGHT );
 
   // Create descriptor sets
   Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_, descriptorPool_, descriptorSets_,
-                              uniformBuffers_, textureImage_, MAX_FRAMES_IN_FLIGHT );
+                              uniformBuffers_->buffers, textureImage_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
   Construct::command_buffer( commandPool_->buffers, commandPool_->pool, vulkanDevice_->device,
@@ -132,8 +129,8 @@ void VulkanWindow::deconstruct_window() {
   render_->destroy();
 
   for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
-    vkDestroyBuffer( vulkanDevice_->device, uniformBuffers_[i], nullptr );
-    vkFreeMemory( vulkanDevice_->device, uniformBuffersMemory_[i], nullptr );
+    vkDestroyBuffer( vulkanDevice_->device, uniformBuffers_->buffers[i], nullptr );
+    vkFreeMemory( vulkanDevice_->device, uniformBuffers_->memory[i], nullptr );
   }
 
   vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
@@ -144,11 +141,9 @@ void VulkanWindow::deconstruct_window() {
 
   vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_, nullptr );
 
-  vkDestroyBuffer( vulkanDevice_->device, indexBuffer_, nullptr );
-  vkFreeMemory( vulkanDevice_->device, indexBufferMemory_, nullptr );
+  indexBuffer_->destroy( vulkanDevice_->device );
 
-  vkDestroyBuffer( vulkanDevice_->device, vertexBuffer_, nullptr );
-  vkFreeMemory( vulkanDevice_->device, vertexBufferMemory_, nullptr );
+  vertexBuffer_->destroy( vulkanDevice_->device );
 
   // vkDestroyCommandPool( vulkanDevice_->device, commandPool_, nullptr );
   commandPool_->destroy( vulkanDevice_->device );
@@ -167,9 +162,9 @@ void VulkanWindow::deconstruct_window() {
 
 void VulkanWindow::loop() {
   Window::loop();
-  render_->draw_frame( vertexBuffer_, static_cast<uint32_t>( mesh_->vertices.size() ), indexBuffer_,
-                       static_cast<uint32_t>( mesh_->indices.size() ), uniformBuffersMapped_,
-                       descriptorSets_, depthBuffer_, msaaColorBuffer_ );
+  render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size() ),
+                       indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),
+                       uniformBuffers_->mapped, descriptorSets_, depthBuffer_, msaaColorBuffer_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

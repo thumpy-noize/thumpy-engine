@@ -1,3 +1,14 @@
+/**
+ * @file vulkan_device.hpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Contains vulkan device information and functions
+ * @version 0.1
+ * @date 2024-12-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #pragma once
 
 #include <vulkan/vulkan_core.h>

@@ -122,8 +122,8 @@ inline VkPipelineRasterizationStateCreateInfo rasterizer() {
 inline VkPipelineMultisampleStateCreateInfo multisampling( VkSampleCountFlagBits msaaSamples ) {
   VkPipelineMultisampleStateCreateInfo multisampling{};
   multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-  multisampling.sampleShadingEnable = VK_FALSE;
   multisampling.rasterizationSamples = msaaSamples;
+  multisampling.sampleShadingEnable = VK_FALSE;
   multisampling.minSampleShading = 1.0f;           // Optional
   multisampling.pSampleMask = nullptr;             // Optional
   multisampling.alphaToCoverageEnable = VK_FALSE;  // Optional

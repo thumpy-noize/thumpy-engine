@@ -16,8 +16,8 @@ int main() {
 
   Thumpy::Core::IO::init();
 
-  window_manager = new Thumpy::Core::Windows::WindowManager(
-      Thumpy::Core::Windows::RenderAPI::VULKAN );
+  window_manager =
+      new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::VULKAN );
 
   while ( APPLICATION_RUNNING ) {
     // Thumpy::Core::IO::poll_input();

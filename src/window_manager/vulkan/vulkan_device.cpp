@@ -1,13 +1,21 @@
+/**
+ * @file vulkan_device.cpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Vulkan device cpp file
+ * @version 0.1
+ * @date 2024-12-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #include "vulkan_device.hpp"
 
 #include <vulkan/vulkan_core.h>
 
 #include <set>
-#include <stdexcept>
 #include <vector>
 
-#include "logger.hpp"
-#include "logger_helper.hpp"
 #include "vulkan/vulkan_helper.hpp"
 
 namespace Thumpy {
@@ -68,6 +76,7 @@ void VulkanDevice::create_logical_device() {
 
   VkPhysicalDeviceFeatures deviceFeatures{};
   deviceFeatures.samplerAnisotropy = VK_TRUE;
+  deviceFeatures.sampleRateShading = VK_FALSE;
 
   VkDeviceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

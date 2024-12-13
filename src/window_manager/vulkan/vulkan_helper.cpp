@@ -1,4 +1,14 @@
 
+/**
+ * @file vulkan_helper.cpp
+ * @author Thumpy (◕‿◕✿)
+ * @brief Vulkan helper cpp file
+ * @version 0.1
+ * @date 2024-12-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 // #define STB_IMAGE_IMPLEMENTATION
 
 #include <string>
@@ -17,6 +27,7 @@
 
 #ifdef __unix__
 #include <unistd.h>
+
 #elif _WIN32
 #include <windows.h>
 

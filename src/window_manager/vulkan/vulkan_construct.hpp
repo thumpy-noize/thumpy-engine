@@ -27,14 +27,34 @@ void instance( VkInstance &instance );
 
 void surface( VkInstance instance, GLFWwindow *window, VkSurfaceKHR &surface );
 
+#pragma region Command pool
+
+struct CommandPool {
+  VkCommandPool pool;
+  std::vector<VkCommandBuffer> buffers;
+
+  void destroy( VkDevice device ) { vkDestroyCommandPool( device, pool, nullptr ); }
+};
+
 void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
 void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
                      VkDevice device, int maxFramesInFlight );
 
-void uniform_buffers( VulkanDevice *vulkanDevice, std::vector<VkBuffer> &uniformBuffers,
-                      std::vector<VkDeviceMemory> &uniformBuffersMemory,
-                      std::vector<void *> &uniformBuffersMapped, int maxFramesInFlight );
+#pragma region Command pool
+
+#pragma region Uniform buffers
+
+struct UniformBuffers {
+  std::vector<VkBuffer> buffers;
+  std::vector<VkDeviceMemory> memory;
+  std::vector<void *> mapped;
+};
+
+void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
+                      int maxFramesInFlight );
+
+#pragma endregion Uniform buffers
 
 #pragma region Descriptor
 
@@ -44,9 +64,7 @@ void descriptor_set_layout( VulkanDevice *vulkanDevice,
 void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
                       int maxFramesInFlight );
 
-void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout,
-                      VkDescriptorPool &descriptorPool,
-                      std::vector<VkDescriptorSet> &descriptorSets,
+void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
                       std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
                       int maxFramesInFlight );
 

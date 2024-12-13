@@ -86,8 +86,7 @@ void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView
 }
 
 void create_vertex_buffer( std::vector<Vertex> vertices, VulkanDevice *vulkanDevice,
-                           VkBuffer &vertexBuffer, VkDeviceMemory &vertexBufferMemory,
-                           VkCommandPool &commandPool ) {
+                           Buffer *vertexBuffer, VkCommandPool &commandPool ) {
   VkDeviceSize bufferSize = sizeof( vertices[0] ) * vertices.size();
 
   VkBuffer stagingBuffer;
@@ -102,18 +101,17 @@ void create_vertex_buffer( std::vector<Vertex> vertices, VulkanDevice *vulkanDev
   vkUnmapMemory( vulkanDevice->device, stagingBufferMemory );
 
   create_buffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer->buffer, vertexBuffer->memory,
                  vulkanDevice );
 
-  copy_buffer( stagingBuffer, vertexBuffer, bufferSize, vulkanDevice, commandPool );
+  copy_buffer( stagingBuffer, vertexBuffer->buffer, bufferSize, vulkanDevice, commandPool );
 
   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
 }
 
 void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDevice,
-                          VkBuffer &indexBuffer, VkDeviceMemory &indexBufferMemory,
-                          VkCommandPool &commandPool ) {
+                          Buffer *indexBuffer, VkCommandPool &commandPool ) {
   VkDeviceSize bufferSize = sizeof( indices[0] ) * indices.size();
 
   VkBuffer stagingBuffer;
@@ -128,10 +126,10 @@ void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDev
   vkUnmapMemory( vulkanDevice->device, stagingBufferMemory );
 
   create_buffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer->buffer, indexBuffer->memory,
                  vulkanDevice );
 
-  copy_buffer( stagingBuffer, indexBuffer, bufferSize, vulkanDevice, commandPool );
+  copy_buffer( stagingBuffer, indexBuffer->buffer, bufferSize, vulkanDevice, commandPool );
 
   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );

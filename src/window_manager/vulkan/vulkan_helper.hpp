@@ -8,7 +8,9 @@
  * @copyright Copyright (c) 2024
  *
  */
+
 #pragma once
+
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -20,7 +22,6 @@
 #include <glm/gtx/hash.hpp>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "logger.hpp"
@@ -49,6 +50,12 @@ struct SwapChainSupportDetails {
   VkSurfaceCapabilitiesKHR capabilities;
   std::vector<VkSurfaceFormatKHR> formats;
   std::vector<VkPresentModeKHR> presentModes;
+};
+
+struct Descriptors {
+  VkDescriptorSetLayout setLayout;
+  VkDescriptorPool pool;
+  std::vector<VkDescriptorSet> sets;
 };
 
 struct Vertex {

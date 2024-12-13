@@ -52,6 +52,12 @@ struct SwapChainSupportDetails {
   std::vector<VkPresentModeKHR> presentModes;
 };
 
+struct Descriptors {
+  VkDescriptorSetLayout setLayout;
+  VkDescriptorPool pool;
+  std::vector<VkDescriptorSet> sets;
+};
+
 struct Vertex {
   glm::vec3 pos;
   glm::vec3 color;

@@ -81,26 +81,11 @@ class VulkanWindow : public Window {
   Construct::UniformBuffers *uniformBuffers_;
   Buffer::Buffer *vertexBuffer_;
   Buffer::Buffer *indexBuffer_;
+  Descriptors *descriptors_;
+
   Mesh *mesh_;
 
   VkDebugUtilsMessengerEXT debugMessenger_;
-
-  // VkCommandPool commandPool_;
-  // std::vector<VkCommandBuffer> commandBuffers_;
-
-  // std::vector<VkBuffer> uniformBuffers_;
-  // std::vector<VkDeviceMemory> uniformBuffersMemory_;
-  // std::vector<void *> uniformBuffersMapped_;
-
-  // VkBuffer vertexBuffer_;
-  // VkDeviceMemory vertexBufferMemory_;
-
-  // VkBuffer indexBuffer_;
-  // VkDeviceMemory indexBufferMemory_;
-
-  VkDescriptorSetLayout descriptorSetLayout_;
-  VkDescriptorPool descriptorPool_;
-  std::vector<VkDescriptorSet> descriptorSets_;
 
   // warp t
   // std::vector<Vertex> vertices_ = {

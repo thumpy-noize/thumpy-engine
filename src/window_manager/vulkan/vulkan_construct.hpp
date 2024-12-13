@@ -64,9 +64,7 @@ void descriptor_set_layout( VulkanDevice *vulkanDevice,
 void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
                       int maxFramesInFlight );
 
-void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout,
-                      VkDescriptorPool &descriptorPool,
-                      std::vector<VkDescriptorSet> &descriptorSets,
+void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
                       std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
                       int maxFramesInFlight );
 

@@ -9,6 +9,7 @@
  *
  */
 
+#include "vulkan/vulkan_helper.hpp"
 #include "vulkan_render.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -55,10 +56,11 @@ void VulkanWindow::init_vulkan() {
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
   // Create descriptor layouts
-  Construct::descriptor_set_layout( vulkanDevice_, descriptorSetLayout_ );
+  descriptors_ = new Descriptors();
+  Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
 
   // Create graphics pipeline
-  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_, descriptorSetLayout_ );
+  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_, descriptors_->setLayout );
 
   // Multisampling
   msaaColorBuffer_ = new VulkanImage();
@@ -102,11 +104,11 @@ void VulkanWindow::init_vulkan() {
   Construct::uniform_buffers( vulkanDevice_, uniformBuffers_, MAX_FRAMES_IN_FLIGHT );
 
   // Create descriptor pool
-  Construct::descriptor_pool( vulkanDevice_, descriptorPool_, MAX_FRAMES_IN_FLIGHT );
+  Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
 
   // Create descriptor sets
-  Construct::descriptor_sets( vulkanDevice_, descriptorSetLayout_, descriptorPool_, descriptorSets_,
-                              uniformBuffers_->buffers, textureImage_, MAX_FRAMES_IN_FLIGHT );
+  Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers, textureImage_,
+                              MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
   Construct::command_buffer( commandPool_->buffers, commandPool_->pool, vulkanDevice_->device,
@@ -133,13 +135,13 @@ void VulkanWindow::deconstruct_window() {
     vkFreeMemory( vulkanDevice_->device, uniformBuffers_->memory[i], nullptr );
   }
 
-  vkDestroyDescriptorPool( vulkanDevice_->device, descriptorPool_, nullptr );
+  vkDestroyDescriptorPool( vulkanDevice_->device, descriptors_->pool, nullptr );
 
   textureImage_->destroy( vulkanDevice_->device );
   depthBuffer_->destroy( vulkanDevice_->device );
   msaaColorBuffer_->destroy( vulkanDevice_->device );
 
-  vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptorSetLayout_, nullptr );
+  vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptors_->setLayout, nullptr );
 
   indexBuffer_->destroy( vulkanDevice_->device );
 
@@ -164,7 +166,8 @@ void VulkanWindow::loop() {
   Window::loop();
   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size() ),
                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),
-                       uniformBuffers_->mapped, descriptorSets_, depthBuffer_, msaaColorBuffer_ );
+                       uniformBuffers_->mapped, descriptors_->sets, depthBuffer_,
+                       msaaColorBuffer_ );
 
   vkDeviceWaitIdle( vulkanDevice_->device );
 }

@@ -154,20 +154,18 @@ void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPo
   }
 }
 
-void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descriptorSetLayout,
-                      VkDescriptorPool &descriptorPool,
-                      std::vector<VkDescriptorSet> &descriptorSets,
+void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
                       std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
                       int maxFramesInFlight ) {
-  std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight, descriptorSetLayout );
+  std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight, descriptors->setLayout );
   VkDescriptorSetAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  allocInfo.descriptorPool = descriptorPool;
+  allocInfo.descriptorPool = descriptors->pool;
   allocInfo.descriptorSetCount = static_cast<uint32_t>( maxFramesInFlight );
   allocInfo.pSetLayouts = layouts.data();
 
-  descriptorSets.resize( maxFramesInFlight );
-  if ( vkAllocateDescriptorSets( vulkanDevice->device, &allocInfo, descriptorSets.data() ) !=
+  descriptors->sets.resize( maxFramesInFlight );
+  if ( vkAllocateDescriptorSets( vulkanDevice->device, &allocInfo, descriptors->sets.data() ) !=
        VK_SUCCESS ) {
     Logger::log( "Failed to allocate descriptor sets!", Logger::CRITICAL );
   }
@@ -186,7 +184,7 @@ void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descrip
     std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
     descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = descriptorSets[i];
+    descriptorWrites[0].dstSet = descriptors->sets[i];
     descriptorWrites[0].dstBinding = 0;
     descriptorWrites[0].dstArrayElement = 0;
     descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -194,7 +192,7 @@ void descriptor_sets( VulkanDevice *vulkanDevice, VkDescriptorSetLayout &descrip
     descriptorWrites[0].pBufferInfo = &bufferInfo;
 
     descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[1].dstSet = descriptorSets[i];
+    descriptorWrites[1].dstSet = descriptors->sets[i];
     descriptorWrites[1].dstBinding = 1;
     descriptorWrites[1].dstArrayElement = 0;
     descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;

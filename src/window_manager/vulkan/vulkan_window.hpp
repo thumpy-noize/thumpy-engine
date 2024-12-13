@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "vulkan/vulkan_construct.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
 #include "window.hpp"
@@ -74,12 +75,14 @@ class VulkanWindow : public Window {
   VulkanImage *depthBuffer_;
   VulkanImage *msaaColorBuffer_;
   VulkanRender *render_;
+
+  Construct::CommandPool *commandPool_;
   Mesh *mesh_;
 
-  VkCommandPool commandPool_;
-  std::vector<VkCommandBuffer> commandBuffers_;
   VkDebugUtilsMessengerEXT debugMessenger_;
-  VkDescriptorSetLayout descriptorSetLayout_;
+
+  // VkCommandPool commandPool_;
+  // std::vector<VkCommandBuffer> commandBuffers_;
 
   std::vector<VkBuffer> uniformBuffers_;
   std::vector<VkDeviceMemory> uniformBuffersMemory_;
@@ -87,9 +90,11 @@ class VulkanWindow : public Window {
 
   VkBuffer vertexBuffer_;
   VkDeviceMemory vertexBufferMemory_;
+
   VkBuffer indexBuffer_;
   VkDeviceMemory indexBufferMemory_;
 
+  VkDescriptorSetLayout descriptorSetLayout_;
   VkDescriptorPool descriptorPool_;
   std::vector<VkDescriptorSet> descriptorSets_;
 

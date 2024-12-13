@@ -27,14 +27,29 @@ void instance( VkInstance &instance );
 
 void surface( VkInstance instance, GLFWwindow *window, VkSurfaceKHR &surface );
 
+#pragma region Command pool
+
+struct CommandPool {
+  VkCommandPool pool;
+  std::vector<VkCommandBuffer> buffers;
+
+  void destroy( VkDevice device ) { vkDestroyCommandPool( device, pool, nullptr ); }
+};
+
 void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
 void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
                      VkDevice device, int maxFramesInFlight );
 
+#pragma region Command pool
+
+#pragma region Uniform buffers
+
 void uniform_buffers( VulkanDevice *vulkanDevice, std::vector<VkBuffer> &uniformBuffers,
                       std::vector<VkDeviceMemory> &uniformBuffersMemory,
                       std::vector<void *> &uniformBuffersMapped, int maxFramesInFlight );
+
+#pragma endregion Uniform buffers
 
 #pragma region Descriptor
 

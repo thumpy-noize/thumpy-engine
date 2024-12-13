@@ -72,12 +72,13 @@ void VulkanWindow::init_vulkan() {
   Buffer::create_framebuffers( swapChain_, depthBuffer_->imageView, msaaColorBuffer_->imageView,
                                vulkanDevice_->device );
 
-  // Create command pool & buffer
-  Construct::command_pool( vulkanDevice_, commandPool_ );
+  // Create command pool
+  commandPool_ = new Construct::CommandPool();
+  Construct::command_pool( vulkanDevice_, commandPool_->pool );
 
   // Create texture image / view / sampler
   textureImage_ = new VulkanTextureImage();
-  Image::create_texture_image( vulkanDevice_, textureImage_, commandPool_, TEXTURE_PATH );
+  Image::create_texture_image( vulkanDevice_, textureImage_, commandPool_->pool, TEXTURE_PATH );
   Image::create_texture_image_view( vulkanDevice_->device, textureImage_ );
   Image::create_texture_sampler( vulkanDevice_, textureImage_ );
 
@@ -93,11 +94,11 @@ void VulkanWindow::init_vulkan() {
   // mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 2 );
 
   Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, vertexBufferMemory_,
-                                commandPool_ );
+                                commandPool_->pool );
 
   // Create Index Buffer
   Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, indexBufferMemory_,
-                               commandPool_ );
+                               commandPool_->pool );
 
   // Create uniform buffers
   Construct::uniform_buffers( vulkanDevice_, uniformBuffers_, uniformBuffersMemory_,
@@ -111,12 +112,12 @@ void VulkanWindow::init_vulkan() {
                               uniformBuffers_, textureImage_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
-  Construct::command_buffer( commandBuffers_, commandPool_, vulkanDevice_->device,
+  Construct::command_buffer( commandPool_->buffers, commandPool_->pool, vulkanDevice_->device,
                              MAX_FRAMES_IN_FLIGHT );
 
   // Create render
-  render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_, &commandBuffers_,
-                              pipeline_ );
+  render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,
+                              &commandPool_->buffers, pipeline_ );
 }
 
 void VulkanWindow::deconstruct_window() {
@@ -149,7 +150,8 @@ void VulkanWindow::deconstruct_window() {
   vkDestroyBuffer( vulkanDevice_->device, vertexBuffer_, nullptr );
   vkFreeMemory( vulkanDevice_->device, vertexBufferMemory_, nullptr );
 
-  vkDestroyCommandPool( vulkanDevice_->device, commandPool_, nullptr );
+  // vkDestroyCommandPool( vulkanDevice_->device, commandPool_, nullptr );
+  commandPool_->destroy( vulkanDevice_->device );
 
   vkDestroyDevice( vulkanDevice_->device, nullptr );
 

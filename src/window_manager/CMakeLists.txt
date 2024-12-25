@@ -39,6 +39,10 @@ target_sources(window_manager
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_render.cpp
   ${CMAKE_CURRENT_LIST_DIR}/vulkan/vulkan_helper.cpp
 
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/examples/vulkan_mesh_example.hpp
+  
+  ${CMAKE_CURRENT_LIST_DIR}/vulkan/examples/vulkan_mesh_example.cpp
+
 )
 
 target_include_directories(window_manager

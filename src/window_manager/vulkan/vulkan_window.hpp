@@ -17,10 +17,10 @@
 #include "vulkan/vulkan_construct.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
+#include "vulkan_render.hpp"
 #include "window.hpp"
 
 class VulkanDevice;
-class VulkanRender;
 
 namespace Thumpy {
 namespace Core {
@@ -37,19 +37,19 @@ class VulkanWindow : public Window {
    * @brief Setup vulkan
    *
    */
-  void init_vulkan();
+  virtual void init_vulkan();
 
   /**
    * @brief deconstruct vulkan window
    *
    */
-  void deconstruct_window();
+  virtual void deconstruct_window();
 
   /**
    * @brief Render loop
    *
    */
-  void loop();
+  virtual void loop();
 
   // move this to vulkan_construct
   void create_surface();
@@ -61,27 +61,27 @@ class VulkanWindow : public Window {
   const std::string MODEL_PATH = "viking_room.obj";
   const std::string TEXTURE_PATH = "viking_room.png";
 
- private:
+ protected:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
   VkInstance instance_;
   VkSurfaceKHR surface_;
 
-  VulkanDevice *vulkanDevice_;
-  VulkanSwapChain *swapChain_;
-  VulkanPipeline *pipeline_;
-  VulkanTextureImage *textureImage_;
-  VulkanImage *depthBuffer_;
-  VulkanImage *msaaColorBuffer_;
-  VulkanRender *render_;
+  VulkanDevice *vulkanDevice_ = nullptr;
+  VulkanSwapChain *swapChain_ = nullptr;
+  VulkanPipeline *pipeline_ = nullptr;
+  VulkanTextureImage *textureImage_ = nullptr;
+  VulkanImage *depthBuffer_ = nullptr;
+  VulkanImage *msaaColorBuffer_ = nullptr;
+  VulkanRender *render_ = nullptr;
 
-  Construct::CommandPool *commandPool_;
-  Construct::UniformBuffers *uniformBuffers_;
-  Buffer::Buffer *vertexBuffer_;
-  Buffer::Buffer *indexBuffer_;
-  Descriptors *descriptors_;
+  Construct::CommandPool *commandPool_ = nullptr;
+  Construct::UniformBuffers *uniformBuffers_ = nullptr;
+  Buffer::Buffer *vertexBuffer_ = nullptr;
+  Buffer::Buffer *indexBuffer_ = nullptr;
+  Descriptors *descriptors_ = nullptr;
 
-  Mesh *mesh_;
+  Mesh *mesh_ = nullptr;
 
   VkDebugUtilsMessengerEXT debugMessenger_;
 

@@ -106,6 +106,7 @@ void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textu
 
   generate_mipmaps( textureImage->image, VK_FORMAT_R8G8B8A8_SRGB, texture->width, texture->height,
                     textureImage->mipLevels, vulkanDevice, commandPool );
+  delete texture;
 }
 
 void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,

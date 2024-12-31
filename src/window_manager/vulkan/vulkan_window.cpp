@@ -158,7 +158,7 @@ void VulkanWindow::deconstruct_window() {
   }
 
   vkDestroySurfaceKHR( instance_, surface_, nullptr );
-  vkDestroyInstance( instance_, nullptr );
+  // vkDestroyInstance( instance_, nullptr ); // Memory leak
 
   Window::deconstruct_window();
 }

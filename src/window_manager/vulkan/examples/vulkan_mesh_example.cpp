@@ -142,7 +142,6 @@ void VulkanMeshExample::deconstruct_window() {
   }
 
   vkDestroySurfaceKHR( instance_, surface_, nullptr );
-  vkDestroyInstance( instance_, nullptr );
 
   Window::deconstruct_window();
 }

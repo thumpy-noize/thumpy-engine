@@ -3,7 +3,7 @@
  * @author Thumpy (◕‿◕✿)
  * @brief Creates a window with a sierpinski's triangle
  * TODO:
- * Modify this script to create a static sierpinski's triangle. Others script will need to be
+ * Modify this script to create a static sierpinski's triangle. Others scripts will need to be
  * modified as well to acomiddate multiple examples.
  * @version 0.1
  * @date 2024-12-24
@@ -47,7 +47,7 @@ void VulkanTriangleExample::init_vulkan() {
   msaaColorBuffer_ = new VulkanImage();
   Image::create_color_resources( msaaColorBuffer_, vulkanDevice_, swapChain_ );
 
-  // Depth buffer
+  // Depth buffer / Not required for this example
   depthBuffer_ = new VulkanImage();
   Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->extent );
 

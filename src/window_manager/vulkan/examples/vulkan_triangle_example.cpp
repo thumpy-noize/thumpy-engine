@@ -2,6 +2,9 @@
  * @file vulkan_triangle.hpp
  * @author Thumpy (◕‿◕✿)
  * @brief Creates a window with a sierpinski's triangle
+ * TODO:
+ * Modify this script to create a static sierpinski's triangle. Others script will need to be
+ * modified as well to acomiddate multiple examples.
  * @version 0.1
  * @date 2024-12-24
  *
@@ -25,25 +28,18 @@ namespace Vulkan {
 namespace Examples {
 
 void VulkanTriangleExample::init_vulkan() {
-  // // Create our instance
-  // Construct::instance( instance_ );
-
-  // // Setup debug messenger
-  // Debug::setup_debug_messenger( instance_, &debugMessenger_ );
-
-  // // Create surface
-  // create_surface();
-
   // Find & create vulkan device
   vulkanDevice_ = new VulkanDevice( instance_, surface_ );
 
   // Create swap chain / image views / render pass
   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
+  // Todo: Update this
   // Create descriptor layouts
   descriptors_ = new Descriptors();
   Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
 
+  // Todo: Update this
   // Create graphics pipeline
   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_, descriptors_->setLayout );
 
@@ -63,6 +59,7 @@ void VulkanTriangleExample::init_vulkan() {
   commandPool_ = new Construct::CommandPool();
   Construct::command_pool( vulkanDevice_, commandPool_->pool );
 
+  // Todo: Remove this
   // Create texture image / view / sampler
   textureImage_ = new VulkanTextureImage();
   Image::create_texture_image( vulkanDevice_, textureImage_, commandPool_->pool, TEXTURE_PATH );
@@ -75,7 +72,7 @@ void VulkanTriangleExample::init_vulkan() {
   // mesh_ = Shapes::generate_square();
   // mesh_ = load_mesh( MODEL_PATH );
 
-  // mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 1 );
+  mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 6 );
 
   vertexBuffer_ = new Buffer::Buffer();
   Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool );
@@ -91,6 +88,7 @@ void VulkanTriangleExample::init_vulkan() {
   // Create descriptor pool
   Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
 
+  // Todo: Update this
   // Create descriptor sets
   Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers, textureImage_,
                               MAX_FRAMES_IN_FLIGHT );

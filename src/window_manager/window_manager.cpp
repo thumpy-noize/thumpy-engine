@@ -42,7 +42,7 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
       Logger::log( "No rendering api selected." );
 
       // Create empty glfw window
-      std::unique_ptr<Window> window( new Window( title ) );
+      // std::unique_ptr<Window> window( new Window( title ) );
       windows_.push_back( std::make_unique<Window>( title ) );
     }
   }

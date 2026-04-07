@@ -23,22 +23,26 @@ WindowManager::WindowManager( RenderAPI api ) {
 WindowManager::~WindowManager() { terminate(); }
 
 void WindowManager::create_new_window( RenderAPI api, std::string title ) {
-  Window* window;
+  Logger::log( "Creating new window." );
+
+  // Window* window;
   switch ( api ) {
     case VULKAN: {
-      // window = new Vulkan::VulkanWindow( title );
-      window = new Vulkan::Examples::VulkanTriangleExample( title );
-      // window = new Vulkan::Examples::VulkanMeshExample( title );
+      Logger::log( "Using Vulkan.", Logger::INFO );
 
-      // dynamic_cast<Vulkan::VulkanWindow*>( window )->init_vulkan();
-      windows_.push_back( window );
+      // Create vulkan window
+      std::unique_ptr<Window> window( new Vulkan::Examples::VulkanMeshExample( title ) );
+      windows_.push_back( std::move( window ) );
       break;
     }
 
     case NONE:
     default: {
-      window = new Window( title );
-      windows_.push_back( window );
+      Logger::log( "No rendering api selected." );
+
+      // Create empty glfw window
+      std::unique_ptr<Window> window( new Window( title ) );
+      windows_.push_back( std::move( window ) );
     }
   }
 }
@@ -55,10 +59,9 @@ void WindowManager::loop() {
   for ( int i = windows_.size() - 1; i >= 0; i-- ) {
     // Check for window exit signal
     if ( windows_.at( i )->should_close() ) {
-      // Deconstruct window
-      windows_.at( i )->deconstruct_window();
       // Delete Window
       windows_.erase( windows_.begin() + i );
+
       // Resize i
       continue;
     }
@@ -77,6 +80,12 @@ void WindowManager::loop() {
 }
 
 void WindowManager::terminate() {
+  // Validate windows are closed
+  if ( windows_.size() != 0 ) {
+    Logger::log( "Terminating existing windows...", Logger::INFO );
+    windows_.clear();
+  }
+
   Logger::log( "Terminating glfw...", Logger::INFO );
   glfwTerminate();
 }

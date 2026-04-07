@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "window.hpp"
@@ -18,8 +19,7 @@ class WindowManager {
 
   // Create new window
   void create_new_window(
-      RenderAPI api, std::string title =
-                         "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" );
+      RenderAPI api, std::string title = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" );
 
   // Run loop
   void loop();
@@ -27,7 +27,7 @@ class WindowManager {
   void terminate();
 
  protected:
-  std::vector<Window *> windows_;
+  std::vector<std::unique_ptr<Window>> windows_;
 };
 }  // namespace Windows
 

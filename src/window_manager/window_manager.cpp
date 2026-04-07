@@ -31,8 +31,9 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
       Logger::log( "Using Vulkan.", Logger::INFO );
 
       // Create vulkan window
-      std::unique_ptr<Window> window( new Vulkan::Examples::VulkanMeshExample( title ) );
-      windows_.push_back( std::move( window ) );
+      // std::unique_ptr<Vulkan::VulkanWindow> window( new Vulkan::VulkanWindow( title ) );
+      windows_.push_back( std::make_unique<Vulkan::Examples::VulkanMeshExample>(
+          title ) );  // std::move( window ) );
       break;
     }
 
@@ -42,7 +43,7 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
 
       // Create empty glfw window
       std::unique_ptr<Window> window( new Window( title ) );
-      windows_.push_back( std::move( window ) );
+      windows_.push_back( std::make_unique<Window>( title ) );
     }
   }
 }

@@ -5,6 +5,8 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
 
+
+
 target_sources(window_manager
   PUBLIC
 
@@ -47,6 +49,12 @@ target_sources(window_manager
 
 )
 
+target_compile_definitions(window_manager 
+  PUBLIC 
+    VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1 
+    VULKAN_HPP_NO_STRUCT_CONSTRUCTORS=1
+)
+
 target_include_directories(window_manager
   PUBLIC
     "${CMAKE_SOURCE_DIR}/include"
@@ -54,11 +62,11 @@ target_include_directories(window_manager
     ${GLFW_LIBRARIES}
   )
 
-  target_link_libraries(window_manager
-    logger
-    glfw
-    glm::glm
-    Vulkan::Vulkan
-  )
+target_link_libraries(window_manager
+  logger
+  glfw
+  glm::glm
+  Vulkan::Vulkan
+)
 
 

@@ -23,7 +23,7 @@ WindowManager::WindowManager( RenderAPI api ) {
 WindowManager::~WindowManager() { terminate(); }
 
 void WindowManager::create_new_window( RenderAPI api, std::string title ) {
-  Logger::log( "Creating new window." );
+  Logger::log( "Constructing new window...", Logger::INFO );
 
   // Window* window;
   switch ( api ) {
@@ -32,14 +32,14 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
 
       // Create vulkan window
       // std::unique_ptr<Vulkan::VulkanWindow> window( new Vulkan::VulkanWindow( title ) );
-      windows_.push_back( std::make_unique<Vulkan::Examples::VulkanMeshExample>(
-          title ) );  // std::move( window ) );
+      windows_.push_back(
+          std::make_unique<Vulkan::VulkanWindow>( title ) );  // std::move( window ) );
       break;
     }
 
     case NONE:
     default: {
-      Logger::log( "No rendering api selected." );
+      Logger::log( "No rendering api selected.", Logger::WARNING );
 
       // Create empty glfw window
       // std::unique_ptr<Window> window( new Window( title ) );
@@ -62,7 +62,6 @@ void WindowManager::loop() {
     if ( windows_.at( i )->should_close() ) {
       // Delete Window
       windows_.erase( windows_.begin() + i );
-
       // Resize i
       continue;
     }

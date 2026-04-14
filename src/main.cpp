@@ -21,19 +21,18 @@ class Engine {
     loop();
   }
 
-  void terminate() {
-    Thumpy::Core::Logger::log( "Terminating engine...", Thumpy::Core::Logger::INFO );
-
-    // Terminate systems
-    delete window_manager;
-
-    // Dump log file
-    Thumpy::Core::Logger::close_logger();
-  }
-
   void init() {
     Thumpy::Core::Logger::init();
-    Thumpy::Core::Logger::log( "Starting Engine...", Thumpy::Core::Logger::INFO );
+    Thumpy::Core::Logger::log(
+        "\n##############################################################\n####       ### ####### "
+        "###### ### ####### ###      ###########\n####### ###### ####### ###### ###  #####  ### "
+        "##### ##########\n####### ######     ### ###### ### # ### # ### ##### ##########\n####### "
+        "###### ### ###  ####  ### ## # ## ###     ############\n####### ###### ### ####      #### "
+        "### ### ### "
+        "################\n##############################################################",
+        Thumpy::Core::Logger::INFO );
+
+    Thumpy::Core::Logger::log( "Starting Engine... (Vroom Vroom)", Thumpy::Core::Logger::INFO );
 
     Thumpy::Core::IO::init();
 
@@ -41,6 +40,18 @@ class Engine {
         new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::VULKAN );
 
     Thumpy::Core::Logger::log( "Setup complete...", Thumpy::Core::Logger::INFO );
+  }
+
+  void terminate() {
+    Thumpy::Core::Logger::log( "Terminating engine...", Thumpy::Core::Logger::INFO );
+
+    // Terminate systems
+    delete window_manager;
+
+    Thumpy::Core::Logger::log( "Systems offline. Closing log...", Thumpy::Core::Logger::INFO );
+
+    // Dump log file
+    Thumpy::Core::Logger::close_logger();
   }
 
   void loop() {

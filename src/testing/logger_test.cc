@@ -29,20 +29,48 @@ TEST( logger, test_file_logger_write ) {
   // Create file
   Logger::init();
   EXPECT_TRUE( Logger::get_log_file()->is_open() );
+
   // Log to file
   Logger::log_to_file( test_string, Logger::LogLevel::DEBUG );
-
-  // Close file
-  Logger::close_log_file();
-  EXPECT_FALSE( Logger::get_log_file()->is_open() );
 
   // Open File
   std::ifstream file_stream( Logger::log_path, std::ios::in );
   EXPECT_TRUE( file_stream.is_open() );
 
+  // Go to EOF
+  file_stream.seekg( -2, std::ios_base::end );
+
+  // Seek back to "\n"
+  while ( true ) {
+    // Get current char
+    char character;
+    file_stream.get( character );
+
+    // If begining of file, break out
+    if ( (int)file_stream.tellg() <= 1 ) {
+      file_stream.seekg( 0 );
+      break;
+    }
+
+    // If new line found, break out
+    if ( character == '\n' ) {
+      break;
+    }
+
+    // Seek backwards
+    file_stream.seekg( -2, std::ios_base::cur );
+  }
+
   // Read file
   std::string line;
   std::getline( file_stream, line );
+
+  // Close ifstream
+  file_stream.close();
+
+  // Close logger file
+  Logger::close_log_file();
+  EXPECT_FALSE( Logger::get_log_file()->is_open() );
 
   // Validate equal
   EXPECT_EQ( line, test_string );

@@ -27,7 +27,7 @@ std::ofstream *log_file = new std::ofstream();
 
 void start_log_file() {
   // Open log file
-  log_file->open( log_path, std::ofstream::out | std::ofstream::trunc );
+  log_file->open( log_path, std::ofstream::out | std::ofstream::app );
   if ( !log_file->is_open() ) {
     log( "Log file failed to open.", ERROR_LOG );
   }

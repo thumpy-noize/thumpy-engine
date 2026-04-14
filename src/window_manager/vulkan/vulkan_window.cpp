@@ -39,8 +39,10 @@ namespace Vulkan {
 VulkanWindow::VulkanWindow( std::string title ) : Window( title ) { init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
-  // Create our instance
-  Construct::instance( instance_ );
+  Logger::log( "Constructing Vulkan window...", Logger::DEBUG );
+
+  // Construct instance
+  Construct::raii_instance( raiiInstance_, raiiContext_ );
 
   // Setup debug messenger
   // Debug::setup_debug_messenger( instance_, &debugMessenger_ );

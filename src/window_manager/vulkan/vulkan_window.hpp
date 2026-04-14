@@ -11,7 +11,9 @@
 
 #pragma once
 
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
+
+#include <vulkan/vulkan_raii.hpp>
 
 #include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_construct.hpp"
@@ -30,6 +32,7 @@ namespace Vulkan {
 class VulkanWindow : public Window {
  public:
   VulkanWindow( std::string title );
+  ~VulkanWindow() override { deconstruct_window(); };
 
 #pragma region Core
 
@@ -58,32 +61,37 @@ class VulkanWindow : public Window {
 
   // const std::string TEXTURE_PATH = "vj_swirl.png";
 
-  const std::string MODEL_PATH = "viking_room.obj";
-  const std::string TEXTURE_PATH = "viking_room.png";
+  // const std::string MODEL_PATH = "viking_room.obj";
+  // const std::string TEXTURE_PATH = "viking_room.png";
 
  protected:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  VkInstance instance_;
-  VkSurfaceKHR surface_;
+  vk::raii::Context raiiContext_;
+  vk::raii::Instance raiiInstance_ = nullptr;
 
-  VulkanDevice *vulkanDevice_ = nullptr;
-  VulkanSwapChain *swapChain_ = nullptr;
-  VulkanPipeline *pipeline_ = nullptr;
-  VulkanTextureImage *textureImage_ = nullptr;
-  VulkanImage *depthBuffer_ = nullptr;
-  VulkanImage *msaaColorBuffer_ = nullptr;
-  VulkanRender *render_ = nullptr;
+  // ### None RAII variables ###
 
-  Construct::CommandPool *commandPool_ = nullptr;
-  Construct::UniformBuffers *uniformBuffers_ = nullptr;
-  Buffer::Buffer *vertexBuffer_ = nullptr;
-  Buffer::Buffer *indexBuffer_ = nullptr;
-  Descriptors *descriptors_ = nullptr;
+  // VkInstance instance_;
+  // VkSurfaceKHR surface_;
 
-  Mesh *mesh_ = nullptr;
+  // VulkanDevice *vulkanDevice_ = nullptr;
+  // VulkanSwapChain *swapChain_ = nullptr;
+  // VulkanPipeline *pipeline_ = nullptr;
+  // VulkanTextureImage *textureImage_ = nullptr;
+  // VulkanImage *depthBuffer_ = nullptr;
+  // VulkanImage *msaaColorBuffer_ = nullptr;
+  // VulkanRender *render_ = nullptr;
 
-  VkDebugUtilsMessengerEXT debugMessenger_;
+  // Construct::CommandPool *commandPool_ = nullptr;
+  // Construct::UniformBuffers *uniformBuffers_ = nullptr;
+  // Buffer::Buffer *vertexBuffer_ = nullptr;
+  // Buffer::Buffer *indexBuffer_ = nullptr;
+  // Descriptors *descriptors_ = nullptr;
+
+  // Mesh *mesh_ = nullptr;
+
+  // VkDebugUtilsMessengerEXT debugMessenger_;
 
   // warp t
   // std::vector<Vertex> vertices_ = {

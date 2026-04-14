@@ -16,7 +16,7 @@ namespace Windows {
 class Window {
  public:
   Window( std::string title );
-  ~Window();
+  virtual ~Window() { deconstruct_window(); };
   void init_window();
   virtual void deconstruct_window();
   virtual void loop();

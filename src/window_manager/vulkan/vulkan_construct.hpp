@@ -14,6 +14,8 @@
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan_core.h>
 
+#include <vulkan/vulkan_raii.hpp>
+
 #include "vulkan/vulkan_helper.hpp"
 #include "vulkan_device.hpp"
 
@@ -24,6 +26,9 @@ namespace Vulkan {
 namespace Construct {
 
 void instance( VkInstance &instance );
+
+// TODO: look into context, we may not need to pass it in.
+void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context );
 
 void surface( VkInstance instance, GLFWwindow *window, VkSurfaceKHR &surface );
 

@@ -43,10 +43,10 @@ void VulkanWindow::init_vulkan() {
   Construct::instance( instance_ );
 
   // Setup debug messenger
-  Debug::setup_debug_messenger( instance_, &debugMessenger_ );
+  // Debug::setup_debug_messenger( instance_, &debugMessenger_ );
 
   // Create surface
-  create_surface();
+  // create_surface();
 
   // // Find & create vulkan device
   // vulkanDevice_ = new VulkanDevice( instance_, surface_ );
@@ -153,32 +153,32 @@ void VulkanWindow::deconstruct_window() {
 
   // vkDestroyDevice( vulkanDevice_->device, nullptr );
 
-  if ( enableValidationLayers ) {
-    Debug::destroy_debug_utils_messenger_ext( instance_, &debugMessenger_, nullptr );
-  }
+  // if ( enableValidationLayers ) {
+  //   Debug::destroy_debug_utils_messenger_ext( instance_, &debugMessenger_, nullptr );
+  // }
 
-  vkDestroySurfaceKHR( instance_, surface_, nullptr );
-  // vkDestroyInstance( instance_, nullptr ); // Memory leak
+  // vkDestroySurfaceKHR( instance_, surface_, nullptr );
+  // vkDestroyInstance( instance_, nullptr );  // Memory leak
 
-  Window::deconstruct_window();
+  // Window::deconstruct_window();
 }
 
 void VulkanWindow::loop() {
   Window::loop();
-  if ( vulkanDevice_ ) {
-    render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size() ),
-                         indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),
-                         uniformBuffers_->mapped, descriptors_->sets, depthBuffer_,
-                         msaaColorBuffer_ );
+  // if ( vulkanDevice_ ) {
+  //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size() ),
+  //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),
+  //                        uniformBuffers_->mapped, descriptors_->sets, depthBuffer_,
+  //                        msaaColorBuffer_ );
 
-    vkDeviceWaitIdle( vulkanDevice_->device );
-  }
+  //   vkDeviceWaitIdle( vulkanDevice_->device );
+  // }
 }
 
 void VulkanWindow::create_surface() {
-  if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) != VK_SUCCESS ) {
-    Logger::log( "Failed to create window surface!", Logger::CRITICAL );
-  }
+  // if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) != VK_SUCCESS ) {
+  //   Logger::log( "Failed to create window surface!", Logger::CRITICAL );
+  // }
 }
 
 #pragma endregion Core

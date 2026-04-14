@@ -30,6 +30,8 @@ void instance( VkInstance &instance );
 // TODO: look into context, we may not need to pass it in.
 void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context );
 
+std::vector<const char *> getRequiredInstanceExtensions();
+
 void surface( VkInstance instance, GLFWwindow *window, VkSurfaceKHR &surface );
 
 #pragma region Command pool

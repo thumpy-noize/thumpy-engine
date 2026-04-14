@@ -69,6 +69,7 @@ class VulkanWindow : public Window {
 
   vk::raii::Context raiiContext_;
   vk::raii::Instance raiiInstance_ = nullptr;
+  vk::raii::DebugUtilsMessengerEXT raiiDebugMessenger_ = nullptr;
 
   // ### None RAII variables ###
 

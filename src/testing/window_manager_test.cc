@@ -35,8 +35,8 @@ class WindowManagerTest : public testing::Test {
     // Code here will be called immediately after the constructor (right
     // before each test).
 
-    window_manager = new Thumpy::Core::Windows::WindowManager(
-        Thumpy::Core::Windows::RenderAPI::NONE );
+    window_manager =
+        new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::NONE );
 
     EXPECT_TRUE( APPLICATION_RUNNING );
   }
@@ -45,7 +45,8 @@ class WindowManagerTest : public testing::Test {
     // Code here will be called immediately after each test (right
     // before the destructor).
     // Terminate systems
-    window_manager->terminate();
+    // window_manager->terminate();
+    delete window_manager;
   }
 
   Thumpy::Core::Windows::WindowManager *window_manager;
@@ -94,8 +95,8 @@ class WindowManagerVulkanTest : public testing::Test {
     // This will fail if there is no devices that are vulkan compatible.
     // ( git workflow servers are not compatible )
     try {
-      window_manager = new Thumpy::Core::Windows::WindowManager(
-          Thumpy::Core::Windows::RenderAPI::VULKAN );
+      window_manager =
+          new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::VULKAN );
     } catch ( Vulkan::VulkanNotCompatible &ex ) {
       APPLICATION_RUNNING = false;
       return;
@@ -108,7 +109,8 @@ class WindowManagerVulkanTest : public testing::Test {
     // Code here will be called immediately after each test (right
     // before the destructor).
     // Terminate systems
-    window_manager->terminate();
+    delete window_manager;
+    // window_manager->terminate();
   }
 
   Thumpy::Core::Windows::WindowManager *window_manager;
@@ -120,8 +122,19 @@ class WindowManagerVulkanTest : public testing::Test {
 // Demonstrate some basic assertions.
 TEST_F( WindowManagerVulkanTest, setup_and_teardown ) {}
 
+// Loop Vulkan window for 100 frames
 TEST_F( WindowManagerVulkanTest, loop_100 ) {
   int i = 100;
+  while ( APPLICATION_RUNNING && i != 0 ) {
+    // Update window manager
+    window_manager->loop();
+    i--;
+  }
+}
+
+// Loop Vulkan window for 10,000 frames
+TEST_F( WindowManagerVulkanTest, loop_100000 ) {
+  int i = 100000;
   while ( APPLICATION_RUNNING && i != 0 ) {
     // Update window manager
     window_manager->loop();

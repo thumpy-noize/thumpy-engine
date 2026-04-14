@@ -43,6 +43,7 @@ void VulkanWindow::init_vulkan() {
 
   // Construct instance
   Construct::raii_instance( raiiInstance_, raiiContext_ );
+  Debug::setup_debug_messenger( raiiInstance_, raiiDebugMessenger_ );
 
   // Setup debug messenger
   // Debug::setup_debug_messenger( instance_, &debugMessenger_ );

@@ -85,6 +85,13 @@ void destroy_debug_utils_messenger_ext( VkInstance instance,
 void populate_debug_messenger_create_info( VkDebugUtilsMessengerCreateInfoEXT &createInfo );
 
 /**
+ * @brief setup the RAII debug messenger
+ *
+ */
+void setup_debug_messenger( vk::raii::Instance &instance,
+                            vk::raii::DebugUtilsMessengerEXT &debugMessenger );
+
+/**
  * @brief RAII callback method
  *
  */

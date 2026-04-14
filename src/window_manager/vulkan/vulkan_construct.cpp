@@ -13,6 +13,8 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include <vulkan/vulkan_raii.hpp>
+
 #include "logger.hpp"
 #include "logger_helper.hpp"
 #include "vulkan_buffers.hpp"
@@ -58,6 +60,52 @@ void instance( VkInstance &instance ) {
   if ( vkCreateInstance( &createInfo, nullptr, &instance ) != VK_SUCCESS ) {
     throw VulkanNotCompatible( "Failed to create instance!" );
   }
+}
+
+void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
+  Logger::log( "Constructing RAII Vulkan instance...", Logger::DEBUG );
+
+  // Get the required instance extensions from GLFW.
+  Logger::log( "Getting extensions from GLFW...", Logger::DEBUG );
+  uint32_t glfwExtensionCount = 0;
+  auto glfwExtensions = glfwGetRequiredInstanceExtensions( &glfwExtensionCount );
+
+  // Check if the required GLFW extensions are supported by the Vulkan implementation.
+  Logger::log( "Validating GLFW support...", Logger::DEBUG );
+  auto extensionProperties = context.enumerateInstanceExtensionProperties();
+  for ( uint32_t i = 0; i < glfwExtensionCount; ++i ) {
+    if ( std::ranges::none_of( extensionProperties, [glfwExtension = glfwExtensions[i]](
+                                                        auto const &extensionProperty ) {
+           return strcmp( extensionProperty.extensionName, glfwExtension ) == 0;
+         } ) ) {
+      // If GLFW not supported - throw error
+      Logger::log( "Required GLFW extension not supported: " + std::string( glfwExtensions[i] ),
+                   Logger::CRITICAL );
+      throw std::runtime_error( "Required GLFW extension not supported: " +
+                                std::string( glfwExtensions[i] ) );
+    }
+  }
+
+  // Create app info
+  Logger::log( "Constructing app info...", Logger::DEBUG );
+  constexpr vk::ApplicationInfo appInfo{
+      .pApplicationName = "Thumpy Engine Editor",  // TODO: Convert to variable
+      .applicationVersion = VK_MAKE_VERSION( 1, 0, 0 ),
+      .pEngineName = "Thumpy Engine",  // TODO: Convert to variable
+      .engineVersion = VK_MAKE_VERSION( 1, 0, 0 ),
+      .apiVersion = vk::ApiVersion14 };
+
+  // Create instance info
+  Logger::log( "Constructing instance info...", Logger::DEBUG );
+  vk::InstanceCreateInfo createInfo{ .pApplicationInfo = &appInfo,
+                                     .enabledExtensionCount = glfwExtensionCount,
+                                     .ppEnabledExtensionNames = glfwExtensions };
+
+  // Create instance
+  Logger::log( "Constructing instance...", Logger::DEBUG );
+  instance = vk::raii::Instance( context, createInfo );
+
+  Logger::log( "Constructed RAII Vulkan instance.", Logger::DEBUG );
 }
 
 void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,

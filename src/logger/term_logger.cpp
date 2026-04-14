@@ -20,10 +20,14 @@ namespace Thumpy {
 namespace Core {
 namespace Logger {
 
-int term_log_vision = /* INFO | */ DEBUG | WARNING | ERROR_LOG | CRITICAL;
+int term_log_vision = INFO | DEBUG | WARNING | ERROR_LOG | CRITICAL;
 
 void log_to_terminal( const std::string &message, LogLevel level ) {
   if ( ( level & term_log_vision ) != 0 ) {
+    if ( ( ( level & CRITICAL ) != 0 ) || ( level & ERROR_LOG != 0 ) ) {
+      std::cerr << terminal_color_from_level( level ) << message << std::endl;
+      return;
+    }
     std::cout << terminal_color_from_level( level ) << message << std::endl;
   }
 }
@@ -31,8 +35,7 @@ void log_to_terminal( const std::string &message, LogLevel level ) {
 std::string terminal_color_from_level( LogLevel level ) {
   std::string color_code = "\033[0m";  // Default
   if ( ( level & CRITICAL ) != 0 ) {
-    return color_code.append(
-        "\033[41m\033[1m" );  // Red highlighted Background
+    return color_code.append( "\033[41m\033[1m" );  // Red highlighted Background
   }
   if ( ( level & ERROR_LOG ) != 0 ) {
     return color_code.append( "\033[31m" );  // Red
@@ -46,8 +49,7 @@ std::string terminal_color_from_level( LogLevel level ) {
   if ( ( level & DEBUG ) != 0 ) {
     return color_code;  // Default
   }
-  return color_code.append(
-      "\033[45m" );  // None of the above - Purple background
+  return color_code.append( "\033[45m" );  // None of the above - Purple background
 }
 }  // namespace Logger
 }  // namespace Core

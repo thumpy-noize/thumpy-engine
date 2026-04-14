@@ -14,6 +14,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include <string>
+#include <vulkan/vulkan_raii.hpp>
 
 #include "logger.hpp"
 
@@ -35,8 +36,7 @@ namespace Debug {
 static VKAPI_ATTR VkBool32 VKAPI_CALL
 debug_callback( VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                 VkDebugUtilsMessageTypeFlagsEXT messageType,
-                const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                void *pUserData ) {
+                const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData ) {
   std::string message = "validation layer: ";
   message.append( pCallbackData->pMessage );
   Logger::log( message, Logger::DEBUG );
@@ -50,8 +50,7 @@ debug_callback( VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
  * @param instance
  * @param debugMessenger
  */
-void setup_debug_messenger( VkInstance instance,
-                            VkDebugUtilsMessengerEXT *debugMessenger );
+void setup_debug_messenger( VkInstance instance, VkDebugUtilsMessengerEXT *debugMessenger );
 
 /**
  * @brief Creates utils
@@ -62,10 +61,10 @@ void setup_debug_messenger( VkInstance instance,
  * @param pDebugMessenger
  * @return VkResult
  */
-VkResult create_debug_utils_messenger_ext(
-    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator,
-    VkDebugUtilsMessengerEXT *pDebugMessenger );
+VkResult create_debug_utils_messenger_ext( VkInstance instance,
+                                           const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                           const VkAllocationCallbacks *pAllocator,
+                                           VkDebugUtilsMessengerEXT *pDebugMessenger );
 
 /**
  * @brief Destroy the utils
@@ -74,17 +73,24 @@ VkResult create_debug_utils_messenger_ext(
  * @param debugMessenger
  * @param pAllocator
  */
-void destroy_debug_utils_messenger_ext(
-    VkInstance instance, VkDebugUtilsMessengerEXT *debugMessenger,
-    const VkAllocationCallbacks *pAllocator );
+void destroy_debug_utils_messenger_ext( VkInstance instance,
+                                        VkDebugUtilsMessengerEXT *debugMessenger,
+                                        const VkAllocationCallbacks *pAllocator );
 
 /**
  * @brief Populate messenger info and set callback
  *
  * @param createInfo
  */
-void populate_debug_messenger_create_info(
-    VkDebugUtilsMessengerCreateInfoEXT &createInfo );
+void populate_debug_messenger_create_info( VkDebugUtilsMessengerCreateInfoEXT &createInfo );
+
+/**
+ * @brief RAII callback method
+ *
+ */
+static VKAPI_ATTR vk::Bool32 VKAPI_CALL debug_callback(
+    vk::DebugUtilsMessageSeverityFlagBitsEXT severity, vk::DebugUtilsMessageTypeFlagsEXT type,
+    const vk::DebugUtilsMessengerCallbackDataEXT *pCallbackData, void * );
 
 };  // namespace Debug
 }  // namespace Vulkan

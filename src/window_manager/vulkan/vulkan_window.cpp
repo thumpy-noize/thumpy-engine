@@ -123,7 +123,7 @@ void VulkanWindow::init_vulkan() {
 }
 
 void VulkanWindow::deconstruct_window() {
-  Logger::log( "Destroying vulkan..." );
+  Logger::log( "Destroying Vulkan window...", Logger::DEBUG );
 
   // swapChain_->clear_swap_chain();
 

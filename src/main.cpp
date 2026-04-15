@@ -23,13 +23,16 @@ class Engine {
 
   void init() {
     Thumpy::Core::Logger::init();
+    // Log Thump - This is a marker for a new launch // TODO: Make this look better
     Thumpy::Core::Logger::log(
-        "\n##############################################################\n####       ### ####### "
-        "###### ### ####### ###      ###########\n####### ###### ####### ###### ###  #####  ### "
-        "##### ##########\n####### ######     ### ###### ### # ### # ### ##### ##########\n####### "
-        "###### ### ###  ####  ### ## # ## ###     ############\n####### ###### ### ####      #### "
-        "### ### ### "
-        "################\n##############################################################",
+        "\n"
+        "░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n"
+        "░        ░░  ░░░░  ░░  ░░░░  ░░  ░░░░  ░░       ░░░  ░░░░  ░\n"
+        "▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒   ▒▒   ▒▒  ▒▒▒▒  ▒▒▒  ▒▒  ▒▒\n"
+        "▒▒▒▒  ▒▒▒▒▒        ▒▒  ▒▒▒▒  ▒▒        ▒▒       ▒▒▒▒▒    ▒▒▒\n"
+        "▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓  ▓  ▓  ▓▓  ▓▓▓▓▓▓▓▓▓▓▓  ▓▓▓▓\n"
+        "▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓  ▓▓▓      ▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓▓▓▓▓▓▓▓  ▓▓▓▓\n"
+        "████████████████████████████████████████████████████████████",
         Thumpy::Core::Logger::INFO );
 
     Thumpy::Core::Logger::log( "Starting Engine... (Vroom Vroom)", Thumpy::Core::Logger::INFO );
@@ -48,7 +51,7 @@ class Engine {
     // Terminate systems
     delete window_manager;
 
-    Thumpy::Core::Logger::log( "Systems offline. Closing log...", Thumpy::Core::Logger::INFO );
+    Thumpy::Core::Logger::log( "Systems offline.", Thumpy::Core::Logger::INFO );
 
     // Dump log file
     Thumpy::Core::Logger::close_logger();

@@ -15,11 +15,11 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
-#include "vulkan/vulkan_buffers.hpp"
+// #include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_construct.hpp"
 #include "vulkan_helper.hpp"
-#include "vulkan_pipeline.hpp"
-#include "vulkan_render.hpp"
+// #include "vulkan_pipeline.hpp"
+// #include "vulkan_render.hpp"
 #include "window.hpp"
 
 class VulkanDevice;
@@ -76,7 +76,7 @@ class VulkanWindow : public Window {
   // VkInstance instance_;
   // VkSurfaceKHR surface_;
 
-  // VulkanDevice *vulkanDevice_ = nullptr;
+  std::unique_ptr<VulkanDevice> vulkanDevice_ = nullptr;
   // VulkanSwapChain *swapChain_ = nullptr;
   // VulkanPipeline *pipeline_ = nullptr;
   // VulkanTextureImage *textureImage_ = nullptr;

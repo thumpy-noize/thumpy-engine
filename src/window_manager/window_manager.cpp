@@ -4,8 +4,8 @@
 #define GLFW_INCLUDE_VULKAN
 
 #include "logger.hpp"
-#include "vulkan/examples/vulkan_mesh_example.hpp"
-#include "vulkan/examples/vulkan_triangle_example.hpp"
+// #include "vulkan/examples/vulkan_mesh_example.hpp"
+// #include "vulkan/examples/vulkan_triangle_example.hpp"
 #include "vulkan/vulkan_window.hpp"
 #include "window_manager.hpp"
 

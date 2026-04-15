@@ -12,7 +12,7 @@
 #include <cstddef>
 #define GLFW_INCLUDE_VULKAN
 
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 
 #include <cstdint>  // Necessary for uint32_t
 #include <cstring>
@@ -22,11 +22,11 @@
 #include <vector>
 
 #include "logger.hpp"
-#include "vulkan_buffers.hpp"
-#include "vulkan_construct.hpp"
+// #include "vulkan_buffers.hpp"
+// #include "vulkan_construct.hpp"
 #include "vulkan_debug.hpp"
 #include "vulkan_helper.hpp"
-#include "vulkan_image.hpp"
+// #include "vulkan_image.hpp"
 #include "vulkan_window.hpp"
 
 namespace Thumpy {
@@ -44,6 +44,8 @@ void VulkanWindow::init_vulkan() {
   // Construct instance
   Construct::raii_instance( raiiInstance_, raiiContext_ );
   Debug::setup_debug_messenger( raiiInstance_, raiiDebugMessenger_ );
+
+  vulkanDevice_ = std::make_unique<VulkanDevice>( raiiInstance_ );
 
   // Setup debug messenger
   // Debug::setup_debug_messenger( instance_, &debugMessenger_ );

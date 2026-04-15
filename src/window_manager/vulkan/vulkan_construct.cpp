@@ -11,13 +11,13 @@
 
 #include "vulkan_construct.hpp"
 
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 
 #include <vulkan/vulkan_raii.hpp>
 
 #include "logger.hpp"
 #include "logger_helper.hpp"
-#include "vulkan_buffers.hpp"
+// #include "vulkan_buffers.hpp"
 #include "vulkan_debug.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
@@ -29,38 +29,38 @@ namespace Windows {
 namespace Vulkan {
 namespace Construct {
 
-void instance( VkInstance &instance ) {
-  if ( enableValidationLayers && !check_validation_layer_support() ) {
-    throw VulkanNotCompatible( "validation layers requested, but not available!" );
-  }
+// void instance( VkInstance &instance ) {
+//   if ( enableValidationLayers && !check_validation_layer_support() ) {
+//     throw VulkanNotCompatible( "validation layers requested, but not available!" );
+//   }
 
-  VkApplicationInfo appInfo = Initializer::application_info();
+//   VkApplicationInfo appInfo = Initializer::application_info();
 
-  VkInstanceCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  createInfo.pApplicationInfo = &appInfo;
+//   VkInstanceCreateInfo createInfo{};
+//   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+//   createInfo.pApplicationInfo = &appInfo;
 
-  auto extensions = get_required_extensions();
-  createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
-  createInfo.ppEnabledExtensionNames = extensions.data();
+//   auto extensions = get_required_extensions();
+//   createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
+//   createInfo.ppEnabledExtensionNames = extensions.data();
 
-  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-  if ( enableValidationLayers ) {
-    createInfo.enabledLayerCount = static_cast<uint32_t>( validationLayers.size() );
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+//   VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+//   if ( enableValidationLayers ) {
+//     createInfo.enabledLayerCount = static_cast<uint32_t>( validationLayers.size() );
+//     createInfo.ppEnabledLayerNames = validationLayers.data();
 
-    Debug::populate_debug_messenger_create_info( debugCreateInfo );
-    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
-  } else {
-    createInfo.enabledLayerCount = 0;
+//     Debug::populate_debug_messenger_create_info( debugCreateInfo );
+//     createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
+//   } else {
+//     createInfo.enabledLayerCount = 0;
 
-    createInfo.pNext = nullptr;
-  }
+//     createInfo.pNext = nullptr;
+//   }
 
-  if ( vkCreateInstance( &createInfo, nullptr, &instance ) != VK_SUCCESS ) {
-    throw VulkanNotCompatible( "Failed to create instance!" );
-  }
-}
+//   if ( vkCreateInstance( &createInfo, nullptr, &instance ) != VK_SUCCESS ) {
+//     throw VulkanNotCompatible( "Failed to create instance!" );
+//   }
+// }
 
 void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
   Logger::log( "Constructing RAII Vulkan instance...", Logger::DEBUG );
@@ -160,149 +160,153 @@ std::vector<const char *> getRequiredInstanceExtensions() {
   return extensions;
 }
 
-void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
-                      int maxFramesInFlight ) {
-  VkDeviceSize bufferSize = sizeof( UniformBufferObject );
+// void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
+//                       int maxFramesInFlight ) {
+//   // VkDeviceSize bufferSize = sizeof( UniformBufferObject );
 
-  uniformBuffers->buffers.resize( maxFramesInFlight );
-  uniformBuffers->memory.resize( maxFramesInFlight );
-  uniformBuffers->mapped.resize( maxFramesInFlight );
+//   // uniformBuffers->buffers.resize( maxFramesInFlight );
+//   // uniformBuffers->memory.resize( maxFramesInFlight );
+//   // uniformBuffers->mapped.resize( maxFramesInFlight );
 
-  for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
-    Buffer::create_buffer(
-        bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        uniformBuffers->buffers[i], uniformBuffers->memory[i], vulkanDevice );
+//   // for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
+//   //   Buffer::create_buffer(
+//   //       bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+//   //       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+//   //       uniformBuffers->buffers[i], uniformBuffers->memory[i], vulkanDevice );
 
-    vkMapMemory( vulkanDevice->device, uniformBuffers->memory[i], 0, bufferSize, 0,
-                 &uniformBuffers->mapped[i] );
-  }
-}
+//   //   vkMapMemory( vulkanDevice->device, uniformBuffers->memory[i], 0, bufferSize, 0,
+//   //                &uniformBuffers->mapped[i] );
+//   // }
+// }
 
-void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool ) {
-  QueueFamilyIndices queueFamilyIndices =
-      vulkanDevice->find_queue_families( vulkanDevice->physicalDevice );
+// void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool ) {
+//   // QueueFamilyIndices queueFamilyIndices =
+//   //     vulkanDevice->find_queue_families( vulkanDevice->physicalDevice );
 
-  VkCommandPoolCreateInfo poolInfo =
-      Initializer::pool_info( queueFamilyIndices.graphicsFamily.value() );
+//   // VkCommandPoolCreateInfo poolInfo =
+//   //     Initializer::pool_info( queueFamilyIndices.graphicsFamily.value() );
 
-  if ( vkCreateCommandPool( vulkanDevice->device, &poolInfo, nullptr, &commandPool ) !=
-       VK_SUCCESS ) {
-    Logger::log( "Failed to create command pool!", Logger::CRITICAL );
-  }
-}
+//   // if ( vkCreateCommandPool( vulkanDevice->device, &poolInfo, nullptr, &commandPool ) !=
+//   //      VK_SUCCESS ) {
+//   //   Logger::log( "Failed to create command pool!", Logger::CRITICAL );
+//   // }
+// }
 
-void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
-                     VkDevice device, int maxFramesInFlight ) {
-  commandBuffers.resize( maxFramesInFlight );
-  VkCommandBufferAllocateInfo allocInfo =
-      Initializer::command_buffer_allocate_info( commandPool, (uint32_t)commandBuffers.size() );
+// void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
+//                      VkDevice device, int maxFramesInFlight ) {
+//   // commandBuffers.resize( maxFramesInFlight );
+//   // VkCommandBufferAllocateInfo allocInfo =
+//   //     Initializer::command_buffer_allocate_info( commandPool, (uint32_t)commandBuffers.size()
+//   );
 
-  if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) != VK_SUCCESS ) {
-    Logger::log( "Failed to allocate command buffers!", Logger::CRITICAL );
-  }
-}
+//   // if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) != VK_SUCCESS ) {
+//   //   Logger::log( "Failed to allocate command buffers!", Logger::CRITICAL );
+//   // }
+// }
 
 #pragma region Descriptor
 
-void descriptor_set_layout( VulkanDevice *vulkanDevice,
-                            VkDescriptorSetLayout &descriptorSetLayout ) {
-  VkDescriptorSetLayoutBinding uboLayoutBinding{};
-  uboLayoutBinding.binding = 0;
-  uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  uboLayoutBinding.descriptorCount = 1;
+// void descriptor_set_layout( VulkanDevice *vulkanDevice,
+//                             VkDescriptorSetLayout &descriptorSetLayout ) {
+//   // VkDescriptorSetLayoutBinding uboLayoutBinding{};
+//   // uboLayoutBinding.binding = 0;
+//   // uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//   // uboLayoutBinding.descriptorCount = 1;
 
-  uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-  uboLayoutBinding.pImmutableSamplers = nullptr;  // Optional
+//   // uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+//   // uboLayoutBinding.pImmutableSamplers = nullptr;  // Optional
 
-  VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-  samplerLayoutBinding.binding = 1;
-  samplerLayoutBinding.descriptorCount = 1;
-  samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  samplerLayoutBinding.pImmutableSamplers = nullptr;
-  samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+//   // VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+//   // samplerLayoutBinding.binding = 1;
+//   // samplerLayoutBinding.descriptorCount = 1;
+//   // samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//   // samplerLayoutBinding.pImmutableSamplers = nullptr;
+//   // samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-  std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-  VkDescriptorSetLayoutCreateInfo layoutInfo{};
-  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  layoutInfo.bindingCount = static_cast<uint32_t>( bindings.size() );
-  layoutInfo.pBindings = bindings.data();
+//   // std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding,
+//   samplerLayoutBinding
+//   // }; VkDescriptorSetLayoutCreateInfo layoutInfo{}; layoutInfo.sType =
+//   // VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO; layoutInfo.bindingCount =
+//   // static_cast<uint32_t>( bindings.size() ); layoutInfo.pBindings = bindings.data();
 
-  if ( vkCreateDescriptorSetLayout( vulkanDevice->device, &layoutInfo, nullptr,
-                                    &descriptorSetLayout ) != VK_SUCCESS ) {
-    Logger::log( "Failed to create descriptor set layout!", Logger::CRITICAL );
-  }
-}
+//   // if ( vkCreateDescriptorSetLayout( vulkanDevice->device, &layoutInfo, nullptr,
+//   //                                   &descriptorSetLayout ) != VK_SUCCESS ) {
+//   //   Logger::log( "Failed to create descriptor set layout!", Logger::CRITICAL );
+//   // }
+// }
 
-void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
-                      int maxFramesInFlight ) {
-  std::array<VkDescriptorPoolSize, 2> poolSizes{};
-  poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  poolSizes[0].descriptorCount = static_cast<uint32_t>( maxFramesInFlight );
-  poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  poolSizes[1].descriptorCount = static_cast<uint32_t>( maxFramesInFlight );
+// void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
+//                       int maxFramesInFlight ) {
+//   // std::array<VkDescriptorPoolSize, 2> poolSizes{};
+//   // poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//   // poolSizes[0].descriptorCount = static_cast<uint32_t>( maxFramesInFlight );
+//   // poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//   // poolSizes[1].descriptorCount = static_cast<uint32_t>( maxFramesInFlight );
 
-  VkDescriptorPoolCreateInfo poolInfo{};
-  poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-  poolInfo.poolSizeCount = static_cast<uint32_t>( poolSizes.size() );
-  poolInfo.pPoolSizes = poolSizes.data();
-  poolInfo.maxSets = static_cast<uint32_t>( maxFramesInFlight );
+//   // VkDescriptorPoolCreateInfo poolInfo{};
+//   // poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+//   // poolInfo.poolSizeCount = static_cast<uint32_t>( poolSizes.size() );
+//   // poolInfo.pPoolSizes = poolSizes.data();
+//   // poolInfo.maxSets = static_cast<uint32_t>( maxFramesInFlight );
 
-  if ( vkCreateDescriptorPool( vulkanDevice->device, &poolInfo, nullptr, &descriptorPool ) !=
-       VK_SUCCESS ) {
-    Logger::log( "Failed to create descriptor pool!", Logger::CRITICAL );
-  }
-}
+//   // if ( vkCreateDescriptorPool( vulkanDevice->device, &poolInfo, nullptr, &descriptorPool ) !=
+//   //      VK_SUCCESS ) {
+//   //   Logger::log( "Failed to create descriptor pool!", Logger::CRITICAL );
+//   // }
+// }
 
-void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
-                      std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
-                      int maxFramesInFlight ) {
-  std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight, descriptors->setLayout );
-  VkDescriptorSetAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  allocInfo.descriptorPool = descriptors->pool;
-  allocInfo.descriptorSetCount = static_cast<uint32_t>( maxFramesInFlight );
-  allocInfo.pSetLayouts = layouts.data();
+// void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
+//                       std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
+//                       int maxFramesInFlight ) {
+//   // std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight, descriptors->setLayout );
+//   // VkDescriptorSetAllocateInfo allocInfo{};
+//   // allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+//   // allocInfo.descriptorPool = descriptors->pool;
+//   // allocInfo.descriptorSetCount = static_cast<uint32_t>( maxFramesInFlight );
+//   // allocInfo.pSetLayouts = layouts.data();
 
-  descriptors->sets.resize( maxFramesInFlight );
-  if ( vkAllocateDescriptorSets( vulkanDevice->device, &allocInfo, descriptors->sets.data() ) !=
-       VK_SUCCESS ) {
-    Logger::log( "Failed to allocate descriptor sets!", Logger::CRITICAL );
-  }
+//   // descriptors->sets.resize( maxFramesInFlight );
+//   // if ( vkAllocateDescriptorSets( vulkanDevice->device, &allocInfo, descriptors->sets.data() )
+//   !=
+//   //      VK_SUCCESS ) {
+//   //   Logger::log( "Failed to allocate descriptor sets!", Logger::CRITICAL );
+//   // }
 
-  for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
-    VkDescriptorBufferInfo bufferInfo{};
-    bufferInfo.buffer = uniformBuffers[i];
-    bufferInfo.offset = 0;
-    bufferInfo.range = sizeof( UniformBufferObject );
+//   // for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
+//   //   VkDescriptorBufferInfo bufferInfo{};
+//   //   bufferInfo.buffer = uniformBuffers[i];
+//   //   bufferInfo.offset = 0;
+//   //   bufferInfo.range = sizeof( UniformBufferObject );
 
-    VkDescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = textureImage->imageView;
-    imageInfo.sampler = textureImage->sampler;
+//   //   VkDescriptorImageInfo imageInfo{};
+//   //   imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+//   //   imageInfo.imageView = textureImage->imageView;
+//   //   imageInfo.sampler = textureImage->sampler;
 
-    std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+//   //   std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = descriptors->sets[i];
-    descriptorWrites[0].dstBinding = 0;
-    descriptorWrites[0].dstArrayElement = 0;
-    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrites[0].descriptorCount = 1;
-    descriptorWrites[0].pBufferInfo = &bufferInfo;
+//   //   descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//   //   descriptorWrites[0].dstSet = descriptors->sets[i];
+//   //   descriptorWrites[0].dstBinding = 0;
+//   //   descriptorWrites[0].dstArrayElement = 0;
+//   //   descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//   //   descriptorWrites[0].descriptorCount = 1;
+//   //   descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-    descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[1].dstSet = descriptors->sets[i];
-    descriptorWrites[1].dstBinding = 1;
-    descriptorWrites[1].dstArrayElement = 0;
-    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorWrites[1].descriptorCount = 1;
-    descriptorWrites[1].pImageInfo = &imageInfo;
+//   //   descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//   //   descriptorWrites[1].dstSet = descriptors->sets[i];
+//   //   descriptorWrites[1].dstBinding = 1;
+//   //   descriptorWrites[1].dstArrayElement = 0;
+//   //   descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//   //   descriptorWrites[1].descriptorCount = 1;
+//   //   descriptorWrites[1].pImageInfo = &imageInfo;
 
-    vkUpdateDescriptorSets( vulkanDevice->device, static_cast<uint32_t>( descriptorWrites.size() ),
-                            descriptorWrites.data(), 0, nullptr );
-  }
-}
+//   //   vkUpdateDescriptorSets( vulkanDevice->device, static_cast<uint32_t>(
+//   descriptorWrites.size()
+//   //   ),
+//   //                           descriptorWrites.data(), 0, nullptr );
+//   // }
+// }
 
 #pragma endregion Descriptor
 

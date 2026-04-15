@@ -14,6 +14,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include <vector>
+#include <vulkan/vulkan_raii.hpp>
 
 #include "vulkan_helper.hpp"
 
@@ -26,16 +27,22 @@ const std::vector<const char *> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_
 
 class VulkanDevice {
  public:
-  VulkanDevice( VkInstance instance, VkSurfaceKHR surface );
+  std::vector<const char *> requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
+
+  // VulkanDevice( VkInstance instance, VkSurfaceKHR surface );
+  VulkanDevice( vk::raii::Instance &instance );
 
   /**
    * @brief Set up the vulkan device
    *
    * @param instance
    */
-  void setup_device( VkInstance instance );
+  // void setup_device( VkInstance instance );
+  void setup_device( vk::raii::Instance &instance );
 
-  void pick_physical_device( VkInstance instance );
+  // void pick_physical_device( VkInstance instance );
+  void pick_physical_device( vk::raii::Instance &instance );
+
   void create_logical_device();
 
   /**
@@ -44,23 +51,26 @@ class VulkanDevice {
    * @param device device to check
    * @return Checks true if device is compatible
    */
-  bool is_device_suitable( VkPhysicalDevice device );
+  // bool is_device_suitable( VkPhysicalDevice device );
+  bool is_device_suitable( vk::raii::PhysicalDevice const &physicalDevice );
 
-  QueueFamilyIndices find_queue_families( VkPhysicalDevice device );
-  bool check_device_extension_support( VkPhysicalDevice device );
+  // QueueFamilyIndices find_queue_families( VkPhysicalDevice device );
+  // bool check_device_extension_support( VkPhysicalDevice device );
 
-  SwapChainSupportDetails query_swap_chain_support( VkPhysicalDevice device );
+  // SwapChainSupportDetails query_swap_chain_support( VkPhysicalDevice device );
 
-  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  VkDevice device;
+  vk::raii::PhysicalDevice physicalDevice = nullptr;
 
-  VkQueue graphicsQueue;
-  VkQueue presentQueue;
+  // VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+  // VkDevice device;
 
-  VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+  // VkQueue graphicsQueue;
+  // VkQueue presentQueue;
+
+  // VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
  private:
-  VkSurfaceKHR surface_;
+  // VkSurfaceKHR surface_;
 };
 
 }  // namespace Vulkan

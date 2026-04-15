@@ -12,7 +12,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -25,55 +25,55 @@ namespace Windows {
 namespace Vulkan {
 namespace Construct {
 
-void instance( VkInstance &instance );
+// void instance( VkInstance &instance );
 
 // TODO: look into context, we may not need to pass it in.
 void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context );
 
 std::vector<const char *> getRequiredInstanceExtensions();
 
-void surface( VkInstance instance, GLFWwindow *window, VkSurfaceKHR &surface );
+// void surface( VkInstance instance, GLFWwindow *window, VkSurfaceKHR &surface );
 
 #pragma region Command pool
 
-struct CommandPool {
-  VkCommandPool pool;
-  std::vector<VkCommandBuffer> buffers;
+// struct CommandPool {
+//   VkCommandPool pool;
+//   std::vector<VkCommandBuffer> buffers;
 
-  void destroy( VkDevice device ) { vkDestroyCommandPool( device, pool, nullptr ); }
-};
+//   void destroy( VkDevice device ) { vkDestroyCommandPool( device, pool, nullptr ); }
+// };
 
-void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
+// void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
-void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
-                     VkDevice device, int maxFramesInFlight );
+// void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
+//                      VkDevice device, int maxFramesInFlight );
 
 #pragma region Command pool
 
 #pragma region Uniform buffers
 
-struct UniformBuffers {
-  std::vector<VkBuffer> buffers;
-  std::vector<VkDeviceMemory> memory;
-  std::vector<void *> mapped;
-};
+// struct UniformBuffers {
+//   std::vector<VkBuffer> buffers;
+//   std::vector<VkDeviceMemory> memory;
+//   std::vector<void *> mapped;
+// };
 
-void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
-                      int maxFramesInFlight );
+// void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
+//                       int maxFramesInFlight );
 
 #pragma endregion Uniform buffers
 
 #pragma region Descriptor
 
-void descriptor_set_layout( VulkanDevice *vulkanDevice,
-                            VkDescriptorSetLayout &descriptorSetLayout );
+// void descriptor_set_layout( VulkanDevice *vulkanDevice,
+//                             VkDescriptorSetLayout &descriptorSetLayout );
 
-void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
-                      int maxFramesInFlight );
+// void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
+//                       int maxFramesInFlight );
 
-void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
-                      std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
-                      int maxFramesInFlight );
+// void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
+//                       std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
+//                       int maxFramesInFlight );
 
 #pragma endregion Descriptor
 

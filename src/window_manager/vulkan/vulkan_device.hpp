@@ -27,6 +27,7 @@ const std::vector<const char *> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_
 
 class VulkanDevice {
  public:
+  // Require KHRSwapchian extention
   std::vector<const char *> requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
 
   // VulkanDevice( VkInstance instance, VkSurfaceKHR surface );
@@ -59,7 +60,12 @@ class VulkanDevice {
 
   // SwapChainSupportDetails query_swap_chain_support( VkPhysicalDevice device );
 
+  // Device variables
   vk::raii::PhysicalDevice physicalDevice = nullptr;
+  vk::raii::Device device = nullptr;
+
+  // Graphics queue
+  vk::raii::Queue graphicsQueue = nullptr;
 
   // VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   // VkDevice device;

@@ -30,7 +30,7 @@ namespace Vulkan {
 
 VulkanDevice::VulkanDevice( vk::raii::Instance &instance ) {
   Logger::log( "Constructing Vulkan device...", Logger::DEBUG );
-  pick_physical_device( instance );
+  setup_device( instance );
 }
 
 void VulkanDevice::setup_device( vk::raii::Instance &instance ) {
@@ -81,6 +81,62 @@ void VulkanDevice::pick_physical_device( vk::raii::Instance &instance ) {
 
 void VulkanDevice::create_logical_device() {
   Logger::log( "Creating logical device...", Logger::DEBUG );
+
+  // Get queue family properties
+  std::vector<vk::QueueFamilyProperties> queueFamilyProperties =
+      physicalDevice.getQueueFamilyProperties();
+
+  // Get graphics queue family properties
+  auto graphicsQueueFamilyProperty =
+      std::ranges::find_if( queueFamilyProperties, []( auto const &qfp ) {
+        return ( qfp.queueFlags & vk::QueueFlagBits::eGraphics ) !=
+               static_cast<vk::QueueFlags>( 0 );
+      } );
+
+  // Validate properties
+  if ( graphicsQueueFamilyProperty != queueFamilyProperties.end() ) {
+    Logger::log( "No graphics queue family found!", Logger::ERROR_LOG );
+  }
+
+  assert( graphicsQueueFamilyProperty != queueFamilyProperties.end() &&
+          "No graphics queue family found!" );
+
+  // Get graphics index
+  auto graphicsIndex = static_cast<uint32_t>(
+      std::distance( queueFamilyProperties.begin(), graphicsQueueFamilyProperty ) );
+
+  // Create structure chain
+  vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan13Features,
+                     vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
+      featureChain = {
+          {},                               // vk::PhysicalDeviceFeatures2
+          { .dynamicRendering = true },     // vk::PhysicalDeviceVulkan13Features
+          { .extendedDynamicState = true }  // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+      };
+
+  // Set queue priority (0-1 scale)
+  float queuePriority = 0.5f;
+
+  // Create device queue info
+  vk::DeviceQueueCreateInfo deviceQueueCreateInfo{
+      .queueFamilyIndex = graphicsIndex, .queueCount = 1, .pQueuePriorities = &queuePriority };
+
+  // Create device info
+  // enabledLayerCount / ppEnabledLayerNames is no longer required with updated implementation
+  vk::DeviceCreateInfo deviceCreateInfo{
+      .pNext = &featureChain.get<vk::PhysicalDeviceFeatures2>(),
+      .queueCreateInfoCount = 1,
+      .pQueueCreateInfos = &deviceQueueCreateInfo,
+      .enabledExtensionCount = static_cast<uint32_t>( requiredDeviceExtension.size() ),
+      .ppEnabledExtensionNames = requiredDeviceExtension.data() };
+
+  // Create raii device
+  device = vk::raii::Device( physicalDevice, deviceCreateInfo );
+
+  // Create raii queue
+  graphicsQueue = vk::raii::Queue( device, graphicsIndex, 0 );
+
+  // ### Deprecated ###
 
   // QueueFamilyIndices indices = find_queue_families( physicalDevice );
 

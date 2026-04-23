@@ -2,7 +2,6 @@
   "dependencies": [
     "gtest",
     "glfw3",
-    "vulkan",
     "glm"
   ]
 }

@@ -31,7 +31,7 @@ class VulkanDevice {
   std::vector<const char *> requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
 
   // VulkanDevice( VkInstance instance, VkSurfaceKHR surface );
-  VulkanDevice( vk::raii::Instance &instance );
+  VulkanDevice( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface );
 
   /**
    * @brief Set up the vulkan device
@@ -39,12 +39,12 @@ class VulkanDevice {
    * @param instance
    */
   // void setup_device( VkInstance instance );
-  void setup_device( vk::raii::Instance &instance );
+  void setup_device( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface );
 
   // void pick_physical_device( VkInstance instance );
   void pick_physical_device( vk::raii::Instance &instance );
 
-  void create_logical_device();
+  void create_logical_device( vk::raii::SurfaceKHR &surface );
 
   /**
    * @brief Checks if device is compatible with vulkan

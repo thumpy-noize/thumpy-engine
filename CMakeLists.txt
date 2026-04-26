@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.5)
 set(VCPKG_ROOT "./vcpkg")
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")
 
+
+# Leak Detection ( asan - catching false positives, should be suppressed )
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
 

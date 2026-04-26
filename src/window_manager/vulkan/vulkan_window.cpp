@@ -10,7 +10,6 @@
  */
 
 #include <cstddef>
-#define GLFW_INCLUDE_VULKAN
 
 // #include <vulkan/vulkan_core.h>
 
@@ -39,13 +38,29 @@ namespace Vulkan {
 VulkanWindow::VulkanWindow( std::string title ) : Window( title ) { init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
+  if ( glfwVulkanSupported() == GLFW_FALSE ) {
+    Logger::log( "glfw does not have Vulkan support.", Logger::CRITICAL );
+    return;
+  }
+
   Logger::log( "Constructing Vulkan window...", Logger::DEBUG );
 
   // Construct instance
   Construct::raii_instance( raiiInstance_, raiiContext_ );
+
+  // Setup debug messenger
   Debug::setup_debug_messenger( raiiInstance_, raiiDebugMessenger_ );
 
-  vulkanDevice_ = std::make_unique<VulkanDevice>( raiiInstance_ );
+  // Create surface
+  create_surface();
+
+  // Construct Vulkan device
+  vulkanDevice_ = std::make_shared<VulkanDevice>( raiiInstance_, surface_ );
+
+  // Construct swap chain
+  swapChain_ = std::make_unique<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
+
+  // ### DEPRECATED ###
 
   // Setup debug messenger
   // Debug::setup_debug_messenger( instance_, &debugMessenger_ );
@@ -181,9 +196,16 @@ void VulkanWindow::loop() {
 }
 
 void VulkanWindow::create_surface() {
-  // if ( glfwCreateWindowSurface( instance_, window_, nullptr, &surface_ ) != VK_SUCCESS ) {
-  //   Logger::log( "Failed to create window surface!", Logger::CRITICAL );
-  // }
+  // Create surface
+  VkSurfaceKHR _surface;
+  if ( glfwCreateWindowSurface( *raiiInstance_, window_, nullptr, &_surface ) != 0 ) {
+    // Validate surface creation
+    Logger::log( "Failed to create window surface.", Logger::ERROR_LOG );
+    throw std::runtime_error( "Failed to create window surface!" );
+  }
+
+  // Set surface to instance
+  surface_ = vk::raii::SurfaceKHR( raiiInstance_, _surface );
 }
 
 #pragma endregion Core

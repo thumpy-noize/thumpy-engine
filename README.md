@@ -5,3 +5,5 @@ Simple engine for 3D applications
 Developed for Linux with support for Windows & MacOS.
 
 To build and execute the engine, run build_engine.sh
+
+Update: Vulkan has been removed from vcpkg for this project. Please install the Vulkan sdk to get this building.

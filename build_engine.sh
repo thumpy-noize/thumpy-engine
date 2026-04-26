@@ -7,7 +7,7 @@ git submodule update
 # Remove Build
 [[ -d build ]] && rm -rf build
 
-echo "Clang Formating..."
+echo "Clang Formatting..."
 clang-format -i -style=WebKit *.cpp *.hpp
 
 echo "Creating Build..."

@@ -20,7 +20,10 @@
 #include "vulkan_helper.hpp"
 // #include "vulkan_pipeline.hpp"
 // #include "vulkan_render.hpp"
+#include "vulkan_swap_chain.hpp"
 #include "window.hpp"
+
+#define GLFW_INCLUDE_VULKAN
 
 class VulkanDevice;
 
@@ -67,16 +70,19 @@ class VulkanWindow : public Window {
  protected:
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  vk::raii::Context raiiContext_;
-  vk::raii::Instance raiiInstance_ = nullptr;
-  vk::raii::DebugUtilsMessengerEXT raiiDebugMessenger_ = nullptr;
+  vk::raii::Context raiiContext_;                                  // Context
+  vk::raii::Instance raiiInstance_ = nullptr;                      // Instance
+  vk::raii::DebugUtilsMessengerEXT raiiDebugMessenger_ = nullptr;  // Debug messenger
+  vk::raii::SurfaceKHR surface_ = nullptr;                         // Surface
 
-  // ### None RAII variables ###
+  std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;  // Vulkan device
+  std::unique_ptr<VulkanSwapChain> swapChain_ = nullptr;  // Swap chain
+
+  // ### None RAII variables (Deprecated) ###
 
   // VkInstance instance_;
   // VkSurfaceKHR surface_;
 
-  std::unique_ptr<VulkanDevice> vulkanDevice_ = nullptr;
   // VulkanSwapChain *swapChain_ = nullptr;
   // VulkanPipeline *pipeline_ = nullptr;
   // VulkanTextureImage *textureImage_ = nullptr;

@@ -12,9 +12,10 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan_core.h>
 
+#include <memory>
 #include <vector>
+#include <vulkan/vulkan_raii.hpp>
 
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
@@ -26,26 +27,31 @@ namespace Vulkan {
 
 class VulkanSwapChain {
  public:
-  VulkanSwapChain( VulkanDevice *vulkanDevice, GLFWwindow *window, VkSurfaceKHR surface );
+  VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GLFWwindow *window,
+                   vk::raii::SurfaceKHR &surface );
+
+  //   ~VulkanSwapChain();
 
   /**
    * @brief Create swap chain
    */
-  void create_swap_chain();
+  void create_swap_chain( vk::raii::SurfaceKHR &surface );
+
   /**
    * @brief Recreate swap chain
    */
-  void recreate_swap_chain( VulkanImage *depthImage, VulkanImage *colorImage );
+  //   void recreate_swap_chain( VulkanImage *depthImage, VulkanImage *colorImage );
+
   /**
    * @brief Clear the swap chain
    */
-  void clear_swap_chain();
+  //   void clear_swap_chain();
 
   /**
    * @brief Get swap chain details
    * @return SwapChainSupportDetails
    */
-  SwapChainSupportDetails query_swap_chain_support();
+  //   SwapChainSupportDetails query_swap_chain_support();
 
   /**
    * @brief Chose Best available format
@@ -53,16 +59,16 @@ class VulkanSwapChain {
    * @param availableFormats
    * @return VkSurfaceFormatKHR
    */
-  VkSurfaceFormatKHR choose_swap_surface_format(
-      const std::vector<VkSurfaceFormatKHR> &availableFormats );
+  vk::SurfaceFormatKHR choose_swap_surface_format(
+      const std::vector<vk::SurfaceFormatKHR> &availableFormats );
 
   /** @brief Chose Best available present mode
    *  Currently using mailbox
    * @param availableFormats
    * @return VkSurfaceFormatKHR
    */
-  VkPresentModeKHR choose_swap_present_mode(
-      const std::vector<VkPresentModeKHR> &availablePresentModes );
+  vk::PresentModeKHR choose_swap_present_mode(
+      const std::vector<vk::PresentModeKHR> &availablePresentModes );
 
   /**
    * @brief get window extent
@@ -70,29 +76,37 @@ class VulkanSwapChain {
    * @param capabilities
    * @return VkExtent2D
    */
-  VkExtent2D choose_swap_extent( const VkSurfaceCapabilitiesKHR &capabilities );
+  vk::Extent2D choose_swap_extent( const vk::SurfaceCapabilitiesKHR &capabilities );
+
+  uint32_t choose_swap_min_image_count( vk::SurfaceCapabilitiesKHR const &surfaceCapabilities );
 
   void create_image_views();
   //   void create_framebuffers();
   void create_render_pass();
 
  public:
-  VkSwapchainKHR swapChain;
+  //   VkSwapchainKHR swapChain;
 
-  VkFormat swapChainImageFormat;
-  VkExtent2D extent;
-  VkRenderPass renderPass;
+  //   VkFormat swapChainImageFormat;
+  //   VkExtent2D extent;
+  //   VkRenderPass renderPass;
 
-  std::vector<VkImageView> swapChainImageViews;
-  std::vector<VkFramebuffer> swapChainFramebuffers;
+  //   std::vector<VkImageView> swapChainImageViews;
+  //   std::vector<VkFramebuffer> swapChainFramebuffers;
 
  private:
-  VkInstance instance_;
-  VkSurfaceKHR surface_;
-  GLFWwindow *window_;
-  VulkanDevice *vulkanDevice_;
+  //   VkInstance instance_;
+  //   VkSurfaceKHR surface_;
 
-  std::vector<VkImage> swapChainImages_;
+  vk::raii::SwapchainKHR swapChain_ = nullptr;
+  std::vector<vk::Image> swapChainImages_;
+  vk::SurfaceFormatKHR swapChainSurfaceFormat_;
+  vk::Extent2D swapChainExtent_;
+
+  GLFWwindow *window_;  // ptr to existing window // TODO: Make weak ptr
+  std::weak_ptr<VulkanDevice> vulkanDevice_;
+
+  //   std::vector<VkImage> swapChainImages_;
 };
 }  // namespace Vulkan
 }  // namespace Windows

@@ -28,14 +28,14 @@ namespace Vulkan {
 //   setup_device( instance );
 // }
 
-VulkanDevice::VulkanDevice( vk::raii::Instance &instance ) {
+VulkanDevice::VulkanDevice( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface ) {
   Logger::log( "Constructing Vulkan device...", Logger::DEBUG );
-  setup_device( instance );
+  setup_device( instance, surface );
 }
 
-void VulkanDevice::setup_device( vk::raii::Instance &instance ) {
+void VulkanDevice::setup_device( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface ) {
   pick_physical_device( instance );
-  create_logical_device();
+  create_logical_device( surface );
 }
 
 void VulkanDevice::pick_physical_device( vk::raii::Instance &instance ) {
@@ -54,56 +54,43 @@ void VulkanDevice::pick_physical_device( vk::raii::Instance &instance ) {
 
   // Set physical device
   physicalDevice = *devIter;
-
-  // ### Deprecated ###
-  // uint32_t deviceCount = 0;
-  // vkEnumeratePhysicalDevices( instance, &deviceCount, nullptr );
-
-  // if ( deviceCount == 0 ) {
-  //   throw VulkanNotCompatible( "Failed to find GPUs with Vulkan support!" );
-  // }
-
-  // std::vector<VkPhysicalDevice> devices( deviceCount );
-  // vkEnumeratePhysicalDevices( instance, &deviceCount, devices.data() );
-
-  // for ( const auto &device : devices ) {
-  //   if ( is_device_suitable( device ) ) {
-  //     physicalDevice = device;
-  //     msaaSamples = get_max_usable_sample_count( physicalDevice );
-  //     break;
-  //   }
-  // }
-
-  // if ( physicalDevice == VK_NULL_HANDLE ) {
-  //   throw VulkanNotCompatible( "Failed to find GPUs with Vulkan support!" );
-  // }
 }
 
-void VulkanDevice::create_logical_device() {
+void VulkanDevice::create_logical_device( vk::raii::SurfaceKHR &surface ) {
   Logger::log( "Creating logical device...", Logger::DEBUG );
 
   // Get queue family properties
   std::vector<vk::QueueFamilyProperties> queueFamilyProperties =
       physicalDevice.getQueueFamilyProperties();
 
-  // Get graphics queue family properties
-  auto graphicsQueueFamilyProperty =
-      std::ranges::find_if( queueFamilyProperties, []( auto const &qfp ) {
-        return ( qfp.queueFlags & vk::QueueFlagBits::eGraphics ) !=
-               static_cast<vk::QueueFlags>( 0 );
-      } );
-
-  // Validate properties
-  if ( graphicsQueueFamilyProperty != queueFamilyProperties.end() ) {
-    Logger::log( "No graphics queue family found!", Logger::ERROR_LOG );
+  // Get the first index into queueFamilyProperties which supports both graphics and present
+  uint32_t queueIndex = ~0;
+  for ( uint32_t qfpIndex = 0; qfpIndex < queueFamilyProperties.size(); qfpIndex++ ) {
+    if ( ( queueFamilyProperties[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics ) &&
+         physicalDevice.getSurfaceSupportKHR( qfpIndex, *surface ) ) {
+      // Found a queue family that supports both graphics and present
+      queueIndex = qfpIndex;
+      break;
+    }
+  }
+  if ( queueIndex == ~0 ) {
+    throw std::runtime_error( "Could not find a queue for graphics and present -> terminating" );
   }
 
-  assert( graphicsQueueFamilyProperty != queueFamilyProperties.end() &&
-          "No graphics queue family found!" );
+  // // Get graphics queue family properties
+  // auto graphicsQueueFamilyProperty =
+  //     std::ranges::find_if( queueFamilyProperties, []( auto const &qfp ) {
+  //       return ( qfp.queueFlags & vk::QueueFlagBits::eGraphics ) !=
+  //              static_cast<vk::QueueFlags>( 0 );
+  //     } );
 
-  // Get graphics index
-  auto graphicsIndex = static_cast<uint32_t>(
-      std::distance( queueFamilyProperties.begin(), graphicsQueueFamilyProperty ) );
+  // // Validate properties
+  // assert( graphicsQueueFamilyProperty != queueFamilyProperties.end() &&
+  //         "No graphics queue family found!" );
+
+  // // Get graphics index
+  // auto graphicsIndex = static_cast<uint32_t>(
+  //     std::distance( queueFamilyProperties.begin(), graphicsQueueFamilyProperty ) );
 
   // Create structure chain
   vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan13Features,
@@ -119,7 +106,7 @@ void VulkanDevice::create_logical_device() {
 
   // Create device queue info
   vk::DeviceQueueCreateInfo deviceQueueCreateInfo{
-      .queueFamilyIndex = graphicsIndex, .queueCount = 1, .pQueuePriorities = &queuePriority };
+      .queueFamilyIndex = queueIndex, .queueCount = 1, .pQueuePriorities = &queuePriority };
 
   // Create device info
   // enabledLayerCount / ppEnabledLayerNames is no longer required with updated implementation
@@ -134,54 +121,7 @@ void VulkanDevice::create_logical_device() {
   device = vk::raii::Device( physicalDevice, deviceCreateInfo );
 
   // Create raii queue
-  graphicsQueue = vk::raii::Queue( device, graphicsIndex, 0 );
-
-  // ### Deprecated ###
-
-  // QueueFamilyIndices indices = find_queue_families( physicalDevice );
-
-  // std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-  // std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(),
-  //                                            indices.presentFamily.value() };
-
-  // float queuePriority = 1.0f;
-  // for ( uint32_t queueFamily : uniqueQueueFamilies ) {
-  //   VkDeviceQueueCreateInfo queueCreateInfo{};
-  //   queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  //   queueCreateInfo.queueFamilyIndex = queueFamily;
-  //   queueCreateInfo.queueCount = 1;
-  //   queueCreateInfo.pQueuePriorities = &queuePriority;
-  //   queueCreateInfos.push_back( queueCreateInfo );
-  // }
-
-  // VkPhysicalDeviceFeatures deviceFeatures{};
-  // deviceFeatures.samplerAnisotropy = VK_TRUE;
-  // deviceFeatures.sampleRateShading = VK_FALSE;
-
-  // VkDeviceCreateInfo createInfo{};
-  // createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-  // createInfo.queueCreateInfoCount = static_cast<uint32_t>( queueCreateInfos.size() );
-  // createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-  // createInfo.pEnabledFeatures = &deviceFeatures;
-
-  // createInfo.enabledExtensionCount = static_cast<uint32_t>( deviceExtensions.size() );
-  // createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-  // if ( enableValidationLayers ) {
-  //   createInfo.enabledLayerCount = static_cast<uint32_t>( validationLayers.size() );
-  //   createInfo.ppEnabledLayerNames = validationLayers.data();
-  // } else {
-  //   createInfo.enabledLayerCount = 0;
-  // }
-
-  // if ( vkCreateDevice( physicalDevice, &createInfo, nullptr, &device ) != VK_SUCCESS ) {
-  //   throw VulkanNotCompatible( "Failed to create logical device!" );
-  // }
-
-  // vkGetDeviceQueue( device, indices.graphicsFamily.value(), 0, &graphicsQueue );
-  // vkGetDeviceQueue( device, indices.presentFamily.value(), 0, &presentQueue );
+  graphicsQueue = vk::raii::Queue( device, queueIndex, 0 );
 }
 
 bool VulkanDevice::is_device_suitable( vk::raii::PhysicalDevice const &physicalDevice ) {
@@ -219,24 +159,6 @@ bool VulkanDevice::is_device_suitable( vk::raii::PhysicalDevice const &physicalD
   // Return true if the physicalDevice meets all the criteria
   return supportsVulkan1_3 && supportsGraphics && supportsAllRequiredExtensions &&
          supportsRequiredFeatures;
-
-  // QueueFamilyIndices indices = find_queue_families( device );
-
-  // bool extensionsSupported = check_device_extension_support( device );
-
-  // bool swapChainAdequate = false;
-  // if ( extensionsSupported ) {
-  //   SwapChainSupportDetails swapChainSupport = query_swap_chain_support( device );
-  //   swapChainAdequate = !swapChainSupport.formats.empty() &&
-  //   !swapChainSupport.presentModes.empty();
-  // }
-
-  // VkPhysicalDeviceFeatures supportedFeatures;
-  // vkGetPhysicalDeviceFeatures( device, &supportedFeatures );
-
-  // return indices.is_complete() && extensionsSupported && swapChainAdequate &&
-  //        supportedFeatures.samplerAnisotropy;
-  return false;
 }
 
 // QueueFamilyIndices VulkanDevice::find_queue_families( VkPhysicalDevice device ) {

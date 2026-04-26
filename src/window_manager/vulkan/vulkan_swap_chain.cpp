@@ -27,6 +27,8 @@ namespace Vulkan {
 
 VulkanSwapChain::VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GLFWwindow *window,
                                   vk::raii::SurfaceKHR &surface ) {
+  Logger::log( "Constructing Vulkan swap chain...", Logger::DEBUG );
+
   // Get weak ptr to vulkan device
   vulkanDevice_ = vulkanDevice;
 
@@ -36,6 +38,9 @@ VulkanSwapChain::VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GL
   // Create swap chain
   create_swap_chain( surface );
 
+  // Create image views
+  create_image_views();
+
   // surface_ = surface;
   // create_swap_chain();
   // create_image_views();
@@ -43,7 +48,7 @@ VulkanSwapChain::VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GL
 }
 
 void VulkanSwapChain::create_swap_chain( vk::raii::SurfaceKHR &surface ) {
-  Logger::log( "Constructing Vulkan swap chain...", Logger::DEBUG );
+  Logger::log( "Creating swap chain...", Logger::DEBUG );
 
   // Get surface capabilities
   vk::SurfaceCapabilitiesKHR surfaceCapabilities =
@@ -207,6 +212,8 @@ void VulkanSwapChain::create_swap_chain( vk::raii::SurfaceKHR &surface ) {
 
 vk::SurfaceFormatKHR VulkanSwapChain::choose_swap_surface_format(
     const std::vector<vk::SurfaceFormatKHR> &availableFormats ) {
+  Logger::log( "Choosing swap format...", Logger::DEBUG );
+
   // Validate available formats
   assert( !availableFormats.empty() );
 
@@ -238,6 +245,8 @@ vk::PresentModeKHR VulkanSwapChain::choose_swap_present_mode(
 }
 
 vk::Extent2D VulkanSwapChain::choose_swap_extent( const vk::SurfaceCapabilitiesKHR &capabilities ) {
+  Logger::log( "Choosing swap extent...", Logger::DEBUG );
+
   /**
    * What you are looking for is a part of you. remember what you've done.
    * Format: "Wh3n_I-wEN7 t2o ********_I_******-@-******!"
@@ -257,23 +266,6 @@ vk::Extent2D VulkanSwapChain::choose_swap_extent( const vk::SurfaceCapabilitiesK
                                  capabilities.maxImageExtent.width ),
            std::clamp<uint32_t>( height, capabilities.minImageExtent.height,
                                  capabilities.maxImageExtent.height ) };
-
-  // if ( capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() ) {
-  //   return capabilities.currentExtent;
-  // } else {
-  //   int width, height;
-  //   glfwGetFramebufferSize( window_, &width, &height );
-
-  //   VkExtent2D actualExtent = { static_cast<uint32_t>( width ), static_cast<uint32_t>( height )
-  //   };
-
-  //   actualExtent.width = std::clamp( actualExtent.width, capabilities.minImageExtent.width,
-  //                                    capabilities.maxImageExtent.width );
-  //   actualExtent.height = std::clamp( actualExtent.height, capabilities.minImageExtent.height,
-  //                                     capabilities.maxImageExtent.height );
-
-  //   return actualExtent;
-  // }
 }
 
 uint32_t VulkanSwapChain::choose_swap_min_image_count(
@@ -292,16 +284,22 @@ uint32_t VulkanSwapChain::choose_swap_min_image_count(
 }
 
 void VulkanSwapChain::create_image_views() {
-  // resize image views
-  // swapChainImageViews.resize( swapChainImages_.size() );
+  Logger::log( "Creating image views...", Logger::DEBUG );
 
-  // // iterate over swap chain images
-  // for ( size_t i = 0; i < swapChainImages_.size(); i++ ) {
-  //   swapChainImageViews[i] =
-  //       Image::create_image_view( vulkanDevice_->device, swapChainImages_[i],
-  //       swapChainImageFormat,
-  //                                 VK_IMAGE_ASPECT_COLOR_BIT, 1 );
-  // }
+  // Validate swap chain image views exist
+  assert( swapChainImageViews_.empty() );
+
+  // Create image view info
+  vk::ImageViewCreateInfo imageViewCreateInfo{
+      .viewType = vk::ImageViewType::e2D,
+      .format = swapChainSurfaceFormat_.format,
+      .subresourceRange = { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } };
+
+  // Added swap chain images
+  for ( auto &image : swapChainImages_ ) {
+    imageViewCreateInfo.image = image;
+    swapChainImageViews_.emplace_back( vulkanDevice_.lock()->device, imageViewCreateInfo );
+  }
 }
 
 // void VulkanSwapChain::create_framebuffers() {

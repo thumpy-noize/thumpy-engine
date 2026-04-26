@@ -178,9 +178,9 @@ const std::vector<const char *> validationLayers = { "VK_LAYER_KHRONOS_validatio
 
 // #pragma region Paths
 
-// std::string get_exe_path();
-// std::string get_assets_path();
-// std::string get_shader_path();
+std::string get_exe_path();
+std::string get_assets_path();
+std::string get_shader_path();
 // std::string get_texture_path();
 // std::string get_model_path();
 

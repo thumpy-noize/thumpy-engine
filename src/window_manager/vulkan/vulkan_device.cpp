@@ -93,12 +93,14 @@ void VulkanDevice::create_logical_device( vk::raii::SurfaceKHR &surface ) {
   //     std::distance( queueFamilyProperties.begin(), graphicsQueueFamilyProperty ) );
 
   // Create structure chain
-  vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan13Features,
+  vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan11Features,
+                     vk::PhysicalDeviceVulkan13Features,
                      vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
       featureChain = {
-          {},                               // vk::PhysicalDeviceFeatures2
-          { .dynamicRendering = true },     // vk::PhysicalDeviceVulkan13Features
-          { .extendedDynamicState = true }  // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+          {},                                // vk::PhysicalDeviceFeatures2
+          { .shaderDrawParameters = true },  // vk::PhysicalDeviceVulkan11Features
+          { .dynamicRendering = true },      // vk::PhysicalDeviceVulkan13Features
+          { .extendedDynamicState = true }   // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
       };
 
   // Set queue priority (0-1 scale)

@@ -103,6 +103,9 @@ class VulkanSwapChain {
   vk::SurfaceFormatKHR swapChainSurfaceFormat_;
   vk::Extent2D swapChainExtent_;
 
+  std::vector<vk::raii::ImageView> swapChainImageViews_;
+
+  // External ptrs
   GLFWwindow *window_;  // ptr to existing window // TODO: Make weak ptr
   std::weak_ptr<VulkanDevice> vulkanDevice_;
 

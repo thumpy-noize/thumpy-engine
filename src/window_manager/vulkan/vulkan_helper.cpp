@@ -305,49 +305,49 @@ std::vector<const char *> get_required_extensions() {
 
 // #pragma region Paths
 
-// std::string exePath_;
-// std::string get_exe_path() {
-//   if ( exePath_.empty() ) {
-// #ifdef __unix__
-//     char result[PATH_MAX];
-//     ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
-//     exePath_ = std::string( result, ( count > 0 ) ? count : 0 );
-//     exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
-//     return exePath_;
-// #elif _WIN32
-//     wchar_t modulePath[MAX_PATH] = { 0 };
-//     GetModuleFileNameW( NULL, modulePath, MAX_PATH );
+std::string exePath_;
+std::string get_exe_path() {
+  if ( exePath_.empty() ) {
+#ifdef __unix__
+    char result[PATH_MAX];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+    exePath_ = std::string( result, ( count > 0 ) ? count : 0 );
+    exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
+    return exePath_;
+#elif _WIN32
+    wchar_t modulePath[MAX_PATH] = { 0 };
+    GetModuleFileNameW( NULL, modulePath, MAX_PATH );
 
-//     std::wstring ws = std::wstring( modulePath );
-//     size_t len = wcstombs( nullptr, ws.c_str(), 0 ) + 1;
-//     char *buffer = new char[len];
+    std::wstring ws = std::wstring( modulePath );
+    size_t len = wcstombs( nullptr, ws.c_str(), 0 ) + 1;
+    char *buffer = new char[len];
 
-//     wcstombs( buffer, ws.c_str(), len );
-//     exePath_ = std::string( buffer );
-//     exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
-//     return exePath_;
-// #endif
-//     Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
-//     return "";
-//   }
-//   return exePath_;
-// }
+    wcstombs( buffer, ws.c_str(), len );
+    exePath_ = std::string( buffer );
+    exePath_ = exePath_.substr( 0, exePath_.find_last_of( "\\/" ) );
+    return exePath_;
+#endif
+    Logger::log( "Error determining os for filepath.", Logger::CRITICAL );
+    return "";
+  }
+  return exePath_;
+}
 
-// std::string assetsPath_;
-// std::string get_assets_path() {
-//   if ( assetsPath_.empty() ) {
-//     assetsPath_ = get_exe_path() + "/assets/";
-//   }
-//   return assetsPath_;
-// }
+std::string assetsPath_;
+std::string get_assets_path() {
+  if ( assetsPath_.empty() ) {
+    assetsPath_ = get_exe_path() + "/assets/";
+  }
+  return assetsPath_;
+}
 
-// std::string shaderPath_;
-// std::string get_shader_path() {
-//   if ( shaderPath_.empty() ) {
-//     shaderPath_ = get_assets_path() + "shaders/";
-//   }
-//   return shaderPath_;
-// }
+std::string shaderPath_;
+std::string get_shader_path() {
+  if ( shaderPath_.empty() ) {
+    shaderPath_ = get_assets_path() + "shaders/";
+  }
+  return shaderPath_;
+}
 
 // std::string texturePath_;
 // std::string get_texture_path() {

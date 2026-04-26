@@ -24,16 +24,17 @@ namespace Windows {
 namespace Vulkan {
 
 struct VulkanPipeline {
-  VkPipelineLayout pipelineLayout;
-  VkPipeline graphicsPipeline;
+  vk::raii::PipelineLayout pipelineLayout = nullptr;
+  vk::raii::Pipeline graphicsPipeline = nullptr;
 };
 
-VulkanPipeline *create_graphics_pipeline( VulkanSwapChain *swapChain, VulkanDevice *vulkanDevice,
-                                          VkDescriptorSetLayout descriptorSetLayout );
+std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
+    std::shared_ptr<VulkanDevice> vulkanDevice, std::shared_ptr<VulkanSwapChain> swapChain );
 
-void destroy_graphics_pipeline( VkDevice vulkanDevice, VulkanPipeline *pipeline );
+// void destroy_graphics_pipeline( VkDevice vulkanDevice, VulkanPipeline *pipeline );
 
-VkShaderModule create_shader_module( const std::vector<char> &code, VkDevice vulkanDevice );
+[[nodiscard]] vk::raii::ShaderModule create_shader_module(
+    const std::vector<char> &code, std::shared_ptr<VulkanDevice> vulkanDevice );
 
 }  // namespace Vulkan
 }  // namespace Windows

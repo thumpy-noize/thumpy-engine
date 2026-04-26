@@ -9,6 +9,14 @@ make_directory(${destDir})
 # vert
 # frag
 
+#################################################################
+# TODO: Add slang shaders to this cmake
+# please refer to this link for more information - 
+# https://docs.vulkan.org/tutorial/latest/03_Drawing_a_triangle/02_Graphics_pipeline_basics/01_Shader_modules.html
+#################################################################
+
+
+
 # Compile shaders
 if( $ENV{COMPILE_SHADERS} )
     message("Compiling shaders...")

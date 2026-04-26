@@ -18,7 +18,7 @@
 // #include "vulkan/vulkan_buffers.hpp"
 #include "vulkan/vulkan_construct.hpp"
 #include "vulkan_helper.hpp"
-// #include "vulkan_pipeline.hpp"
+#include "vulkan_pipeline.hpp"
 // #include "vulkan_render.hpp"
 #include "vulkan_swap_chain.hpp"
 #include "window.hpp"
@@ -76,7 +76,8 @@ class VulkanWindow : public Window {
   vk::raii::SurfaceKHR surface_ = nullptr;                         // Surface
 
   std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;  // Vulkan device
-  std::unique_ptr<VulkanSwapChain> swapChain_ = nullptr;  // Swap chain
+  std::shared_ptr<VulkanSwapChain> swapChain_ = nullptr;  // Swap chain
+  std::shared_ptr<VulkanPipeline> pipeline_ = nullptr;    // Pipeline
 
   // ### None RAII variables (Deprecated) ###
 

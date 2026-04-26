@@ -94,13 +94,14 @@ class VulkanSwapChain {
   //   std::vector<VkImageView> swapChainImageViews;
   //   std::vector<VkFramebuffer> swapChainFramebuffers;
 
+  vk::SurfaceFormatKHR swapChainSurfaceFormat;
+
  private:
   //   VkInstance instance_;
   //   VkSurfaceKHR surface_;
 
   vk::raii::SwapchainKHR swapChain_ = nullptr;
   std::vector<vk::Image> swapChainImages_;
-  vk::SurfaceFormatKHR swapChainSurfaceFormat_;
   vk::Extent2D swapChainExtent_;
 
   std::vector<vk::raii::ImageView> swapChainImageViews_;

@@ -58,7 +58,9 @@ void VulkanWindow::init_vulkan() {
   vulkanDevice_ = std::make_shared<VulkanDevice>( raiiInstance_, surface_ );
 
   // Construct swap chain
-  swapChain_ = std::make_unique<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
+  swapChain_ = std::make_shared<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
+
+  pipeline_ = create_graphics_pipeline( vulkanDevice_, swapChain_ );
 
   // ### DEPRECATED ###
 

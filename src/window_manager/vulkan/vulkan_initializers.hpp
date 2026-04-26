@@ -156,13 +156,13 @@ inline VkPipelineLayoutCreateInfo pipeline_layout_info(
   return pipelineLayoutInfo;
 }
 
-inline VkShaderModuleCreateInfo shader_module_create_info( const std::vector<char> &code ) {
-  VkShaderModuleCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const uint32_t *>( code.data() );
-  return createInfo;
-}
+// inline VkShaderModuleCreateInfo shader_module_create_info( const std::vector<char> &code ) {
+//   VkShaderModuleCreateInfo createInfo{};
+//   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+//   createInfo.codeSize = code.size();
+//   createInfo.pCode = reinterpret_cast<const uint32_t *>( code.data() );
+//   return createInfo;
+// }
 
 inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass, VkExtent2D extent,
                                                  std::array<VkImageView, 3> &attachments ) {

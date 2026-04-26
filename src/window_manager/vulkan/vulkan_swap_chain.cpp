@@ -63,7 +63,7 @@ void VulkanSwapChain::create_swap_chain( vk::raii::SurfaceKHR &surface ) {
   // Get surface format
   std::vector<vk::SurfaceFormatKHR> availableFormats =
       vulkanDevice_.lock()->physicalDevice.getSurfaceFormatsKHR( *surface );
-  swapChainSurfaceFormat_ = choose_swap_surface_format( availableFormats );
+  swapChainSurfaceFormat = choose_swap_surface_format( availableFormats );
 
   // Get present mode
   std::vector<vk::PresentModeKHR> availablePresentModes =
@@ -73,8 +73,8 @@ void VulkanSwapChain::create_swap_chain( vk::raii::SurfaceKHR &surface ) {
   vk::SwapchainCreateInfoKHR swapChainCreateInfo{
       .surface = *surface,
       .minImageCount = minImageCount,
-      .imageFormat = swapChainSurfaceFormat_.format,
-      .imageColorSpace = swapChainSurfaceFormat_.colorSpace,
+      .imageFormat = swapChainSurfaceFormat.format,
+      .imageColorSpace = swapChainSurfaceFormat.colorSpace,
       .imageExtent = swapChainExtent_,
       .imageArrayLayers = 1,
       .imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
@@ -292,7 +292,7 @@ void VulkanSwapChain::create_image_views() {
   // Create image view info
   vk::ImageViewCreateInfo imageViewCreateInfo{
       .viewType = vk::ImageViewType::e2D,
-      .format = swapChainSurfaceFormat_.format,
+      .format = swapChainSurfaceFormat.format,
       .subresourceRange = { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } };
 
   // Added swap chain images

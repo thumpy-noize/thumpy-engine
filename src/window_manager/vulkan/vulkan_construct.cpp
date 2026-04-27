@@ -80,6 +80,7 @@ void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
           return strcmp( layerProperty.layerName, requiredLayer ) == 0;
         } );
       } );
+
   // Validate layers are supported
   if ( unsupportedLayerIt != requiredLayers.end() ) {
     throw std::runtime_error( "Required layer not supported: " +
@@ -98,30 +99,11 @@ void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
               return strcmp( extensionProperty.extensionName, requiredExtension ) == 0;
             } );
       } );
+
   if ( unsupportedPropertyIt != requiredExtensions.end() ) {
     throw std::runtime_error( "Required extension not supported: " +
                               std::string( *unsupportedPropertyIt ) );
   }
-  // // Get the required instance extensions from GLFW.
-  // Logger::log( "Getting extensions from GLFW...", Logger::DEBUG );
-  // uint32_t glfwExtensionCount = 0;
-  // auto glfwExtensions = glfwGetRequiredInstanceExtensions( &glfwExtensionCount );
-
-  // // Check if the required GLFW extensions are supported by the Vulkan implementation.
-  // Logger::log( "Validating GLFW support...", Logger::DEBUG );
-  // auto extensionProperties = context.enumerateInstanceExtensionProperties();
-  // for ( uint32_t i = 0; i < glfwExtensionCount; ++i ) {
-  //   if ( std::ranges::none_of( extensionProperties, [glfwExtension = glfwExtensions[i]](
-  //                                                       auto const &extensionProperty ) {
-  //          return strcmp( extensionProperty.extensionName, glfwExtension ) == 0;
-  //        } ) ) {
-  //     // If GLFW not supported - throw error
-  //     Logger::log( "Required GLFW extension not supported: " + std::string( glfwExtensions[i] ),
-  //                  Logger::CRITICAL );
-  //     throw std::runtime_error( "Required GLFW extension not supported: " +
-  //                               std::string( glfwExtensions[i] ) );
-  //   }
-  // }
 
   // Create app info
   Logger::log( "Constructing app info...", Logger::DEBUG );
@@ -150,11 +132,17 @@ void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
 
 std::vector<const char *> getRequiredInstanceExtensions() {
   uint32_t glfwExtensionCount = 0;
-  auto glfwExtensions = glfwGetRequiredInstanceExtensions( &glfwExtensionCount );
+  const char **glfwExtensions = glfwGetRequiredInstanceExtensions( &glfwExtensionCount );
 
   std::vector extensions( glfwExtensions, glfwExtensions + glfwExtensionCount );
   if ( enableValidationLayers ) {
     extensions.push_back( vk::EXTDebugUtilsExtensionName );
+  }
+
+  Logger::log( "Extensions:", Logger::DEBUG );
+
+  for ( int i = 0; i < extensions.size(); i++ ) {
+    Logger::log( extensions[i], Logger::DEBUG );
   }
 
   return extensions;
@@ -179,30 +167,49 @@ std::vector<const char *> getRequiredInstanceExtensions() {
 //   // }
 // }
 
-// void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool ) {
-//   // QueueFamilyIndices queueFamilyIndices =
-//   //     vulkanDevice->find_queue_families( vulkanDevice->physicalDevice );
+void command_pool( vk::raii::CommandPool &commandPool,
+                   std::shared_ptr<VulkanDevice> vulkanDevice ) {
+  Logger::log( "Creating command pool...", Logger::DEBUG );
 
-//   // VkCommandPoolCreateInfo poolInfo =
-//   //     Initializer::pool_info( queueFamilyIndices.graphicsFamily.value() );
+  // Create pool info
+  vk::CommandPoolCreateInfo poolInfo{ .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                                      .queueFamilyIndex = vulkanDevice->queueIndex };
+  // Create pool
+  commandPool = vk::raii::CommandPool( vulkanDevice->device, poolInfo );
 
-//   // if ( vkCreateCommandPool( vulkanDevice->device, &poolInfo, nullptr, &commandPool ) !=
-//   //      VK_SUCCESS ) {
-//   //   Logger::log( "Failed to create command pool!", Logger::CRITICAL );
-//   // }
-// }
+  // QueueFamilyIndices queueFamilyIndices =
+  //     vulkanDevice->find_queue_families( vulkanDevice->physicalDevice );
 
-// void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
-//                      VkDevice device, int maxFramesInFlight ) {
-//   // commandBuffers.resize( maxFramesInFlight );
-//   // VkCommandBufferAllocateInfo allocInfo =
-//   //     Initializer::command_buffer_allocate_info( commandPool, (uint32_t)commandBuffers.size()
-//   );
+  // VkCommandPoolCreateInfo poolInfo =
+  //     Initializer::pool_info( queueFamilyIndices.graphicsFamily.value() );
 
-//   // if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) != VK_SUCCESS ) {
-//   //   Logger::log( "Failed to allocate command buffers!", Logger::CRITICAL );
-//   // }
-// }
+  // if ( vkCreateCommandPool( vulkanDevice->device, &poolInfo, nullptr, &commandPool ) !=
+  //      VK_SUCCESS ) {
+  //   Logger::log( "Failed to create command pool!", Logger::CRITICAL );
+  // }
+}
+
+void command_buffer( std::shared_ptr<Construct::CommandPool> commandPool,
+                     std::shared_ptr<VulkanDevice> vulkanDevice ) {
+  Logger::log( "Creating command buffer...", Logger::DEBUG );
+
+  // Create allocation info
+  vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool->pool,
+                                           .level = vk::CommandBufferLevel::ePrimary,
+                                           .commandBufferCount = 1 };
+  // Create command buffer
+  commandPool->buffers =
+      std::move( vk::raii::CommandBuffers( vulkanDevice->device, allocInfo ).front() );
+
+  // commandBuffers.resize( maxFramesInFlight );
+  // VkCommandBufferAllocateInfo allocInfo =
+  //     Initializer::command_buffer_allocate_info( commandPool, (uint32_t)commandBuffers.size()
+  // );
+
+  // if ( vkAllocateCommandBuffers( device, &allocInfo, commandBuffers.data() ) != VK_SUCCESS ) {
+  //   Logger::log( "Failed to allocate command buffers!", Logger::CRITICAL );
+  // }
+}
 
 #pragma region Descriptor
 

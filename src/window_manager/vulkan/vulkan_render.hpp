@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "vulkan_construct.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
@@ -35,50 +36,71 @@ class VulkanRender {
    * @param commandBuffers
    * @param pipeline
    */
-  VulkanRender( int maxFramesInFlight, VulkanDevice *vulkanDevice, VulkanSwapChain *swapchain,
-                std::vector<VkCommandBuffer> *commandBuffers, VulkanPipeline *pipeline );
+  VulkanRender( std::shared_ptr<VulkanDevice> vulkanDevice,
+                std::shared_ptr<VulkanSwapChain> swapChain,
+                std::shared_ptr<VulkanPipeline> pipeline,
+                std::shared_ptr<Construct::CommandPool> commandPool );
 
-  /**
-   * @brief Destroy render
-   *
-   */
-  void destroy();
+  void record_command_buffer( uint32_t imageIndex );
+
+  void transition_image_layout( uint32_t imageIndex, vk::ImageLayout old_layout,
+                                vk::ImageLayout new_layout, vk::AccessFlags2 src_access_mask,
+                                vk::AccessFlags2 dst_access_mask,
+                                vk::PipelineStageFlags2 src_stage_mask,
+                                vk::PipelineStageFlags2 dst_stage_mask );
+
+  // /**
+  //  * @brief Destroy render
+  //  *
+  //  */
+  // void destroy();
 
   void create_sync_objects();
 
-  /**
-   * @brief Draw to frame
-   *
-   */
-  void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
-                   uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
-                   std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
-                   VulkanImage *colorImage );
+  // /**
+  //  * @brief Draw to frame
+  //  *
+  //  */
+  void draw_frame();
+  // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
+  //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
+  //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
+  //                  VulkanImage *colorImage );
 
-  void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
-                              VulkanSwapChain *swapChain, VkBuffer vertexBuffer,
-                              uint32_t vertexCount, VkBuffer indexBuffer, uint32_t indexCount,
-                              std::vector<VkDescriptorSet> descriptorSets );
+  // void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
+  //                             VulkanSwapChain *swapChain, VkBuffer vertexBuffer,
+  //                             uint32_t vertexCount, VkBuffer indexBuffer, uint32_t indexCount,
+  //                             std::vector<VkDescriptorSet> descriptorSets );
 
-  void update_uniform_buffer( uint32_t currentImage, std::vector<void *> uniformBuffersMapped );
+  // void update_uniform_buffer( uint32_t currentImage, std::vector<void *> uniformBuffersMapped
+  // );
 
  protected:
-  int maxFramesInFlight_;
-  uint32_t currentFrame_ = 0;
+  std::weak_ptr<VulkanDevice> vulkanDevice_;
+  std::weak_ptr<VulkanSwapChain> swapChain_;
+  std::weak_ptr<VulkanPipeline> pipeline_;
+  std::shared_ptr<Construct::CommandPool> commandPool_;
 
-  VulkanDevice *vulkanDevice_;
-  VulkanSwapChain *swapChain_;
-  VulkanPipeline *pipeline_;
-  bool framebufferResized_;
+  vk::raii::Semaphore presentCompleteSemaphore = nullptr;
+  vk::raii::Semaphore renderFinishedSemaphore = nullptr;
+  vk::raii::Fence drawFence = nullptr;
 
-  std::vector<VkCommandBuffer> commandBuffers_;
+  // int maxFramesInFlight_;
+  // uint32_t currentFrame_ = 0;
 
-  std::vector<VkSemaphore> imageAvailableSemaphores_;
-  std::vector<VkSemaphore> renderFinishedSemaphores_;
-  std::vector<VkFence> inFlightFences_;
+  // VulkanDevice *vulkanDevice_;
+  // VulkanSwapChain *swapChain_;
+  // VulkanPipeline *pipeline_;
+  // bool framebufferResized_;
 
-  VkSemaphore imageAvailableSemaphore_;
-  VkSemaphore renderFinishedSemaphore_;
+  // std::vector<VkCommandBuffer> commandBuffers_;
+
+  // std::vector<VkSemaphore> imageAvailableSemaphores_;
+  // std::vector<VkSemaphore> renderFinishedSemaphores_;
+  // std::vector<VkFence> inFlightFences_;
+
+  // VkSemaphore imageAvailableSemaphore_;
+  // VkSemaphore renderFinishedSemaphore_;
 };
 }  // namespace Vulkan
 }  // namespace Windows

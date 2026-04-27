@@ -60,7 +60,16 @@ void VulkanWindow::init_vulkan() {
   // Construct swap chain
   swapChain_ = std::make_shared<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
 
+  // Construct pipeline
   pipeline_ = create_graphics_pipeline( vulkanDevice_, swapChain_ );
+
+  // Construct command pool
+  commandPool_ = std::make_shared<Construct::CommandPool>();
+  Construct::command_pool( commandPool_->pool, vulkanDevice_ );
+  Construct::command_buffer( commandPool_, vulkanDevice_ );
+
+  // Construct render
+  render_ = std::make_shared<VulkanRender>( vulkanDevice_, swapChain_, pipeline_, commandPool_ );
 
   // ### DEPRECATED ###
 
@@ -145,6 +154,9 @@ void VulkanWindow::init_vulkan() {
 void VulkanWindow::deconstruct_window() {
   Logger::log( "Destroying Vulkan window...", Logger::DEBUG );
 
+  // Wait for vulkan device
+  vulkanDevice_->device.waitIdle();
+
   // swapChain_->clear_swap_chain();
 
   // destroy_graphics_pipeline( vulkanDevice_->device, pipeline_ );
@@ -187,14 +199,17 @@ void VulkanWindow::deconstruct_window() {
 
 void VulkanWindow::loop() {
   Window::loop();
-  // if ( vulkanDevice_ ) {
-  //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size() ),
-  //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),
-  //                        uniformBuffers_->mapped, descriptors_->sets, depthBuffer_,
-  //                        msaaColorBuffer_ );
 
-  //   vkDeviceWaitIdle( vulkanDevice_->device );
-  // }
+  if ( vulkanDevice_ ) {
+    render_->draw_frame();
+    //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size()
+    //   ),
+    //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),
+    //                        uniformBuffers_->mapped, descriptors_->sets, depthBuffer_,
+    //                        msaaColorBuffer_ );
+
+    //   vkDeviceWaitIdle( vulkanDevice_->device );
+  }
 }
 
 void VulkanWindow::create_surface() {

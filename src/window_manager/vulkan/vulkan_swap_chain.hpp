@@ -82,7 +82,7 @@ class VulkanSwapChain {
 
   void create_image_views();
   //   void create_framebuffers();
-  void create_render_pass();
+  //   void create_render_pass();
 
  public:
   //   VkSwapchainKHR swapChain;
@@ -94,17 +94,16 @@ class VulkanSwapChain {
   //   std::vector<VkImageView> swapChainImageViews;
   //   std::vector<VkFramebuffer> swapChainFramebuffers;
 
+  vk::raii::SwapchainKHR swapChain = nullptr;
   vk::SurfaceFormatKHR swapChainSurfaceFormat;
+  vk::Extent2D swapChainExtent;
+
+  std::vector<vk::raii::ImageView> swapChainImageViews;
+  std::vector<vk::Image> swapChainImages;
 
  private:
   //   VkInstance instance_;
   //   VkSurfaceKHR surface_;
-
-  vk::raii::SwapchainKHR swapChain_ = nullptr;
-  std::vector<vk::Image> swapChainImages_;
-  vk::Extent2D swapChainExtent_;
-
-  std::vector<vk::raii::ImageView> swapChainImageViews_;
 
   // External ptrs
   GLFWwindow *window_;  // ptr to existing window // TODO: Make weak ptr

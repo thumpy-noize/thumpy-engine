@@ -73,7 +73,7 @@ class VulkanWindow : public Window {
   vk::raii::Context raiiContext_;                                  // Context
   vk::raii::Instance raiiInstance_ = nullptr;                      // Instance
   vk::raii::DebugUtilsMessengerEXT raiiDebugMessenger_ = nullptr;  // Debug messenger
-  vk::raii::SurfaceKHR surface_ = nullptr;                         // Surface
+  std::shared_ptr<vk::raii::SurfaceKHR> surface_ = nullptr;        // Surface
 
   std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;           // Vulkan device
   std::shared_ptr<VulkanSwapChain> swapChain_ = nullptr;           // Swap chain

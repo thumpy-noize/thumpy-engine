@@ -55,7 +55,7 @@ void VulkanWindow::init_vulkan() {
   create_surface();
 
   // Construct Vulkan device
-  vulkanDevice_ = std::make_shared<VulkanDevice>( raiiInstance_, surface_ );
+  vulkanDevice_ = std::make_shared<VulkanDevice>( raiiInstance_, *surface_ );
 
   // Construct swap chain
   swapChain_ = std::make_shared<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
@@ -158,6 +158,8 @@ void VulkanWindow::deconstruct_window() {
   // Wait for vulkan device
   vulkanDevice_->device.waitIdle();
 
+  swapChain_->clear_swap_chain();
+
   // swapChain_->clear_swap_chain();
 
   // destroy_graphics_pipeline( vulkanDevice_->device, pipeline_ );
@@ -202,7 +204,7 @@ void VulkanWindow::loop() {
   Window::loop();
 
   if ( vulkanDevice_ ) {
-    render_->draw_frame();
+    render_->draw_frame( framebufferResized );
     //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size()
     //   ),
     //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),
@@ -223,7 +225,7 @@ void VulkanWindow::create_surface() {
   }
 
   // Set surface to instance
-  surface_ = vk::raii::SurfaceKHR( raiiInstance_, _surface );
+  surface_ = std::make_shared<vk::raii::SurfaceKHR>( raiiInstance_, _surface );
 }
 
 #pragma endregion Core

@@ -147,20 +147,44 @@ void VulkanRender::transition_image_layout( uint32_t imageIndex, vk::ImageLayout
   commandPool_->buffers[frameIndex_].pipelineBarrier2( dependency_info );
 }
 
-void VulkanRender::draw_frame() {
+void VulkanRender::draw_frame( bool &framebufferResized ) {
   // Wait for fence
   auto fenceResult = vulkanDevice_.lock()->device.waitForFences( *inFlightFences[frameIndex_],
                                                                  vk::True, UINT64_MAX );
   if ( fenceResult != vk::Result::eSuccess ) {
-    throw std::runtime_error( "failed to wait for fence!" );
+    throw std::runtime_error( "Failed to wait for fence!" );
+  }
+
+  vk::Result result;
+  uint32_t imageIndex;
+  // Get swapchain image - Despite what the docs say, we need to catch this error to handle it
+  try {
+    auto res = swapChain_.lock()->swapChain.acquireNextImage(
+        UINT64_MAX, *presentCompleteSemaphores[frameIndex_], nullptr );
+    result = res.result;
+    imageIndex = res.value;
+  } catch ( const vk::OutOfDateKHRError &e ) {
+    // Logger::log( "Caught out of date error while acquireing image.", Logger::INFO );
+    result = vk::Result::eErrorOutOfDateKHR;
+  }
+
+  // Check for out of date swapchain
+  if ( result == vk::Result::eErrorOutOfDateKHR ) {
+    // Logger::log( "Out of date KHR, recreating swapchain", Logger::INFO );
+    swapChain_.lock()->recreate_swap_chain();
+    return;
+  }
+
+  // Check for early suboptimal KHR
+  if ( result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR ) {
+    Logger::log( "Failed to acquire swap chain image!", Logger::INFO );
+
+    assert( result == vk::Result::eTimeout || result == vk::Result::eNotReady );
+    throw std::runtime_error( "Failed to acquire swap chain image!" );
   }
 
   // Reset fence
   vulkanDevice_.lock()->device.resetFences( *inFlightFences[frameIndex_] );
-
-  // Get swapchain image
-  auto [result, imageIndex] = swapChain_.lock()->swapChain.acquireNextImage(
-      UINT64_MAX, *presentCompleteSemaphores[frameIndex_], nullptr );
 
   // Reset command buffer
   commandPool_->buffers[frameIndex_].reset();
@@ -198,18 +222,23 @@ void VulkanRender::draw_frame() {
       .pSwapchains = &*swapChain_.lock()->swapChain,
       .pImageIndices = &imageIndex };
 
-  // Queue present
-  result = vulkanDevice_.lock()->graphicsQueue.presentKHR( presentInfoKHR );
+  // Queue present - Despite what the docs say, we seem to need to catch this error to handle it
+  try {
+    result = vulkanDevice_.lock()->graphicsQueue.presentKHR( presentInfoKHR );
+  } catch ( const vk::OutOfDateKHRError &e ) {
+    // Logger::log( "Caught out of date error while submiting present KHR.", Logger::INFO );
+    result = vk::Result::eErrorOutOfDateKHR;
+  }
 
-  // Validate result
-  switch ( result ) {
-    case vk::Result::eSuccess:
-      break;
-    case vk::Result::eSuboptimalKHR:
-      Logger::log( "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR ", Logger::INFO );
-      break;
-    default:
-      break;  // an unexpected result is returned!
+  // Validate result / framebuffer resize
+  if ( ( result == vk::Result::eSuboptimalKHR ) || ( result == vk::Result::eErrorOutOfDateKHR ) ||
+       framebufferResized ) {
+    framebufferResized = false;
+    swapChain_.lock()->recreate_swap_chain();
+  } else {
+    // There are no other success codes than eSuccess; on any error code, presentKHR already threw
+    // an exception.
+    assert( result == vk::Result::eSuccess );
   }
 
   // Increment frame

@@ -61,7 +61,7 @@ class VulkanRender {
   //  * @brief Draw to frame
   //  *
   //  */
-  void draw_frame();
+  void draw_frame( bool& framebufferResized );
   // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
   //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
   //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,

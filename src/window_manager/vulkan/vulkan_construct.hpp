@@ -36,17 +36,17 @@ std::vector<const char *> getRequiredInstanceExtensions();
 
 #pragma region Command pool
 
-// struct CommandPool {
-//   VkCommandPool pool;
-//   std::vector<VkCommandBuffer> buffers;
+struct CommandPool {
+  vk::raii::CommandPool pool = nullptr;
+  vk::raii::CommandBuffer buffers = nullptr;
 
-//   void destroy( VkDevice device ) { vkDestroyCommandPool( device, pool, nullptr ); }
-// };
+  // void destroy( VkDevice device ) { vkDestroyCommandPool( device, pool, nullptr ); }
+};
 
-// void command_pool( VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
+void command_pool( vk::raii::CommandPool &commandPool, std::shared_ptr<VulkanDevice> vulkanDevice );
 
-// void command_buffer( std::vector<VkCommandBuffer> &commandBuffers, VkCommandPool commandPool,
-//                      VkDevice device, int maxFramesInFlight );
+void command_buffer( std::shared_ptr<Construct::CommandPool> commandPool,
+                     std::shared_ptr<VulkanDevice> vulkanDevice );
 
 #pragma region Command pool
 

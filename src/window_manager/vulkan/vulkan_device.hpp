@@ -66,6 +66,7 @@ class VulkanDevice {
 
   // Graphics queue
   vk::raii::Queue graphicsQueue = nullptr;
+  uint32_t queueIndex = ~0;
 
   // VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   // VkDevice device;

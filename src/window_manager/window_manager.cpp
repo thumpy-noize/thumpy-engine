@@ -56,6 +56,9 @@ void WindowManager::loop() {
     return;
   }
 
+  // Poll input events
+  glfwPollEvents();
+
   // Loop threw all windows
   for ( int i = windows_.size() - 1; i >= 0; i-- ) {
     // Check for window exit signal
@@ -74,9 +77,6 @@ void WindowManager::loop() {
     // // glClear(GL_COLOR_BUFFER_BIT);
     // glfwSwapBuffers(windows_.at(i));
   }  // get next window and repeat
-
-  // Poll input events
-  glfwPollEvents();
 }
 
 void WindowManager::terminate() {

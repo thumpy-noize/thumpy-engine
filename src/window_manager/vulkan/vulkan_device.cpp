@@ -64,7 +64,6 @@ void VulkanDevice::create_logical_device( vk::raii::SurfaceKHR &surface ) {
       physicalDevice.getQueueFamilyProperties();
 
   // Get the first index into queueFamilyProperties which supports both graphics and present
-  uint32_t queueIndex = ~0;
   for ( uint32_t qfpIndex = 0; qfpIndex < queueFamilyProperties.size(); qfpIndex++ ) {
     if ( ( queueFamilyProperties[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics ) &&
          physicalDevice.getSurfaceSupportKHR( qfpIndex, *surface ) ) {
@@ -77,21 +76,6 @@ void VulkanDevice::create_logical_device( vk::raii::SurfaceKHR &surface ) {
     throw std::runtime_error( "Could not find a queue for graphics and present -> terminating" );
   }
 
-  // // Get graphics queue family properties
-  // auto graphicsQueueFamilyProperty =
-  //     std::ranges::find_if( queueFamilyProperties, []( auto const &qfp ) {
-  //       return ( qfp.queueFlags & vk::QueueFlagBits::eGraphics ) !=
-  //              static_cast<vk::QueueFlags>( 0 );
-  //     } );
-
-  // // Validate properties
-  // assert( graphicsQueueFamilyProperty != queueFamilyProperties.end() &&
-  //         "No graphics queue family found!" );
-
-  // // Get graphics index
-  // auto graphicsIndex = static_cast<uint32_t>(
-  //     std::distance( queueFamilyProperties.begin(), graphicsQueueFamilyProperty ) );
-
   // Create structure chain
   vk::StructureChain<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan11Features,
                      vk::PhysicalDeviceVulkan13Features,
@@ -99,8 +83,9 @@ void VulkanDevice::create_logical_device( vk::raii::SurfaceKHR &surface ) {
       featureChain = {
           {},                                // vk::PhysicalDeviceFeatures2
           { .shaderDrawParameters = true },  // vk::PhysicalDeviceVulkan11Features
-          { .dynamicRendering = true },      // vk::PhysicalDeviceVulkan13Features
-          { .extendedDynamicState = true }   // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+          { .synchronization2 = true,
+            .dynamicRendering = true },     // vk::PhysicalDeviceVulkan13Features
+          { .extendedDynamicState = true }  // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
       };
 
   // Set queue priority (0-1 scale)
@@ -149,12 +134,14 @@ bool VulkanDevice::is_device_suitable( vk::raii::PhysicalDevice const &physicalD
       } );
 
   // Check if the physicalDevice supports the required features
-  auto features =
-      physicalDevice
-          .template getFeatures2<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan13Features,
-                                 vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();
+  auto features = physicalDevice.template getFeatures2<
+      vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceVulkan11Features,
+      vk::PhysicalDeviceVulkan13Features, vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();
+
   bool supportsRequiredFeatures =
+      features.template get<vk::PhysicalDeviceVulkan11Features>().shaderDrawParameters &&
       features.template get<vk::PhysicalDeviceVulkan13Features>().dynamicRendering &&
+      features.template get<vk::PhysicalDeviceVulkan13Features>().synchronization2 &&
       features.template get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>()
           .extendedDynamicState;
 

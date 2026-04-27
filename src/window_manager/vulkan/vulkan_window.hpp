@@ -19,7 +19,7 @@
 #include "vulkan/vulkan_construct.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_pipeline.hpp"
-// #include "vulkan_render.hpp"
+#include "vulkan_render.hpp"
 #include "vulkan_swap_chain.hpp"
 #include "window.hpp"
 
@@ -75,9 +75,11 @@ class VulkanWindow : public Window {
   vk::raii::DebugUtilsMessengerEXT raiiDebugMessenger_ = nullptr;  // Debug messenger
   vk::raii::SurfaceKHR surface_ = nullptr;                         // Surface
 
-  std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;  // Vulkan device
-  std::shared_ptr<VulkanSwapChain> swapChain_ = nullptr;  // Swap chain
-  std::shared_ptr<VulkanPipeline> pipeline_ = nullptr;    // Pipeline
+  std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;           // Vulkan device
+  std::shared_ptr<VulkanSwapChain> swapChain_ = nullptr;           // Swap chain
+  std::shared_ptr<VulkanPipeline> pipeline_ = nullptr;             // Pipeline
+  std::shared_ptr<Construct::CommandPool> commandPool_ = nullptr;  // Command pool
+  std::shared_ptr<VulkanRender> render_ = nullptr;                 // Render
 
   // ### None RAII variables (Deprecated) ###
 

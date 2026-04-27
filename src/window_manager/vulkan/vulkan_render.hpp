@@ -39,7 +39,7 @@ class VulkanRender {
   VulkanRender( std::shared_ptr<VulkanDevice> vulkanDevice,
                 std::shared_ptr<VulkanSwapChain> swapChain,
                 std::shared_ptr<VulkanPipeline> pipeline,
-                std::shared_ptr<Construct::CommandPool> commandPool );
+                std::shared_ptr<Construct::CommandPool> commandPool, int maxFramesInFlight );
 
   void record_command_buffer( uint32_t imageIndex );
 
@@ -76,14 +76,17 @@ class VulkanRender {
   // );
 
  protected:
-  std::weak_ptr<VulkanDevice> vulkanDevice_;
-  std::weak_ptr<VulkanSwapChain> swapChain_;
-  std::weak_ptr<VulkanPipeline> pipeline_;
-  std::shared_ptr<Construct::CommandPool> commandPool_;
+  uint32_t maxFramesInFlight_;  // Max frames in flight
+  uint32_t frameIndex_ = 0;     // Current frame index
 
-  vk::raii::Semaphore presentCompleteSemaphore = nullptr;
-  vk::raii::Semaphore renderFinishedSemaphore = nullptr;
-  vk::raii::Fence drawFence = nullptr;
+  std::weak_ptr<VulkanDevice> vulkanDevice_;             // prt to vulkan device
+  std::weak_ptr<VulkanSwapChain> swapChain_;             // ptr to swap chain
+  std::weak_ptr<VulkanPipeline> pipeline_;               // ptr to pipeline
+  std::shared_ptr<Construct::CommandPool> commandPool_;  // ptr to command pool / buffers
+
+  std::vector<vk::raii::Semaphore> presentCompleteSemaphores;  // Present sync object
+  std::vector<vk::raii::Semaphore> renderFinishedSemaphores;   // Render sync object
+  std::vector<vk::raii::Fence> inFlightFences;                 // In flight fences
 
   // int maxFramesInFlight_;
   // uint32_t currentFrame_ = 0;

@@ -66,10 +66,11 @@ void VulkanWindow::init_vulkan() {
   // Construct command pool
   commandPool_ = std::make_shared<Construct::CommandPool>();
   Construct::command_pool( commandPool_->pool, vulkanDevice_ );
-  Construct::command_buffer( commandPool_, vulkanDevice_ );
+  Construct::command_buffer( commandPool_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
 
   // Construct render
-  render_ = std::make_shared<VulkanRender>( vulkanDevice_, swapChain_, pipeline_, commandPool_ );
+  render_ = std::make_shared<VulkanRender>( vulkanDevice_, swapChain_, pipeline_, commandPool_,
+                                            MAX_FRAMES_IN_FLIGHT );
 
   // ### DEPRECATED ###
 

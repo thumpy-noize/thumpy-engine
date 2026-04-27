@@ -190,16 +190,15 @@ void command_pool( vk::raii::CommandPool &commandPool,
 }
 
 void command_buffer( std::shared_ptr<Construct::CommandPool> commandPool,
-                     std::shared_ptr<VulkanDevice> vulkanDevice ) {
+                     std::shared_ptr<VulkanDevice> vulkanDevice, uint32_t maxFramesInFlight ) {
   Logger::log( "Creating command buffer...", Logger::DEBUG );
 
   // Create allocation info
   vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool->pool,
                                            .level = vk::CommandBufferLevel::ePrimary,
-                                           .commandBufferCount = 1 };
+                                           .commandBufferCount = maxFramesInFlight };
   // Create command buffer
-  commandPool->buffers =
-      std::move( vk::raii::CommandBuffers( vulkanDevice->device, allocInfo ).front() );
+  commandPool->buffers = vk::raii::CommandBuffers( vulkanDevice->device, allocInfo );
 
   // commandBuffers.resize( maxFramesInFlight );
   // VkCommandBufferAllocateInfo allocInfo =

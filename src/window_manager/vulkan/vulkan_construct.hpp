@@ -38,7 +38,7 @@ std::vector<const char *> getRequiredInstanceExtensions();
 
 struct CommandPool {
   vk::raii::CommandPool pool = nullptr;
-  vk::raii::CommandBuffer buffers = nullptr;
+  std::vector<vk::raii::CommandBuffer> buffers;
 
   // void destroy( VkDevice device ) { vkDestroyCommandPool( device, pool, nullptr ); }
 };
@@ -46,7 +46,7 @@ struct CommandPool {
 void command_pool( vk::raii::CommandPool &commandPool, std::shared_ptr<VulkanDevice> vulkanDevice );
 
 void command_buffer( std::shared_ptr<Construct::CommandPool> commandPool,
-                     std::shared_ptr<VulkanDevice> vulkanDevice );
+                     std::shared_ptr<VulkanDevice> vulkanDevice, uint32_t maxFramesInFlight );
 
 #pragma region Command pool
 

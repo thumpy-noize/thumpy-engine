@@ -31,8 +31,11 @@ namespace Vulkan {
 VulkanRender::VulkanRender( std::shared_ptr<VulkanDevice> vulkanDevice,
                             std::shared_ptr<VulkanSwapChain> swapChain,
                             std::shared_ptr<VulkanPipeline> pipeline,
-                            std::shared_ptr<Construct::CommandPool> commandPool ) {
+                            std::shared_ptr<Construct::CommandPool> commandPool,
+                            int maxFramesInFlight ) {
   Logger::log( "Constructing render...", Logger::DEBUG );
+
+  maxFramesInFlight_ = maxFramesInFlight;
 
   vulkanDevice_ = vulkanDevice;
   swapChain_ = swapChain;
@@ -51,8 +54,11 @@ VulkanRender::VulkanRender( std::shared_ptr<VulkanDevice> vulkanDevice,
 }
 
 void VulkanRender::record_command_buffer( uint32_t imageIndex ) {
+  // Get current buffer
+  auto &commandBuffer = commandPool_->buffers[frameIndex_];
+
   // Begin command buffer
-  commandPool_->buffers.begin( {} );
+  commandBuffer.begin( {} );
 
   // Transistion swap chain
   transition_image_layout( imageIndex, vk::ImageLayout::eUndefined,
@@ -82,25 +88,25 @@ void VulkanRender::record_command_buffer( uint32_t imageIndex ) {
       .pColorAttachments = &attachmentInfo };
 
   // Begin rendering
-  commandPool_->buffers.beginRendering( renderingInfo );
+  commandBuffer.beginRendering( renderingInfo );
 
   // Bind pipeline
-  commandPool_->buffers.bindPipeline( vk::PipelineBindPoint::eGraphics,
-                                      *pipeline_.lock()->graphicsPipeline );
+  commandBuffer.bindPipeline( vk::PipelineBindPoint::eGraphics,
+                              *pipeline_.lock()->graphicsPipeline );
 
   // set viewport / scissor
-  commandPool_->buffers.setViewport(
+  commandBuffer.setViewport(
       0,
       vk::Viewport( 0.0f, 0.0f, static_cast<float>( swapChain_.lock()->swapChainExtent.width ),
                     static_cast<float>( swapChain_.lock()->swapChainExtent.height ), 0.0f, 1.0f ) );
-  commandPool_->buffers.setScissor(
+  commandBuffer.setScissor(
       0, vk::Rect2D( vk::Offset2D( 0, 0 ), swapChain_.lock()->swapChainExtent ) );
 
   // Draw buffer
-  commandPool_->buffers.draw( 3, 1, 0, 0 );
+  commandBuffer.draw( 3, 1, 0, 0 );
 
   // End rendering
-  commandPool_->buffers.endRendering();
+  commandBuffer.endRendering();
 
   // Transition to image
   transition_image_layout( imageIndex, vk::ImageLayout::eColorAttachmentOptimal,
@@ -112,7 +118,7 @@ void VulkanRender::record_command_buffer( uint32_t imageIndex ) {
   );
 
   // End command buffer
-  commandPool_->buffers.end();
+  commandBuffer.end();
 }
 
 void VulkanRender::transition_image_layout( uint32_t imageIndex, vk::ImageLayout old_layout,
@@ -138,22 +144,26 @@ void VulkanRender::transition_image_layout( uint32_t imageIndex, vk::ImageLayout
                             .layerCount = 1 } };
   vk::DependencyInfo dependency_info = {
       .dependencyFlags = {}, .imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &barrier };
-  commandPool_->buffers.pipelineBarrier2( dependency_info );
+  commandPool_->buffers[frameIndex_].pipelineBarrier2( dependency_info );
 }
 
 void VulkanRender::draw_frame() {
   // Wait for fence
-  auto fenceResult = vulkanDevice_.lock()->device.waitForFences( *drawFence, vk::True, UINT64_MAX );
+  auto fenceResult = vulkanDevice_.lock()->device.waitForFences( *inFlightFences[frameIndex_],
+                                                                 vk::True, UINT64_MAX );
   if ( fenceResult != vk::Result::eSuccess ) {
     throw std::runtime_error( "failed to wait for fence!" );
   }
 
   // Reset fence
-  vulkanDevice_.lock()->device.resetFences( *drawFence );
+  vulkanDevice_.lock()->device.resetFences( *inFlightFences[frameIndex_] );
 
   // Get swapchain image
   auto [result, imageIndex] = swapChain_.lock()->swapChain.acquireNextImage(
-      UINT64_MAX, *presentCompleteSemaphore, nullptr );
+      UINT64_MAX, *presentCompleteSemaphores[frameIndex_], nullptr );
+
+  // Reset command buffer
+  commandPool_->buffers[frameIndex_].reset();
 
   // Record buffer
   record_command_buffer( imageIndex );
@@ -170,22 +180,23 @@ void VulkanRender::draw_frame() {
 
   // Create submit info
   const vk::SubmitInfo submitInfo{ .waitSemaphoreCount = 1,
-                                   .pWaitSemaphores = &*presentCompleteSemaphore,
+                                   .pWaitSemaphores = &*presentCompleteSemaphores[frameIndex_],
                                    .pWaitDstStageMask = &waitDestinationStageMask,
                                    .commandBufferCount = 1,
-                                   .pCommandBuffers = &*commandPool_->buffers,
+                                   .pCommandBuffers = &*commandPool_->buffers[frameIndex_],
                                    .signalSemaphoreCount = 1,
-                                   .pSignalSemaphores = &*renderFinishedSemaphore };
+                                   .pSignalSemaphores = &*renderFinishedSemaphores[imageIndex] };
 
   // Submit to queue
-  vulkanDevice_.lock()->graphicsQueue.submit( submitInfo, *drawFence );
+  vulkanDevice_.lock()->graphicsQueue.submit( submitInfo, *inFlightFences[frameIndex_] );
 
   // Create present info
-  const vk::PresentInfoKHR presentInfoKHR{ .waitSemaphoreCount = 1,
-                                           .pWaitSemaphores = &*renderFinishedSemaphore,
-                                           .swapchainCount = 1,
-                                           .pSwapchains = &*swapChain_.lock()->swapChain,
-                                           .pImageIndices = &imageIndex };
+  const vk::PresentInfoKHR presentInfoKHR{
+      .waitSemaphoreCount = 1,
+      .pWaitSemaphores = &*renderFinishedSemaphores[imageIndex],
+      .swapchainCount = 1,
+      .pSwapchains = &*swapChain_.lock()->swapChain,
+      .pImageIndices = &imageIndex };
 
   // Queue present
   result = vulkanDevice_.lock()->graphicsQueue.presentKHR( presentInfoKHR );
@@ -200,18 +211,39 @@ void VulkanRender::draw_frame() {
     default:
       break;  // an unexpected result is returned!
   }
+
+  // Increment frame
+  frameIndex_ = ( frameIndex_ + 1 ) % maxFramesInFlight_;
 }
 
 void VulkanRender::create_sync_objects() {
   Logger::log( "Creating sync objects...", Logger::DEBUG );
 
+  // Validate sync objects
+  assert( presentCompleteSemaphores.empty() && renderFinishedSemaphores.empty() &&
+          inFlightFences.empty() );
+
   // Create sync objects
-  presentCompleteSemaphore =
-      vk::raii::Semaphore( vulkanDevice_.lock()->device, vk::SemaphoreCreateInfo() );
-  renderFinishedSemaphore =
-      vk::raii::Semaphore( vulkanDevice_.lock()->device, vk::SemaphoreCreateInfo() );
-  drawFence = vk::raii::Fence( vulkanDevice_.lock()->device,
-                               { .flags = vk::FenceCreateFlagBits::eSignaled } );
+
+  for ( size_t i = 0; i < swapChain_.lock()->swapChainImages.size(); i++ ) {
+    renderFinishedSemaphores.emplace_back( vulkanDevice_.lock()->device,
+                                           vk::SemaphoreCreateInfo() );
+  }
+
+  for ( size_t i = 0; i < maxFramesInFlight_; i++ ) {
+    presentCompleteSemaphores.emplace_back( vulkanDevice_.lock()->device,
+                                            vk::SemaphoreCreateInfo() );
+    inFlightFences.emplace_back(
+        vulkanDevice_.lock()->device,
+        vk::FenceCreateInfo{ .flags = vk::FenceCreateFlagBits::eSignaled } );
+  }
+
+  //   presentCompleteSemaphore =
+  //       vk::raii::Semaphore( vulkanDevice_.lock()->device, vk::SemaphoreCreateInfo() );
+  //   renderFinishedSemaphore =
+  //       vk::raii::Semaphore( vulkanDevice_.lock()->device, vk::SemaphoreCreateInfo() );
+  //   drawFence = vk::raii::Fence( vulkanDevice_.lock()->device,
+  //                                { .flags = vk::FenceCreateFlagBits::eSignaled } );
 }
 
 // ########################
@@ -247,11 +279,13 @@ void VulkanRender::create_sync_objects() {
 //   }
 // }
 
-// void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
+// void VulkanRender::draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer
+// indexBuffer,
 //                                uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
 //                                std::vector<VkDescriptorSet> descriptorSets, VulkanImage
 //                                *depthImage, VulkanImage *colorImage ) {
-//   vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX
+//   vkWaitForFences( vulkanDevice_->device, 1, &inFlightFences_[currentFrame_], VK_TRUE,
+//   UINT64_MAX
 //   );
 
 //   uint32_t imageIndex;
@@ -316,7 +350,8 @@ void VulkanRender::create_sync_objects() {
 
 //   result = vkQueuePresentKHR( vulkanDevice_->presentQueue, &presentInfo );
 
-//   if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_ )
+//   if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_
+//   )
 //   {
 //     framebufferResized_ = false;
 //     swapChain_->recreate_swap_chain( depthImage, colorImage );
@@ -352,7 +387,8 @@ void VulkanRender::create_sync_objects() {
 
 //   vkCmdBeginRenderPass( commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE );
 
-//   vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline
+//   vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+//   pipeline_->graphicsPipeline
 //   );
 
 //   VkViewport viewport = Initializer::viewport( static_cast<float>( swapChain->extent.height ),
@@ -404,7 +440,8 @@ void VulkanRender::create_sync_objects() {
 //                           glm::vec3( 0.0f, 0.0f, 1.0f ) );
 //   ubo.proj =
 //       glm::perspective( glm::radians( 45.0f ),
-//                         swapChain_->extent.width / (float)swapChain_->extent.height, 0.1f, 10.0f
+//                         swapChain_->extent.width / (float)swapChain_->extent.height,
+//                         0.1f, 10.0f
 //                         );
 //   ubo.proj[1][1] *= -1;
 //   memcpy( uniformBuffersMapped[currentImage], &ubo, sizeof( ubo ) );

@@ -26,7 +26,7 @@ namespace Windows {
 namespace Vulkan {
 
 VulkanSwapChain::VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GLFWwindow *window,
-                                  vk::raii::SurfaceKHR &surface ) {
+                                  std::shared_ptr<vk::raii::SurfaceKHR> surface ) {
   Logger::log( "Constructing Vulkan swap chain...", Logger::DEBUG );
 
   // Get weak ptr to vulkan device
@@ -35,8 +35,11 @@ VulkanSwapChain::VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GL
   // Get ptr to window // TODO: make weak ptr
   window_ = window;
 
+  // Get weak ptr to surface
+  surface_ = surface;
+
   // Create swap chain
-  create_swap_chain( surface );
+  create_swap_chain();
 
   // Create image views
   create_image_views();
@@ -47,12 +50,12 @@ VulkanSwapChain::VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GL
   // create_render_pass();
 }
 
-void VulkanSwapChain::create_swap_chain( vk::raii::SurfaceKHR &surface ) {
+void VulkanSwapChain::create_swap_chain() {
   Logger::log( "Creating swap chain...", Logger::DEBUG );
 
   // Get surface capabilities
   vk::SurfaceCapabilitiesKHR surfaceCapabilities =
-      vulkanDevice_.lock()->physicalDevice.getSurfaceCapabilitiesKHR( *surface );
+      vulkanDevice_.lock()->physicalDevice.getSurfaceCapabilitiesKHR( *surface_.lock() );
 
   // Get extent
   swapChainExtent = choose_swap_extent( surfaceCapabilities );
@@ -62,16 +65,16 @@ void VulkanSwapChain::create_swap_chain( vk::raii::SurfaceKHR &surface ) {
 
   // Get surface format
   std::vector<vk::SurfaceFormatKHR> availableFormats =
-      vulkanDevice_.lock()->physicalDevice.getSurfaceFormatsKHR( *surface );
+      vulkanDevice_.lock()->physicalDevice.getSurfaceFormatsKHR( *surface_.lock() );
   swapChainSurfaceFormat = choose_swap_surface_format( availableFormats );
 
   // Get present mode
   std::vector<vk::PresentModeKHR> availablePresentModes =
-      vulkanDevice_.lock()->physicalDevice.getSurfacePresentModesKHR( *surface );
+      vulkanDevice_.lock()->physicalDevice.getSurfacePresentModesKHR( *surface_.lock() );
   vk::PresentModeKHR presentMode = choose_swap_present_mode( availablePresentModes );
 
   vk::SwapchainCreateInfoKHR swapChainCreateInfo{
-      .surface = *surface,
+      .surface = *surface_.lock(),
       .minImageCount = minImageCount,
       .imageFormat = swapChainSurfaceFormat.format,
       .imageColorSpace = swapChainSurfaceFormat.colorSpace,
@@ -145,70 +148,99 @@ void VulkanSwapChain::create_swap_chain( vk::raii::SurfaceKHR &surface ) {
   //   extent = chosen_extent;
 }
 
-// void VulkanSwapChain::recreate_swap_chain( VulkanImage *depthImage, VulkanImage *colorImage ) {
-//   Logger::log( "Recreating swap chain...", Logger::INFO );
-//   int width = 0, height = 0;
-//   glfwGetFramebufferSize( window_, &width, &height );
-//   while ( width == 0 || height == 0 ) {
-//     glfwGetFramebufferSize( window_, &width, &height );
-//     glfwWaitEvents();
-//   }
+void VulkanSwapChain::recreate_swap_chain() {
+  Logger::log( "Recreating swap chain...", Logger::DEBUG );
 
-//   vkDeviceWaitIdle( vulkanDevice_->device );
+  // Get new window dimensions
+  int width = 0, height = 0;
+  glfwGetFramebufferSize( window_, &width, &height );
+  while ( width == 0 || height == 0 ) {
+    glfwGetFramebufferSize( window_, &width, &height );
+    glfwWaitEvents();
+  }
 
-//   clear_swap_chain();
-//   depthImage->destroy( vulkanDevice_->device );
-//   colorImage->destroy( vulkanDevice_->device );
+  // Wait for device
+  vulkanDevice_.lock()->device.waitIdle();
 
-//   create_swap_chain();
-//   create_image_views();
-//   Image::create_color_resources( colorImage, vulkanDevice_, this );
-//   Image::create_depth_resources( depthImage, vulkanDevice_, extent );
-//   Buffer::create_framebuffers( this, depthImage->imageView, colorImage->imageView,
-//                                vulkanDevice_->device );
-// }
+  // Clear existing swap chain
+  clear_swap_chain();
 
-// void VulkanSwapChain::clear_swap_chain() {
-//   for ( auto framebuffer : swapChainFramebuffers ) {
-//     vkDestroyFramebuffer( vulkanDevice_->device, framebuffer, nullptr );
-//   }
+  // Create swap chain
+  create_swap_chain();
 
-//   for ( auto imageView : swapChainImageViews ) {
-//     vkDestroyImageView( vulkanDevice_->device, imageView, nullptr );
-//   }
+  // Create image views
+  create_image_views();
 
-//   vkDestroySwapchainKHR( vulkanDevice_->device, swapChain, nullptr );
-// }
+  //   Logger::log( "Recreating swap chain...", Logger::INFO );
+  //   int width = 0, height = 0;
+  //   glfwGetFramebufferSize( window_, &width, &height );
+  //   while ( width == 0 || height == 0 ) {
+  //     glfwGetFramebufferSize( window_, &width, &height );
+  //     glfwWaitEvents();
+  //   }
 
-// SwapChainSupportDetails VulkanSwapChain::query_swap_chain_support() {
-//   SwapChainSupportDetails details;
+  //   vkDeviceWaitIdle( vulkanDevice_->device );
 
-//   vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vulkanDevice_->physicalDevice, surface_,
-//                                              &details.capabilities );
+  //   clear_swap_chain();
+  //   depthImage->destroy( vulkanDevice_->device );
+  //   colorImage->destroy( vulkanDevice_->device );
 
-//   uint32_t formatCount;
-//   vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice, surface_, &formatCount,
-//                                         nullptr );
+  //   create_swap_chain();
+  //   create_image_views();
+  //   Image::create_color_resources( colorImage, vulkanDevice_, this );
+  //   Image::create_depth_resources( depthImage, vulkanDevice_, extent );
+  //   Buffer::create_framebuffers( this, depthImage->imageView, colorImage->imageView,
+  //                                vulkanDevice_->device );
+}
 
-//   if ( formatCount != 0 ) {
-//     details.formats.resize( formatCount );
-//     vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice, surface_,
-//     &formatCount,
-//                                           details.formats.data() );
-//   }
+void VulkanSwapChain::clear_swap_chain() {
+  // Clear image views
+  swapChainImageViews.clear();
 
-//   uint32_t presentModeCount;
-//   vkGetPhysicalDeviceSurfacePresentModesKHR( vulkanDevice_->physicalDevice, surface_,
-//                                              &presentModeCount, nullptr );
+  // Clear swap chain
+  swapChain = nullptr;
 
-//   if ( presentModeCount != 0 ) {
-//     details.presentModes.resize( presentModeCount );
-//     vkGetPhysicalDeviceSurfacePresentModesKHR( vulkanDevice_->physicalDevice, surface_,
-//                                                &presentModeCount, details.presentModes.data()
-//                                                );
-//   }
-//   return details;
-// }
+  //   for ( auto framebuffer : swapChainFramebuffers ) {
+  //     vkDestroyFramebuffer( vulkanDevice_->device, framebuffer, nullptr );
+  //   }
+
+  //   for ( auto imageView : swapChainImageViews ) {
+  //     vkDestroyImageView( vulkanDevice_->device, imageView, nullptr );
+  //   }
+
+  //   vkDestroySwapchainKHR( vulkanDevice_->device, swapChain, nullptr );
+  // }
+
+  // SwapChainSupportDetails VulkanSwapChain::query_swap_chain_support() {
+  //   SwapChainSupportDetails details;
+
+  //   vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vulkanDevice_->physicalDevice, surface_,
+  //                                              &details.capabilities );
+
+  //   uint32_t formatCount;
+  //   vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice, surface_,
+  //   &formatCount,
+  //                                         nullptr );
+
+  //   if ( formatCount != 0 ) {
+  //     details.formats.resize( formatCount );
+  //     vkGetPhysicalDeviceSurfaceFormatsKHR( vulkanDevice_->physicalDevice, surface_,
+  //     &formatCount,
+  //                                           details.formats.data() );
+  //   }
+
+  //   uint32_t presentModeCount;
+  //   vkGetPhysicalDeviceSurfacePresentModesKHR( vulkanDevice_->physicalDevice, surface_,
+  //                                              &presentModeCount, nullptr );
+
+  //   if ( presentModeCount != 0 ) {
+  //     details.presentModes.resize( presentModeCount );
+  //     vkGetPhysicalDeviceSurfacePresentModesKHR( vulkanDevice_->physicalDevice, surface_,
+  //                                                &presentModeCount, details.presentModes.data()
+  //                                                );
+  //   }
+  //   return details;
+}
 
 vk::SurfaceFormatKHR VulkanSwapChain::choose_swap_surface_format(
     const std::vector<vk::SurfaceFormatKHR> &availableFormats ) {

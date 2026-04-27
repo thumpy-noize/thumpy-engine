@@ -28,24 +28,24 @@ namespace Vulkan {
 class VulkanSwapChain {
  public:
   VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GLFWwindow *window,
-                   vk::raii::SurfaceKHR &surface );
+                   std::shared_ptr<vk::raii::SurfaceKHR> surface );
 
   //   ~VulkanSwapChain();
 
   /**
    * @brief Create swap chain
    */
-  void create_swap_chain( vk::raii::SurfaceKHR &surface );
+  void create_swap_chain();
 
   /**
    * @brief Recreate swap chain
    */
-  //   void recreate_swap_chain( VulkanImage *depthImage, VulkanImage *colorImage );
+  void recreate_swap_chain();
 
   /**
    * @brief Clear the swap chain
    */
-  //   void clear_swap_chain();
+  void clear_swap_chain();
 
   /**
    * @brief Get swap chain details
@@ -104,6 +104,7 @@ class VulkanSwapChain {
  private:
   //   VkInstance instance_;
   //   VkSurfaceKHR surface_;
+  std::weak_ptr<vk::raii::SurfaceKHR> surface_;  // ptr to surface
 
   // External ptrs
   GLFWwindow *window_;  // ptr to existing window // TODO: Make weak ptr

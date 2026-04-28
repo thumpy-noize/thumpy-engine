@@ -43,7 +43,7 @@ class VulkanRender {
 
   void record_command_buffer( uint32_t imageIndex, std::shared_ptr<Buffer::Buffer> vertexBuffer,
                               uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
-                              uint16_t indexCount );
+                              uint16_t indexCount, std::shared_ptr<Descriptors> descriptors );
 
   void transition_image_layout( uint32_t imageIndex, vk::ImageLayout old_layout,
                                 vk::ImageLayout new_layout, vk::AccessFlags2 src_access_mask,
@@ -65,7 +65,8 @@ class VulkanRender {
   //  */
   void draw_frame( bool& framebufferResized, std::shared_ptr<Buffer::Buffer> vertexBuffer,
                    uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
-                   uint16_t indexCount );
+                   uint16_t indexCount, std::vector<void*> uniformBuffersMapped,
+                   std::shared_ptr<Descriptors> descriptors );
   // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
   //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
   //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
@@ -76,8 +77,7 @@ class VulkanRender {
   //                             uint32_t vertexCount, VkBuffer indexBuffer, uint32_t indexCount,
   //                             std::vector<VkDescriptorSet> descriptorSets );
 
-  // void update_uniform_buffer( uint32_t currentImage, std::vector<void *> uniformBuffersMapped
-  // );
+  void update_uniform_buffer( uint32_t currentImage, std::vector<void*> uniformBuffersMapped );
 
  protected:
   uint32_t maxFramesInFlight_;  // Max frames in flight

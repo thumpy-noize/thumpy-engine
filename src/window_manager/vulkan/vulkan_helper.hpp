@@ -53,11 +53,11 @@ const std::vector<const char *> validationLayers = { "VK_LAYER_KHRONOS_validatio
 //   std::vector<VkPresentModeKHR> presentModes;
 // };
 
-// struct Descriptors {
-//   VkDescriptorSetLayout setLayout;
-//   VkDescriptorPool pool;
-//   std::vector<VkDescriptorSet> sets;
-// };
+struct Descriptors {
+  vk::raii::DescriptorSetLayout setLayout = nullptr;
+  vk::raii::DescriptorPool pool = nullptr;
+  std::vector<vk::raii::DescriptorSet> sets;
+};
 
 struct Vertex {
   glm::vec2 pos;  // Convert to vec3 for 3D
@@ -118,11 +118,11 @@ struct Vertex {
   }
 };
 
-// struct UniformBufferObject {
-//   glm::mat4 model;
-//   glm::mat4 view;
-//   glm::mat4 proj;
-// };
+struct UniformBufferObject {
+  glm::mat4 model;
+  glm::mat4 view;
+  glm::mat4 proj;
+};
 
 // struct VulkanImage {
 //   VkImage image;

@@ -57,7 +57,8 @@ void VulkanRender::record_command_buffer( uint32_t imageIndex,
                                           std::shared_ptr<Buffer::Buffer> vertexBuffer,
                                           uint32_t vertexCount,
                                           std::shared_ptr<Buffer::Buffer> indexBuffer,
-                                          uint16_t indexCount ) {
+                                          uint16_t indexCount,
+                                          std::shared_ptr<Descriptors> descriptors ) {
   // Get current buffer
   auto &commandBuffer = commandPool_->buffers[frameIndex_];
 
@@ -112,6 +113,11 @@ void VulkanRender::record_command_buffer( uint32_t imageIndex,
   // Bind Index buffer
   commandBuffer.bindIndexBuffer( *indexBuffer->buffer, 0, vk::IndexType::eUint16 );
 
+  // Bind descriptor sets
+  commandBuffer.bindDescriptorSets( vk::PipelineBindPoint::eGraphics,
+                                    pipeline_.lock()->pipelineLayout, 0,
+                                    *descriptors->sets[frameIndex_], nullptr );
+
   // Draw buffer
   commandBuffer.drawIndexed( indexCount, 1, 0, 0, 0 );
 
@@ -159,7 +165,9 @@ void VulkanRender::transition_image_layout( uint32_t imageIndex, vk::ImageLayout
 
 void VulkanRender::draw_frame( bool &framebufferResized,
                                std::shared_ptr<Buffer::Buffer> vertexBuffer, uint32_t vertexCount,
-                               std::shared_ptr<Buffer::Buffer> indexBuffer, uint16_t indexCount ) {
+                               std::shared_ptr<Buffer::Buffer> indexBuffer, uint16_t indexCount,
+                               std::vector<void *> uniformBuffersMapped,
+                               std::shared_ptr<Descriptors> descriptors ) {
   // Wait for fence
   auto fenceResult = vulkanDevice_.lock()->device.waitForFences( *inFlightFences[frameIndex_],
                                                                  vk::True, UINT64_MAX );
@@ -195,6 +203,9 @@ void VulkanRender::draw_frame( bool &framebufferResized,
     throw std::runtime_error( "Failed to acquire swap chain image!" );
   }
 
+  // Update uniform buffers
+  update_uniform_buffer( frameIndex_, uniformBuffersMapped );
+
   // Reset fence
   vulkanDevice_.lock()->device.resetFences( *inFlightFences[frameIndex_] );
 
@@ -202,7 +213,8 @@ void VulkanRender::draw_frame( bool &framebufferResized,
   commandPool_->buffers[frameIndex_].reset();
 
   // Record buffer
-  record_command_buffer( imageIndex, vertexBuffer, vertexCount, indexBuffer, indexCount );
+  record_command_buffer( imageIndex, vertexBuffer, vertexCount, indexBuffer, indexCount,
+                         descriptors );
 
   // Wait for queue
   vulkanDevice_.lock()
@@ -285,6 +297,33 @@ void VulkanRender::create_sync_objects() {
   //       vk::raii::Semaphore( vulkanDevice_.lock()->device, vk::SemaphoreCreateInfo() );
   //   drawFence = vk::raii::Fence( vulkanDevice_.lock()->device,
   //                                { .flags = vk::FenceCreateFlagBits::eSignaled } );
+}
+
+void VulkanRender::update_uniform_buffer( uint32_t currentImage,
+                                          std::vector<void *> uniformBuffersMapped ) {
+  // Get start time
+  static auto startTime = std::chrono::high_resolution_clock::now();
+
+  // Get current time
+  auto currentTime = std::chrono::high_resolution_clock::now();
+
+  // Get time difference
+  float time =
+      std::chrono::duration<float, std::chrono::seconds::period>( currentTime - startTime ).count();
+
+  // Create uniform buffer object
+  UniformBufferObject ubo{};
+  ubo.model =
+      rotate( glm::mat4( 1.0f ), time * glm::radians( 90.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+  ubo.view = lookAt( glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ),
+                     glm::vec3( 0.0f, 0.0f, 1.0f ) );
+  ubo.proj = glm::perspective( glm::radians( 45.0f ),
+                               static_cast<float>( swapChain_.lock()->swapChainExtent.width ) /
+                                   static_cast<float>( swapChain_.lock()->swapChainExtent.height ),
+                               0.1f, 10.0f );
+  ubo.proj[1][1] *= -1;
+
+  memcpy( uniformBuffersMapped[currentImage], &ubo, sizeof( ubo ) );
 }
 
 // ########################

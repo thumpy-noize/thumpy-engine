@@ -243,6 +243,32 @@ void create_index_buffer( std::vector<uint16_t> indices, std::shared_ptr<VulkanD
   //   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
 }
 
+void create_uniform_buffers( std::shared_ptr<UniformBuffers> uniformBuffers,
+                             std::shared_ptr<VulkanDevice> vulkanDevice, int maxFramesInFlight ) {
+  // Clear buffer
+  uniformBuffers->clear();
+
+  // For frames in flight
+  for ( size_t i = 0; i < maxFramesInFlight; i++ ) {
+    // Get buffer size
+    vk::DeviceSize bufferSize = sizeof( UniformBufferObject );
+
+    // Create buffer
+    std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
+    create_buffer(
+        bufferSize, vk::BufferUsageFlagBits::eUniformBuffer,
+        vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+        buffer, vulkanDevice );
+
+    // Add created buffer to uniform buffers
+    uniformBuffers->buffers.emplace_back( std::move( buffer->buffer ) );
+    uniformBuffers->memory.emplace_back( std::move( buffer->memory ) );
+
+    // Map memory
+    uniformBuffers->mapped.emplace_back( uniformBuffers->memory[i].mapMemory( 0, bufferSize ) );
+  }
+}
+
 // VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool ) {
 //   VkCommandBufferAllocateInfo allocInfo{};
 //   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

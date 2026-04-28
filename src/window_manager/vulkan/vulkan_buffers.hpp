@@ -30,10 +30,22 @@ struct Buffer {
   // }
 };
 
+struct UniformBuffers {
+  // We may be able to use a vector of buffers to replace these first 2 variables
+  std::vector<vk::raii::Buffer> buffers;
+  std::vector<vk::raii::DeviceMemory> memory;
+  std::vector<void *> mapped;
+
+  void clear() {
+    buffers.clear();
+    memory.clear();
+    mapped.clear();
+  }
+};
+
 void create_buffer( vk::DeviceSize size, vk::BufferUsageFlags usage,
                     vk::MemoryPropertyFlags properties, std::shared_ptr<Buffer> buffer,
-                    std::shared_ptr<VulkanDevice> vulkanDevice,
-                    vk::raii::CommandPool &commandPool );
+                    std::shared_ptr<VulkanDevice> vulkanDevice );
 
 void copy_buffer( std::shared_ptr<Buffer> srcBuffer, std::shared_ptr<Buffer> dstBuffer,
                   vk::DeviceSize size, std::shared_ptr<VulkanDevice> vulkanDevice,
@@ -49,6 +61,8 @@ void create_vertex_buffer( std::vector<Vertex> vertices, std::shared_ptr<VulkanD
 void create_index_buffer( std::vector<uint16_t> indices, std::shared_ptr<VulkanDevice> vulkanDevice,
                           std::shared_ptr<Buffer> indexBuffer, vk::raii::CommandPool &commandPool );
 
+void create_uniform_buffers( std::shared_ptr<UniformBuffers> uniformBuffers,
+                             std::shared_ptr<VulkanDevice> vulkanDevice, int maxFramesInFlight );
 // VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool );
 
 // void end_single_time_commands( VulkanDevice *vulkanDevice, VkCommandBuffer commandBuffer,

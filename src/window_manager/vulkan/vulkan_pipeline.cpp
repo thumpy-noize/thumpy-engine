@@ -48,13 +48,14 @@ static std::vector<char> read_file( const std::string &filename ) {
 }
 
 std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
-    std::shared_ptr<VulkanDevice> vulkanDevice, std::shared_ptr<VulkanSwapChain> swapChain ) {
+    std::shared_ptr<VulkanDevice> vulkanDevice, std::shared_ptr<VulkanSwapChain> swapChain,
+    vk::raii::DescriptorSetLayout &descriptorSetLayout ) {
   Logger::log( "Constructing Vulkan pipeline...", Logger::DEBUG );
 
   Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
 
   // Read shader file
-  std::vector<char> slagShaderCode = read_file( get_shader_path() + "vertex_shader.slang.spv" );
+  std::vector<char> slagShaderCode = read_file( get_shader_path() + "uniform_shader.slang.spv" );
 
   // Create shader module
   vk::raii::ShaderModule shaderModule = create_shader_module( slagShaderCode, vulkanDevice );
@@ -90,13 +91,14 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   vk::PipelineViewportStateCreateInfo viewportState{ .viewportCount = 1, .scissorCount = 1 };
 
   // Create rasterizer info
-  vk::PipelineRasterizationStateCreateInfo rasterizer{ .depthClampEnable = vk::False,
-                                                       .rasterizerDiscardEnable = vk::False,
-                                                       .polygonMode = vk::PolygonMode::eFill,
-                                                       .cullMode = vk::CullModeFlagBits::eBack,
-                                                       .frontFace = vk::FrontFace::eClockwise,
-                                                       .depthBiasEnable = vk::False,
-                                                       .lineWidth = 1.0f };
+  vk::PipelineRasterizationStateCreateInfo rasterizer{
+      .depthClampEnable = vk::False,
+      .rasterizerDiscardEnable = vk::False,
+      .polygonMode = vk::PolygonMode::eFill,
+      .cullMode = vk::CullModeFlagBits::eBack,
+      .frontFace = vk::FrontFace::eCounterClockwise,
+      .depthBiasEnable = vk::False,
+      .lineWidth = 1.0f };
 
   // Multisampling info (currently disabled)
   vk::PipelineMultisampleStateCreateInfo multisampling{
@@ -121,8 +123,8 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
       .pDynamicStates = dynamicStates.data() };
 
   // Pipeline layout info
-  vk::PipelineLayoutCreateInfo pipelineLayoutInfo{ .setLayoutCount = 0,
-                                                   .pushConstantRangeCount = 0 };
+  vk::PipelineLayoutCreateInfo pipelineLayoutInfo{
+      .setLayoutCount = 1, .pSetLayouts = &*descriptorSetLayout, .pushConstantRangeCount = 0 };
 
   // Create pipeline
   std::shared_ptr<VulkanPipeline> pipeline = std::make_shared<VulkanPipeline>();
@@ -146,6 +148,8 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
             .renderPass = nullptr },
           { .colorAttachmentCount = 1,
             .pColorAttachmentFormats = &swapChain->swapChainSurfaceFormat.format } };
+
+  Logger::log( "Constructing graphics pipeline...", Logger::DEBUG );
 
   // Create graphics pipeline
   pipeline->graphicsPipeline =

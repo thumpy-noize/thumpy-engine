@@ -42,7 +42,8 @@ class VulkanRender {
                 std::shared_ptr<Construct::CommandPool> commandPool, int maxFramesInFlight );
 
   void record_command_buffer( uint32_t imageIndex, std::shared_ptr<Buffer::Buffer> vertexBuffer,
-                              uint32_t vertexCount );
+                              uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
+                              uint16_t indexCount );
 
   void transition_image_layout( uint32_t imageIndex, vk::ImageLayout old_layout,
                                 vk::ImageLayout new_layout, vk::AccessFlags2 src_access_mask,
@@ -63,7 +64,8 @@ class VulkanRender {
   //  *
   //  */
   void draw_frame( bool& framebufferResized, std::shared_ptr<Buffer::Buffer> vertexBuffer,
-                   uint32_t vertexCount );
+                   uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
+                   uint16_t indexCount );
   // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
   //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
   //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
@@ -80,6 +82,8 @@ class VulkanRender {
  protected:
   uint32_t maxFramesInFlight_;  // Max frames in flight
   uint32_t frameIndex_ = 0;     // Current frame index
+
+  // std::shared_ptr<bool> framebufferResized_;  // Resize callback ptr
 
   std::weak_ptr<VulkanDevice> vulkanDevice_;             // prt to vulkan device
   std::weak_ptr<VulkanSwapChain> swapChain_;             // ptr to swap chain

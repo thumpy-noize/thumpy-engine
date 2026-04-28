@@ -14,7 +14,7 @@
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 
 #include <array>
 #include <cstdint>
@@ -23,6 +23,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan_raii.hpp>
 
 #include "logger.hpp"
 
@@ -58,53 +59,64 @@ const std::vector<const char *> validationLayers = { "VK_LAYER_KHRONOS_validatio
 //   std::vector<VkDescriptorSet> sets;
 // };
 
-// struct Vertex {
-//   glm::vec3 pos;
-//   glm::vec3 color;
-//   glm::vec2 texCoord;
+struct Vertex {
+  glm::vec2 pos;  // Convert to vec3 for 3D
+  glm::vec3 color;
+  //   glm::vec2 texCoord;ssss
 
-//   static VkVertexInputBindingDescription get_binding_description() {
-//     VkVertexInputBindingDescription bindingDescription{};
-//     bindingDescription.binding = 0;
-//     bindingDescription.stride = sizeof( Vertex );
-//     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+  static vk::VertexInputBindingDescription get_binding_description() {
+    return { .binding = 0, .stride = sizeof( Vertex ), .inputRate = vk::VertexInputRate::eVertex };
+    // VkVertexInputBindingDescription bindingDescription{};
+    // bindingDescription.binding = 0;
+    // bindingDescription.stride = sizeof( Vertex );
+    // bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-//     return bindingDescription;
-//   }
+    // return bindingDescription;
+  }
 
-//   static std::array<VkVertexInputAttributeDescription, 3> get_attribute_descriptions() {
-//     std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+  // This will need to be updated from 2 to 3 when adding texCoords
+  static std::array<vk::VertexInputAttributeDescription, 2> get_attribute_descriptions() {
+    return { { { .location = 0,
+                 .binding = 0,
+                 .format = vk::Format::eR32G32Sfloat,
+                 .offset = offsetof( Vertex, pos ) },
+               { .location = 1,
+                 .binding = 0,
+                 .format = vk::Format::eR32G32B32Sfloat,
+                 .offset = offsetof( Vertex, color ) } } };
 
-//     attributeDescriptions[0].binding = 0;
-//     attributeDescriptions[0].location = 0;
-//     attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-//     attributeDescriptions[0].offset = offsetof( Vertex, pos );
+    //     std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
-//     attributeDescriptions[1].binding = 0;
-//     attributeDescriptions[1].location = 1;
-//     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-//     attributeDescriptions[1].offset = offsetof( Vertex, color );
+    //     attributeDescriptions[0].binding = 0;
+    //     attributeDescriptions[0].location = 0;
+    //     attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    //     attributeDescriptions[0].offset = offsetof( Vertex, pos );
 
-//     attributeDescriptions[2].binding = 0;
-//     attributeDescriptions[2].location = 2;
-//     attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-//     attributeDescriptions[2].offset = offsetof( Vertex, texCoord );
+    //     attributeDescriptions[1].binding = 0;
+    //     attributeDescriptions[1].location = 1;
+    //     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    //     attributeDescriptions[1].offset = offsetof( Vertex, color );
 
-//     return attributeDescriptions;
-//   }
+    //     attributeDescriptions[2].binding = 0;
+    //     attributeDescriptions[2].location = 2;
+    //     attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    //     attributeDescriptions[2].offset = offsetof( Vertex, texCoord );
 
-//   static Vertex mid( Vertex a, Vertex b ) {
-//     Vertex vert;
-//     vert.pos = ( a.pos + b.pos ) / glm::vec3( 2 );
-//     vert.color = ( a.color + b.color ) / glm::vec3( 2 );
-//     vert.texCoord = ( a.texCoord + b.texCoord ) / glm::vec2( 2 );
-//     return vert;
-//   }
+    //     return attributeDescriptions;
+  }
 
-//   bool operator==( const Vertex &other ) const {
-//     return pos == other.pos && color == other.color && texCoord == other.texCoord;
-//   }
-// };
+  //   static Vertex mid( Vertex a, Vertex b ) {
+  //     Vertex vert;
+  //     vert.pos = ( a.pos + b.pos ) / glm::vec3( 2 );
+  //     vert.color = ( a.color + b.color ) / glm::vec3( 2 );
+  //     vert.texCoord = ( a.texCoord + b.texCoord ) / glm::vec2( 2 );
+  //     return vert;
+  //   }
+
+  bool operator==( const Vertex &other ) const {
+    return pos == other.pos && color == other.color /* && texCoord == other.texCoord */;
+  }
+};
 
 // struct UniformBufferObject {
 //   glm::mat4 model;
@@ -138,6 +150,8 @@ const std::vector<const char *> validationLayers = { "VK_LAYER_KHRONOS_validatio
 
 // std::vector<const char *> get_required_extensions();
 
+uint32_t find_memory_type( vk::raii::PhysicalDevice physicalDevice, uint32_t typeFilter,
+                           vk::MemoryPropertyFlags properties );
 // uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
 //                            VkMemoryPropertyFlags properties );
 

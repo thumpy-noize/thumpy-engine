@@ -41,7 +41,8 @@ class VulkanRender {
                 std::shared_ptr<VulkanPipeline> pipeline,
                 std::shared_ptr<Construct::CommandPool> commandPool, int maxFramesInFlight );
 
-  void record_command_buffer( uint32_t imageIndex );
+  void record_command_buffer( uint32_t imageIndex, std::shared_ptr<Buffer::Buffer> vertexBuffer,
+                              uint32_t vertexCount );
 
   void transition_image_layout( uint32_t imageIndex, vk::ImageLayout old_layout,
                                 vk::ImageLayout new_layout, vk::AccessFlags2 src_access_mask,
@@ -61,7 +62,8 @@ class VulkanRender {
   //  * @brief Draw to frame
   //  *
   //  */
-  void draw_frame( bool& framebufferResized );
+  void draw_frame( bool& framebufferResized, std::shared_ptr<Buffer::Buffer> vertexBuffer,
+                   uint32_t vertexCount );
   // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
   //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
   //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,

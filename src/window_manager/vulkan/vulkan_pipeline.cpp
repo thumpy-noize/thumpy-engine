@@ -18,6 +18,7 @@
 #include <string>
 
 #include "logger.hpp"
+#include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
 
 namespace Thumpy {
@@ -27,7 +28,6 @@ namespace Vulkan {
 
 // TODO: Please move this to a better place,
 // Reading / Writing files will be a vital part of the game engine
-
 static std::vector<char> read_file( const std::string &filename ) {
   Logger::log( "Opening file: " + filename, Logger::INFO );
   std::ifstream file( filename, std::ios::ate | std::ios::binary );
@@ -54,7 +54,7 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
 
   // Read shader file
-  std::vector<char> slagShaderCode = read_file( get_shader_path() + +"triangle_shader.slang.spv" );
+  std::vector<char> slagShaderCode = read_file( get_shader_path() + "vertex_shader.slang.spv" );
 
   // Create shader module
   vk::raii::ShaderModule shaderModule = create_shader_module( slagShaderCode, vulkanDevice );
@@ -62,14 +62,25 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   // Create shader stage info
   vk::PipelineShaderStageCreateInfo vertShaderStageInfo{
       .stage = vk::ShaderStageFlagBits::eVertex, .module = shaderModule, .pName = "vertMain" };
+
   vk::PipelineShaderStageCreateInfo fragShaderStageInfo{
       .stage = vk::ShaderStageFlagBits::eFragment, .module = shaderModule, .pName = "fragMain" };
 
   // Create shader stages
   vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+  // TODO: DOING - vertex buffer bindings
+  // Get vertex bindings
+  auto bindingDescription = Vertex::get_binding_description();
+  // Get vertex attributes
+  auto attributeDescriptions = Vertex::get_attribute_descriptions();
+
   // Vertex input state info
-  vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
+  vk::PipelineVertexInputStateCreateInfo vertexInputInfo{
+      .vertexBindingDescriptionCount = 1,
+      .pVertexBindingDescriptions = &bindingDescription,
+      .vertexAttributeDescriptionCount = static_cast<uint32_t>( attributeDescriptions.size() ),
+      .pVertexAttributeDescriptions = attributeDescriptions.data() };
 
   // Set to triangle topology
   vk::PipelineInputAssemblyStateCreateInfo inputAssembly{

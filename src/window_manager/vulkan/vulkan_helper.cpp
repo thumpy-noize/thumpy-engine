@@ -78,6 +78,21 @@ std::vector<const char *> get_required_extensions() {
   return extensions;
 }
 
+uint32_t find_memory_type( vk::raii::PhysicalDevice physicalDevice, uint32_t typeFilter,
+                           vk::MemoryPropertyFlags properties ) {
+  // Get memory properties
+  vk::PhysicalDeviceMemoryProperties memProperties = physicalDevice.getMemoryProperties();
+
+  // Find and return memory type
+  for ( uint32_t i = 0; i < memProperties.memoryTypeCount; i++ ) {
+    if ( ( typeFilter & ( 1 << i ) ) &&
+         ( memProperties.memoryTypes[i].propertyFlags & properties ) == properties ) {
+      return i;
+    }
+  }
+
+  throw std::runtime_error( "failed to find suitable memory type!" );
+}
 // uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
 //                            VkMemoryPropertyFlags properties ) {
 //   VkPhysicalDeviceMemoryProperties memProperties;

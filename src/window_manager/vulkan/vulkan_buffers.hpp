@@ -21,34 +21,35 @@ namespace Vulkan {
 namespace Buffer {
 
 struct Buffer {
-  VkBuffer buffer;
-  VkDeviceMemory memory;
+  vk::raii::Buffer buffer = nullptr;
+  vk::raii::DeviceMemory memory = nullptr;
 
-  void destroy( VkDevice device ) {
-    vkDestroyBuffer( device, buffer, nullptr );
-    vkFreeMemory( device, memory, nullptr );
-  }
+  // void destroy( VkDevice device ) {
+  //   vkDestroyBuffer( device, buffer, nullptr );
+  //   vkFreeMemory( device, memory, nullptr );
+  // }
 };
 
-void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-                    VkBuffer &buffer, VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice );
+// void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags
+// properties,
+//                     VkBuffer &buffer, VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice );
 
-void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
-                  VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
+// void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
+//                   VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
 
-void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView,
-                          VkImageView colorImageView, VkDevice device );
+// void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView,
+//                           VkImageView colorImageView, VkDevice device );
 
-void create_vertex_buffer( std::vector<Vertex> vertices, VulkanDevice *vulkanDevice,
-                           Buffer *vertexBuffer, VkCommandPool &commandPool );
+void create_vertex_buffer( std::vector<Vertex> vertices, std::shared_ptr<VulkanDevice> vulkanDevice,
+                           std::shared_ptr<Buffer> vertexBuffer /*, VkCommandPool &commandPool*/ );
 
-void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDevice,
-                          Buffer *indexBuffer, VkCommandPool &commandPool );
+// void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDevice,
+//                           Buffer *indexBuffer, VkCommandPool &commandPool );
 
-VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool );
+// VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool );
 
-void end_single_time_commands( VulkanDevice *vulkanDevice, VkCommandBuffer commandBuffer,
-                               VkCommandPool commandPool );
+// void end_single_time_commands( VulkanDevice *vulkanDevice, VkCommandBuffer commandBuffer,
+//                                VkCommandPool commandPool );
 
 }  // namespace Buffer
 }  // namespace Vulkan

@@ -82,12 +82,21 @@ class VulkanWindow : public Window {
   std::shared_ptr<VulkanRender> render_ = nullptr;                 // Render
 
   std::shared_ptr<Buffer::Buffer> vertexBuffer_ = nullptr;  // Vertex buffer
+  std::shared_ptr<Buffer::Buffer> indexBuffer_ = nullptr;   // Index buffer
 
   // TODO: This is for triangle testing. This should be moved to a child class,
   // like vulkan_triangle_example
-  const std::vector<Vertex> vertices_ = { { { 0.2f, -0.9f }, { 1.0f, 0.0f, 0.2f } },
-                                          { { 0.9f, 0.9f }, { 0.2f, 1.0f, 0.0f } },
-                                          { { -0.9f, 0.5f }, { 0.0f, 0.2f, 1.0f } } };
+  // const std::vector<Vertex> vertices_ = { { { 0.2f, -0.9f }, { 1.0f, 0.0f, 0.2f } },
+  //                                         { { 0.9f, 0.9f }, { 0.2f, 1.0f, 0.0f } },
+  //                                         { { -0.9f, 0.5f }, { 0.0f, 0.2f, 1.0f } } };
+
+  // Square vertices, move this also
+  const std::vector<Vertex> vertices_ = { { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+                                          { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
+                                          { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f } },
+                                          { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } } };
+  // Square indices, move this also
+  const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
 
   // ### None RAII variables (Deprecated) ###
 

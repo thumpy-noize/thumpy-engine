@@ -190,30 +190,58 @@ void create_vertex_buffer( std::vector<Vertex> vertices, std::shared_ptr<VulkanD
   // vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
 }
 
-// void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDevice,
-//                           Buffer *indexBuffer, VkCommandPool &commandPool ) {
-//   VkDeviceSize bufferSize = sizeof( indices[0] ) * indices.size();
+void create_index_buffer( std::vector<uint16_t> indices, std::shared_ptr<VulkanDevice> vulkanDevice,
+                          std::shared_ptr<Buffer> indexBuffer,
+                          vk::raii::CommandPool &commandPool ) {
+  Logger::log( "Creating index buffer...", Logger::DEBUG );
 
-//   VkBuffer stagingBuffer;
-//   VkDeviceMemory stagingBufferMemory;
-//   create_buffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-//                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-//                  stagingBuffer, stagingBufferMemory, vulkanDevice );
+  // Get index buffer size
+  vk::DeviceSize bufferSize = sizeof( indices[0] ) * indices.size();
 
-//   void *data;
-//   vkMapMemory( vulkanDevice->device, stagingBufferMemory, 0, bufferSize, 0, &data );
-//   memcpy( data, indices.data(), (size_t)bufferSize );
-//   vkUnmapMemory( vulkanDevice->device, stagingBufferMemory );
+  // Create staging buffer
+  std::shared_ptr<Buffer> stagingBuffer = std::make_shared<Buffer>();
+  create_buffer(
+      bufferSize, vk::BufferUsageFlagBits::eTransferSrc,
+      vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+      stagingBuffer, vulkanDevice );
 
-//   create_buffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-//                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer->buffer, indexBuffer->memory,
-//                  vulkanDevice );
+  // Map staging buffer
+  void *dataStaging = stagingBuffer->memory.mapMemory( 0, bufferSize );
+  memcpy( dataStaging, indices.data(), (size_t)bufferSize );
+  stagingBuffer->memory.unmapMemory();
 
-//   copy_buffer( stagingBuffer, indexBuffer->buffer, bufferSize, vulkanDevice, commandPool );
+  // Create index buffer
+  // Create vertex buffer
+  create_buffer( bufferSize,
+                 vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+                 vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, vulkanDevice );
 
-//   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
-//   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
-// }
+  // Copy staging buffer to index buffer
+  copy_buffer( stagingBuffer->buffer, indexBuffer->buffer, bufferSize, vulkanDevice, commandPool );
+
+  //   VkDeviceSize bufferSize = sizeof( indices[0] ) * indices.size();
+
+  //   VkBuffer stagingBuffer;
+  //   VkDeviceMemory stagingBufferMemory;
+  //   create_buffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+  //                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+  //                  stagingBuffer, stagingBufferMemory, vulkanDevice );
+
+  //   void *data;
+  //   vkMapMemory( vulkanDevice->device, stagingBufferMemory, 0, bufferSize, 0, &data );
+  //   memcpy( data, indices.data(), (size_t)bufferSize );
+  //   vkUnmapMemory( vulkanDevice->device, stagingBufferMemory );
+
+  //   create_buffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+  //   VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+  //                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer->buffer, indexBuffer->memory,
+  //                  vulkanDevice );
+
+  //   copy_buffer( stagingBuffer, indexBuffer->buffer, bufferSize, vulkanDevice, commandPool );
+
+  //   vkDestroyBuffer( vulkanDevice->device, stagingBuffer, nullptr );
+  //   vkFreeMemory( vulkanDevice->device, stagingBufferMemory, nullptr );
+}
 
 // VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool ) {
 //   VkCommandBufferAllocateInfo allocInfo{};

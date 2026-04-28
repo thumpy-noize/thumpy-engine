@@ -55,7 +55,9 @@ VulkanRender::VulkanRender( std::shared_ptr<VulkanDevice> vulkanDevice,
 
 void VulkanRender::record_command_buffer( uint32_t imageIndex,
                                           std::shared_ptr<Buffer::Buffer> vertexBuffer,
-                                          uint32_t vertexCount ) {
+                                          uint32_t vertexCount,
+                                          std::shared_ptr<Buffer::Buffer> indexBuffer,
+                                          uint16_t indexCount ) {
   // Get current buffer
   auto &commandBuffer = commandPool_->buffers[frameIndex_];
 
@@ -104,11 +106,14 @@ void VulkanRender::record_command_buffer( uint32_t imageIndex,
   commandBuffer.setScissor(
       0, vk::Rect2D( vk::Offset2D( 0, 0 ), swapChain_.lock()->swapChainExtent ) );
 
-  // Set vertex buffer
+  // Bind vertex buffer
   commandBuffer.bindVertexBuffers( 0, *vertexBuffer->buffer, { 0 } );
 
+  // Bind Index buffer
+  commandBuffer.bindIndexBuffer( *indexBuffer->buffer, 0, vk::IndexType::eUint16 );
+
   // Draw buffer
-  commandBuffer.draw( vertexCount, 1, 0, 0 );
+  commandBuffer.drawIndexed( indexCount, 1, 0, 0, 0 );
 
   // End rendering
   commandBuffer.endRendering();
@@ -153,8 +158,8 @@ void VulkanRender::transition_image_layout( uint32_t imageIndex, vk::ImageLayout
 }
 
 void VulkanRender::draw_frame( bool &framebufferResized,
-                               std::shared_ptr<Buffer::Buffer> vertexBuffer,
-                               uint32_t vertexCount ) {
+                               std::shared_ptr<Buffer::Buffer> vertexBuffer, uint32_t vertexCount,
+                               std::shared_ptr<Buffer::Buffer> indexBuffer, uint16_t indexCount ) {
   // Wait for fence
   auto fenceResult = vulkanDevice_.lock()->device.waitForFences( *inFlightFences[frameIndex_],
                                                                  vk::True, UINT64_MAX );
@@ -197,7 +202,7 @@ void VulkanRender::draw_frame( bool &framebufferResized,
   commandPool_->buffers[frameIndex_].reset();
 
   // Record buffer
-  record_command_buffer( imageIndex, vertexBuffer, vertexCount );
+  record_command_buffer( imageIndex, vertexBuffer, vertexCount, indexBuffer, indexCount );
 
   // Wait for queue
   vulkanDevice_.lock()

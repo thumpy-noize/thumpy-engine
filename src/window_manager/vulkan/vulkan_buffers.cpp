@@ -27,49 +27,94 @@ namespace Windows {
 namespace Vulkan {
 namespace Buffer {
 
-// void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags
-// properties,
-//                     VkBuffer &buffer, VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice )
-//                     {
-//   VkBufferCreateInfo bufferInfo{};
-//   bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-//   bufferInfo.size = size;
-//   bufferInfo.usage = usage;
-//   bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+void create_buffer( vk::DeviceSize size, vk::BufferUsageFlags usage,
+                    vk::MemoryPropertyFlags properties, std::shared_ptr<Buffer> buffer,
+                    std::shared_ptr<VulkanDevice> vulkanDevice ) {
+  // Create buffer info
+  vk::BufferCreateInfo bufferInfo{
+      .size = size, .usage = usage, .sharingMode = vk::SharingMode::eExclusive };
 
-//   if ( vkCreateBuffer( vulkanDevice->device, &bufferInfo, nullptr, &buffer ) != VK_SUCCESS ) {
-//     Logger::log( "Failed to create buffer!" );
-//   }
+  // Create buffer
+  buffer->buffer = vk::raii::Buffer( vulkanDevice->device, bufferInfo );
 
-//   VkMemoryRequirements memRequirements;
-//   vkGetBufferMemoryRequirements( vulkanDevice->device, buffer, &memRequirements );
+  // Get memory requirements
+  vk::MemoryRequirements memRequirements = buffer->buffer.getMemoryRequirements();
 
-//   VkMemoryAllocateInfo allocInfo{};
-//   allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-//   allocInfo.allocationSize = memRequirements.size;
-//   allocInfo.memoryTypeIndex =
-//       find_memory_type( vulkanDevice->physicalDevice, memRequirements.memoryTypeBits, properties
-//       );
+  // Create memory allocation info
+  vk::MemoryAllocateInfo memoryAllocateInfo{
+      .allocationSize = memRequirements.size,
+      .memoryTypeIndex = find_memory_type( vulkanDevice->physicalDevice,
+                                           memRequirements.memoryTypeBits, properties ) };
 
-//   if ( vkAllocateMemory( vulkanDevice->device, &allocInfo, nullptr, &bufferMemory ) !=
-//        VK_SUCCESS ) {
-//     Logger::log( "Failed to allocate buffer memory!" );
-//   }
+  // Set vertex buffer memory
+  buffer->memory = vk::raii::DeviceMemory( vulkanDevice->device, memoryAllocateInfo );
 
-//   vkBindBufferMemory( vulkanDevice->device, buffer, bufferMemory, 0 );
-// }
+  // Bind memory
+  buffer->buffer.bindMemory( *buffer->memory, 0 );
 
-// void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
-//                   VulkanDevice *vulkanDevice, VkCommandPool &commandPool ) {
-//   VkCommandBuffer commandBuffer = begin_single_time_commands( vulkanDevice->device, commandPool
-//   );
+  // VkBufferCreateInfo bufferInfo{};
+  // bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  // bufferInfo.size = size;
+  // bufferInfo.usage = usage;
+  // bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-//   VkBufferCopy copyRegion{};
-//   copyRegion.size = size;
-//   vkCmdCopyBuffer( commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion );
+  // if ( vkCreateBuffer( vulkanDevice->device, &bufferInfo, nullptr, &buffer ) != VK_SUCCESS ) {
+  //   Logger::log( "Failed to create buffer!" );
+  // }
 
-//   end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
-// }
+  // VkMemoryRequirements memRequirements;
+  // vkGetBufferMemoryRequirements( vulkanDevice->device, buffer, &memRequirements );
+
+  // VkMemoryAllocateInfo allocInfo{};
+  // allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  // allocInfo.allocationSize = memRequirements.size;
+  // allocInfo.memoryTypeIndex =
+  //     find_memory_type( vulkanDevice->physicalDevice, memRequirements.memoryTypeBits, properties
+  //     );
+
+  // if ( vkAllocateMemory( vulkanDevice->device, &allocInfo, nullptr, &bufferMemory ) !=
+  //      VK_SUCCESS ) {
+  //   Logger::log( "Failed to allocate buffer memory!" );
+  // }
+
+  // vkBindBufferMemory( vulkanDevice->device, buffer, bufferMemory, 0 );
+}
+
+void copy_buffer( vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer, vk::DeviceSize size,
+                  std::shared_ptr<VulkanDevice> vulkanDevice, vk::raii::CommandPool &commandPool ) {
+  // Create command buffer allocation info
+  vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool,
+                                           .level = vk::CommandBufferLevel::ePrimary,
+                                           .commandBufferCount = 1 };
+
+  // Move command buffer
+  vk::raii::CommandBuffer commandCopyBuffer =
+      std::move( vulkanDevice->device.allocateCommandBuffers( allocInfo ).front() );
+
+  // Beging recording
+  commandCopyBuffer.begin(
+      vk::CommandBufferBeginInfo{ .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit } );
+
+  // Copy buffer
+  commandCopyBuffer.copyBuffer( *srcBuffer, *dstBuffer, vk::BufferCopy( 0, 0, size ) );
+
+  // End recording
+  commandCopyBuffer.end();
+
+  // Submit command buffer
+  vulkanDevice->graphicsQueue.submit(
+      vk::SubmitInfo{ .commandBufferCount = 1, .pCommandBuffers = &*commandCopyBuffer }, nullptr );
+  vulkanDevice->graphicsQueue.waitIdle();
+
+  // VkCommandBuffer commandBuffer = begin_single_time_commands( vulkanDevice->device, commandPool
+  // );
+
+  // VkBufferCopy copyRegion{};
+  // copyRegion.size = size;
+  // vkCmdCopyBuffer( commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion );
+
+  // end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
+}
 
 // void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView,
 //                           VkImageView colorImageView, VkDevice device ) {
@@ -90,33 +135,32 @@ namespace Buffer {
 // }
 
 void create_vertex_buffer( std::vector<Vertex> vertices, std::shared_ptr<VulkanDevice> vulkanDevice,
-                           std::shared_ptr<Buffer> vertexBuffer /*, VkCommandPool &commandPool*/ ) {
-  // Create buffer info
-  vk::BufferCreateInfo bufferInfo{ .size = sizeof( vertices[0] ) * vertices.size(),
-                                   .usage = vk::BufferUsageFlagBits::eVertexBuffer,
-                                   .sharingMode = vk::SharingMode::eExclusive };
+                           std::shared_ptr<Buffer> vertexBuffer,
+                           vk::raii::CommandPool &commandPool ) {
+  Logger::log( "Creating vertex buffer...", Logger::DEBUG );
+
+  // Get buffer size
+  vk::DeviceSize bufferSize = sizeof( vertices[0] ) * vertices.size();
+
+  // Create staging buffer
+  std::shared_ptr<Buffer> stagingBuffer = std::make_shared<Buffer>();
+  create_buffer(
+      bufferSize, vk::BufferUsageFlagBits::eTransferSrc,
+      vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+      stagingBuffer, vulkanDevice );
+
+  // Map staging buffer
+  void *dataStaging = stagingBuffer->memory.mapMemory( 0, bufferSize );
+  memcpy( dataStaging, vertices.data(), bufferSize );
+  stagingBuffer->memory.unmapMemory();
 
   // Create vertex buffer
-  vertexBuffer->buffer = vk::raii::Buffer( vulkanDevice->device, bufferInfo );
+  create_buffer( bufferSize,
+                 vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
+                 vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vulkanDevice );
 
-  // Get memory requirements
-  vk::MemoryRequirements memRequirements = vertexBuffer->buffer.getMemoryRequirements();
-
-  // Create memory allocation info
-  vk::MemoryAllocateInfo memoryAllocateInfo{
-      .allocationSize = memRequirements.size,
-      .memoryTypeIndex = find_memory_type(
-          vulkanDevice->physicalDevice, memRequirements.memoryTypeBits,
-          vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent ) };
-
-  // Set vertex buffer memory
-  vertexBuffer->memory = vk::raii::DeviceMemory( vulkanDevice->device, memoryAllocateInfo );
-
-  vertexBuffer->buffer.bindMemory( *vertexBuffer->memory, 0 );
-
-  void *data = vertexBuffer->memory.mapMemory( 0, bufferInfo.size );
-  memcpy( data, vertices.data(), bufferInfo.size );
-  vertexBuffer->memory.unmapMemory();
+  // Copy staging buffer to vertex buffer
+  copy_buffer( stagingBuffer->buffer, vertexBuffer->buffer, bufferSize, vulkanDevice, commandPool );
 
   // ########################
   // ###### Deprecated ######

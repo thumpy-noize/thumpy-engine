@@ -11,10 +11,10 @@
 
 #pragma once
 
-#include <vulkan/vulkan_core.h>
-
 #include <vector>
+#include <vulkan/vulkan_raii.hpp>
 
+#include "vulkan_buffers.hpp"
 #include "vulkan_construct.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"

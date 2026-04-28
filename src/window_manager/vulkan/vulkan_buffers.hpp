@@ -30,18 +30,21 @@ struct Buffer {
   // }
 };
 
-// void create_buffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags
-// properties,
-//                     VkBuffer &buffer, VkDeviceMemory &bufferMemory, VulkanDevice *vulkanDevice );
+void create_buffer( vk::DeviceSize size, vk::BufferUsageFlags usage,
+                    vk::MemoryPropertyFlags properties, std::shared_ptr<Buffer> buffer,
+                    std::shared_ptr<VulkanDevice> vulkanDevice,
+                    vk::raii::CommandPool &commandPool );
 
-// void copy_buffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
-//                   VulkanDevice *vulkanDevice, VkCommandPool &commandPool );
+void copy_buffer( std::shared_ptr<Buffer> srcBuffer, std::shared_ptr<Buffer> dstBuffer,
+                  vk::DeviceSize size, std::shared_ptr<VulkanDevice> vulkanDevice,
+                  vk::raii::CommandPool &commandPool );
 
 // void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView,
 //                           VkImageView colorImageView, VkDevice device );
 
 void create_vertex_buffer( std::vector<Vertex> vertices, std::shared_ptr<VulkanDevice> vulkanDevice,
-                           std::shared_ptr<Buffer> vertexBuffer /*, VkCommandPool &commandPool*/ );
+                           std::shared_ptr<Buffer> vertexBuffer,
+                           vk::raii::CommandPool &commandPool );
 
 // void create_index_buffer( std::vector<uint16_t> indices, VulkanDevice *vulkanDevice,
 //                           Buffer *indexBuffer, VkCommandPool &commandPool );

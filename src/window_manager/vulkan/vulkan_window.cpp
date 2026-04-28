@@ -60,8 +60,12 @@ void VulkanWindow::init_vulkan() {
   // Construct swap chain
   swapChain_ = std::make_shared<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
 
+  // Create descriptors
+  descriptors_ = std::make_shared<Descriptors>();
+  Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
+
   // Construct pipeline
-  pipeline_ = create_graphics_pipeline( vulkanDevice_, swapChain_ );
+  pipeline_ = create_graphics_pipeline( vulkanDevice_, swapChain_, descriptors_->setLayout );
 
   // Construct command pool
   commandPool_ = std::make_shared<Construct::CommandPool>();
@@ -75,7 +79,17 @@ void VulkanWindow::init_vulkan() {
   indexBuffer_ = std::make_shared<Buffer::Buffer>();
   Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_, commandPool_->pool );
 
-  // create command buffer
+  // Create uniform buffers
+  uniformBuffers_ = std::make_shared<Buffer::UniformBuffers>();
+  Buffer::create_uniform_buffers( uniformBuffers_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
+
+  // Create descriptor pool
+  Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
+  // Create descriptor sets
+  Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers,
+                              MAX_FRAMES_IN_FLIGHT );
+
+  // Create command buffer
   Construct::command_buffer( commandPool_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
 
   // Construct render
@@ -215,7 +229,7 @@ void VulkanWindow::loop() {
 
   if ( vulkanDevice_ ) {
     render_->draw_frame( framebufferResized, vertexBuffer_, vertices_.size(), indexBuffer_,
-                         indices_.size() );
+                         indices_.size(), uniformBuffers_->mapped, descriptors_ );
     //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size()
     //   ),
     //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),

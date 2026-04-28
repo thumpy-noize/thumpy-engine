@@ -75,14 +75,16 @@ class VulkanWindow : public Window {
   vk::raii::DebugUtilsMessengerEXT raiiDebugMessenger_ = nullptr;  // Debug messenger
   std::shared_ptr<vk::raii::SurfaceKHR> surface_ = nullptr;        // Surface
 
-  std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;           // Vulkan device
-  std::shared_ptr<VulkanSwapChain> swapChain_ = nullptr;           // Swap chain
-  std::shared_ptr<VulkanPipeline> pipeline_ = nullptr;             // Pipeline
-  std::shared_ptr<Construct::CommandPool> commandPool_ = nullptr;  // Command pool
-  std::shared_ptr<VulkanRender> render_ = nullptr;                 // Render
+  std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;  // Vulkan device
+  std::shared_ptr<VulkanSwapChain> swapChain_ = nullptr;  // Swap chain
+  std::shared_ptr<VulkanPipeline> pipeline_ = nullptr;    // Pipeline
+  std::shared_ptr<VulkanRender> render_ = nullptr;        // Render
 
-  std::shared_ptr<Buffer::Buffer> vertexBuffer_ = nullptr;  // Vertex buffer
-  std::shared_ptr<Buffer::Buffer> indexBuffer_ = nullptr;   // Index buffer
+  std::shared_ptr<Construct::CommandPool> commandPool_ = nullptr;     // Command pool
+  std::shared_ptr<Buffer::Buffer> vertexBuffer_ = nullptr;            // Vertex buffer
+  std::shared_ptr<Buffer::Buffer> indexBuffer_ = nullptr;             // Index buffer
+  std::shared_ptr<Buffer::UniformBuffers> uniformBuffers_ = nullptr;  // Uniform buffers
+  std::shared_ptr<Descriptors> descriptors_ = nullptr;                // Descriptors
 
   // TODO: This is for triangle testing. This should be moved to a child class,
   // like vulkan_triangle_example

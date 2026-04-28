@@ -50,30 +50,19 @@ void command_buffer( std::shared_ptr<Construct::CommandPool> commandPool,
 
 #pragma region Command pool
 
-#pragma region Uniform buffers
-
-// struct UniformBuffers {
-//   std::vector<VkBuffer> buffers;
-//   std::vector<VkDeviceMemory> memory;
-//   std::vector<void *> mapped;
-// };
-
-// void uniform_buffers( VulkanDevice *vulkanDevice, UniformBuffers *uniformBuffers,
-//                       int maxFramesInFlight );
-
-#pragma endregion Uniform buffers
-
 #pragma region Descriptor
 
-// void descriptor_set_layout( VulkanDevice *vulkanDevice,
-//                             VkDescriptorSetLayout &descriptorSetLayout );
+void descriptor_set_layout( std::shared_ptr<VulkanDevice> vulkanDevice,
+                            vk::raii::DescriptorSetLayout &descriptorSetLayout );
 
-// void descriptor_pool( VulkanDevice *vulkanDevice, VkDescriptorPool &descriptorPool,
-//                       int maxFramesInFlight );
+void descriptor_pool( std::shared_ptr<VulkanDevice> vulkanDevice,
+                      vk::raii::DescriptorPool &descriptorPool, uint32_t maxFramesInFlight );
 
-// void descriptor_sets( VulkanDevice *vulkanDevice, Descriptors *descriptors,
-//                       std::vector<VkBuffer> &uniformBuffers, VulkanTextureImage *textureImage,
-//                       int maxFramesInFlight );
+void descriptor_sets( std::shared_ptr<VulkanDevice> vulkanDevice,
+                      std::shared_ptr<Descriptors> descriptors,
+                      std::vector<vk::raii::Buffer> &uniformBuffers, /*,
+                       VulkanTextureImage *textureImage,*/
+                      uint32_t maxFramesInFlight );
 
 #pragma endregion Descriptor
 

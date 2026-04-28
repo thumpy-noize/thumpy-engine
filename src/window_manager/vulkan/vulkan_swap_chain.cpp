@@ -51,7 +51,7 @@ VulkanSwapChain::VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GL
 }
 
 void VulkanSwapChain::create_swap_chain() {
-  Logger::log( "Creating swap chain...", Logger::DEBUG );
+  // Logger::log( "Creating swap chain...", Logger::DEBUG );
 
   // Get surface capabilities
   vk::SurfaceCapabilitiesKHR surfaceCapabilities =
@@ -244,7 +244,7 @@ void VulkanSwapChain::clear_swap_chain() {
 
 vk::SurfaceFormatKHR VulkanSwapChain::choose_swap_surface_format(
     const std::vector<vk::SurfaceFormatKHR> &availableFormats ) {
-  Logger::log( "Choosing swap format...", Logger::DEBUG );
+  // Logger::log( "Choosing swap format...", Logger::DEBUG );
 
   // Validate available formats
   assert( !availableFormats.empty() );
@@ -277,7 +277,7 @@ vk::PresentModeKHR VulkanSwapChain::choose_swap_present_mode(
 }
 
 vk::Extent2D VulkanSwapChain::choose_swap_extent( const vk::SurfaceCapabilitiesKHR &capabilities ) {
-  Logger::log( "Choosing swap extent...", Logger::DEBUG );
+  // Logger::log( "Choosing swap extent...", Logger::DEBUG );
 
   /**
    * What you are looking for is a part of you. remember what you've done.
@@ -316,7 +316,7 @@ uint32_t VulkanSwapChain::choose_swap_min_image_count(
 }
 
 void VulkanSwapChain::create_image_views() {
-  Logger::log( "Creating image views...", Logger::DEBUG );
+  // Logger::log( "Creating image views...", Logger::DEBUG );
 
   // Validate swap chain image views exist
   assert( swapChainImageViews.empty() );

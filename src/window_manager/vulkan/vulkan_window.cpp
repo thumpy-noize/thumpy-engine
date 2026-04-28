@@ -63,6 +63,10 @@ void VulkanWindow::init_vulkan() {
   // Construct pipeline
   pipeline_ = create_graphics_pipeline( vulkanDevice_, swapChain_ );
 
+  // Create vertex buffer
+  vertexBuffer_ = std::make_shared<Buffer::Buffer>();
+  Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_ );
+
   // Construct command pool
   commandPool_ = std::make_shared<Construct::CommandPool>();
   Construct::command_pool( commandPool_->pool, vulkanDevice_ );
@@ -204,7 +208,7 @@ void VulkanWindow::loop() {
   Window::loop();
 
   if ( vulkanDevice_ ) {
-    render_->draw_frame( framebufferResized );
+    render_->draw_frame( framebufferResized, vertexBuffer_, vertices_.size() );
     //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size()
     //   ),
     //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),

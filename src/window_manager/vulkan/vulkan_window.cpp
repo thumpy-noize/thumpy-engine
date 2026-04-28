@@ -63,14 +63,14 @@ void VulkanWindow::init_vulkan() {
   // Construct pipeline
   pipeline_ = create_graphics_pipeline( vulkanDevice_, swapChain_ );
 
-  // Create vertex buffer
-  vertexBuffer_ = std::make_shared<Buffer::Buffer>();
-  Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_ );
-
   // Construct command pool
   commandPool_ = std::make_shared<Construct::CommandPool>();
   Construct::command_pool( commandPool_->pool, vulkanDevice_ );
   Construct::command_buffer( commandPool_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
+
+  // Create vertex buffer
+  vertexBuffer_ = std::make_shared<Buffer::Buffer>();
+  Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_, commandPool_->pool );
 
   // Construct render
   render_ = std::make_shared<VulkanRender>( vulkanDevice_, swapChain_, pipeline_, commandPool_,

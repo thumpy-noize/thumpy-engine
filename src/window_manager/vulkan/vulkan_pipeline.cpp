@@ -55,7 +55,7 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
 
   // Read shader file
-  std::vector<char> slagShaderCode = read_file( get_shader_path() + "uniform_shader.slang.spv" );
+  std::vector<char> slagShaderCode = read_file( get_shader_path() + "texture_shader.slang.spv" );
 
   // Create shader module
   vk::raii::ShaderModule shaderModule = create_shader_module( slagShaderCode, vulkanDevice );
@@ -70,7 +70,6 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   // Create shader stages
   vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-  // TODO: DOING - vertex buffer bindings
   // Get vertex bindings
   auto bindingDescription = Vertex::get_binding_description();
   // Get vertex attributes

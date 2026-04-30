@@ -82,29 +82,39 @@ void create_buffer( vk::DeviceSize size, vk::BufferUsageFlags usage,
 
 void copy_buffer( vk::raii::Buffer &srcBuffer, vk::raii::Buffer &dstBuffer, vk::DeviceSize size,
                   std::shared_ptr<VulkanDevice> vulkanDevice, vk::raii::CommandPool &commandPool ) {
-  // Create command buffer allocation info
-  vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool,
-                                           .level = vk::CommandBufferLevel::ePrimary,
-                                           .commandBufferCount = 1 };
+  // // Create command buffer allocation info
+  // vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool,
+  //                                          .level = vk::CommandBufferLevel::ePrimary,
+  //                                          .commandBufferCount = 1 };
 
-  // Move command buffer
-  vk::raii::CommandBuffer commandCopyBuffer =
-      std::move( vulkanDevice->device.allocateCommandBuffers( allocInfo ).front() );
+  // // Allocate command buffer
+  // vk::raii::CommandBuffer commandCopyBuffer =
+  //     std::move( vulkanDevice->device.allocateCommandBuffers( allocInfo ).front() );
 
-  // Beging recording
-  commandCopyBuffer.begin(
-      vk::CommandBufferBeginInfo{ .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit } );
+  // // Beging recording
+  // commandCopyBuffer.begin(
+  //     vk::CommandBufferBeginInfo{ .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit } );
+
+  // Begin command buffer
+  std::unique_ptr<vk::raii::CommandBuffer> commandCopyBuffer =
+      begin_single_time_commands( vulkanDevice, commandPool );
 
   // Copy buffer
-  commandCopyBuffer.copyBuffer( *srcBuffer, *dstBuffer, vk::BufferCopy( 0, 0, size ) );
+  commandCopyBuffer->copyBuffer( *srcBuffer, *dstBuffer, vk::BufferCopy( 0, 0, size ) );
 
-  // End recording
-  commandCopyBuffer.end();
+  // End command buffer
+  end_single_time_commands( vulkanDevice, *commandCopyBuffer );
 
-  // Submit command buffer
-  vulkanDevice->graphicsQueue.submit(
-      vk::SubmitInfo{ .commandBufferCount = 1, .pCommandBuffers = &*commandCopyBuffer }, nullptr );
-  vulkanDevice->graphicsQueue.waitIdle();
+  // // End recording
+  // commandCopyBuffer.end();
+
+  // // Submit command buffer
+  // vulkanDevice->graphicsQueue.submit(
+  //     vk::SubmitInfo{ .commandBufferCount = 1, .pCommandBuffers = &*commandCopyBuffer }, nullptr
+  //     );
+  // vulkanDevice->graphicsQueue.waitIdle();
+
+  // --- NON RAII Deprecated ---
 
   // VkCommandBuffer commandBuffer = begin_single_time_commands( vulkanDevice->device, commandPool
   // );
@@ -269,39 +279,71 @@ void create_uniform_buffers( std::shared_ptr<UniformBuffers> uniformBuffers,
   }
 }
 
-// VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool ) {
-//   VkCommandBufferAllocateInfo allocInfo{};
-//   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-//   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-//   allocInfo.commandPool = commandPool;
-//   allocInfo.commandBufferCount = 1;
+std::unique_ptr<vk::raii::CommandBuffer> begin_single_time_commands(
+    std::shared_ptr<VulkanDevice> vulkanDevice, vk::raii::CommandPool &commandPool ) {
+  // Create command buffer allocation info
+  vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool,
+                                           .level = vk::CommandBufferLevel::ePrimary,
+                                           .commandBufferCount = 1 };
 
-//   VkCommandBuffer commandBuffer;
-//   vkAllocateCommandBuffers( device, &allocInfo, &commandBuffer );
+  // Allocate command buffer
+  std::unique_ptr<vk::raii::CommandBuffer> commandBuffer =
+      std::make_unique<vk::raii::CommandBuffer>(
+          std::move( vulkanDevice->device.allocateCommandBuffers( allocInfo ).front() ) );
 
-//   VkCommandBufferBeginInfo beginInfo{};
-//   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-//   beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  // Begin command buffer
+  vk::CommandBufferBeginInfo beginInfo{ .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit };
+  commandBuffer->begin( beginInfo );
 
-//   vkBeginCommandBuffer( commandBuffer, &beginInfo );
+  // Return command buffer
+  return commandBuffer;
 
-//   return commandBuffer;
-// }
+  // VkCommandBuffer begin_single_time_commands( VkDevice device, VkCommandPool commandPool ) {
+  //   VkCommandBufferAllocateInfo allocInfo{};
+  //   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  //   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  //   allocInfo.commandPool = commandPool;
+  //   allocInfo.commandBufferCount = 1;
 
-// void end_single_time_commands( VulkanDevice *vulkanDevice, VkCommandBuffer commandBuffer,
-//                                VkCommandPool commandPool ) {
-//   vkEndCommandBuffer( commandBuffer );
+  //   VkCommandBuffer commandBuffer;
+  //   vkAllocateCommandBuffers( device, &allocInfo, &commandBuffer );
 
-//   VkSubmitInfo submitInfo{};
-//   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-//   submitInfo.commandBufferCount = 1;
-//   submitInfo.pCommandBuffers = &commandBuffer;
+  //   VkCommandBufferBeginInfo beginInfo{};
+  //   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  //   beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-//   vkQueueSubmit( vulkanDevice->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE );
-//   vkQueueWaitIdle( vulkanDevice->graphicsQueue );
+  //   vkBeginCommandBuffer( commandBuffer, &beginInfo );
 
-//   vkFreeCommandBuffers( vulkanDevice->device, commandPool, 1, &commandBuffer );
-// }
+  //   return commandBuffer;
+}
+
+void end_single_time_commands( std::shared_ptr<VulkanDevice> vulkanDevice,
+                               vk::raii::CommandBuffer &commandBuffer ) {
+  // End command buffer
+  commandBuffer.end();
+
+  // Create submit info
+  vk::SubmitInfo submitInfo{ .commandBufferCount = 1, .pCommandBuffers = &*commandBuffer };
+
+  // Submit to queue
+  vulkanDevice->graphicsQueue.submit( submitInfo, nullptr );
+  // Wait for queue
+  vulkanDevice->graphicsQueue.waitIdle();
+
+  // void end_single_time_commands( VulkanDevice *vulkanDevice, VkCommandBuffer commandBuffer,
+  //                                VkCommandPool commandPool ) {
+  //   vkEndCommandBuffer( commandBuffer );
+
+  //   VkSubmitInfo submitInfo{};
+  //   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  //   submitInfo.commandBufferCount = 1;
+  //   submitInfo.pCommandBuffers = &commandBuffer;
+
+  //   vkQueueSubmit( vulkanDevice->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE );
+  //   vkQueueWaitIdle( vulkanDevice->graphicsQueue );
+
+  //   vkFreeCommandBuffers( vulkanDevice->device, commandPool, 1, &commandBuffer );
+}
 
 }  // namespace Buffer
 }  // namespace Vulkan

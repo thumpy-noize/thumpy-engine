@@ -217,11 +217,21 @@ void descriptor_set_layout( std::shared_ptr<VulkanDevice> vulkanDevice,
   Logger::log( "Creating descriptor set layout...", Logger::DEBUG );
 
   // Bind uniform buffer layout
-  vk::DescriptorSetLayoutBinding uboLayoutBinding( 0, vk::DescriptorType::eUniformBuffer, 1,
-                                                   vk::ShaderStageFlagBits::eVertex, nullptr );
+  // vk::DescriptorSetLayoutBinding uboLayoutBinding( 0, vk::DescriptorType::eUniformBuffer, 1,
+  //                                                  vk::ShaderStageFlagBits::eVertex, nullptr );
+
+  // Create bindings array
+  std::array bindings = {
+      vk::DescriptorSetLayoutBinding( 0, vk::DescriptorType::eUniformBuffer, 1,
+                                      vk::ShaderStageFlagBits::eVertex, nullptr ),
+      vk::DescriptorSetLayoutBinding( 1, vk::DescriptorType::eCombinedImageSampler, 1,
+                                      vk::ShaderStageFlagBits::eFragment, nullptr ) };
 
   // Create layout info
-  vk::DescriptorSetLayoutCreateInfo layoutInfo{ .bindingCount = 1, .pBindings = &uboLayoutBinding };
+  // vk::DescriptorSetLayoutCreateInfo layoutInfo{ .bindingCount = 1, .pBindings = &uboLayoutBinding
+  // };
+  vk::DescriptorSetLayoutCreateInfo layoutInfo{
+      .bindingCount = static_cast<uint32_t>( bindings.size() ), .pBindings = bindings.data() };
 
   // Set descriptor set layout
   descriptorSetLayout = vk::raii::DescriptorSetLayout( vulkanDevice->device, layoutInfo );
@@ -258,14 +268,17 @@ void descriptor_pool( std::shared_ptr<VulkanDevice> vulkanDevice,
   Logger::log( "Creating descriptor pool...", Logger::DEBUG );
 
   // Get pool size
-  vk::DescriptorPoolSize poolSize( vk::DescriptorType::eUniformBuffer, maxFramesInFlight );
+  // vk::DescriptorPoolSize poolSize( vk::DescriptorType::eUniformBuffer, maxFramesInFlight );
+  std::array poolSize{
+      vk::DescriptorPoolSize( vk::DescriptorType::eUniformBuffer, maxFramesInFlight ),
+      vk::DescriptorPoolSize( vk::DescriptorType::eCombinedImageSampler, maxFramesInFlight ) };
 
   // Create pool info
   vk::DescriptorPoolCreateInfo poolInfo{
       .flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
       .maxSets = maxFramesInFlight,
-      .poolSizeCount = 1,
-      .pPoolSizes = &poolSize };
+      .poolSizeCount = static_cast<uint32_t>( poolSize.size() ),
+      .pPoolSizes = poolSize.data() };
 
   // Create descriptor pool
   descriptorPool = vk::raii::DescriptorPool( vulkanDevice->device, poolInfo );
@@ -290,7 +303,9 @@ void descriptor_pool( std::shared_ptr<VulkanDevice> vulkanDevice,
 
 void descriptor_sets( std::shared_ptr<VulkanDevice> vulkanDevice,
                       std::shared_ptr<Descriptors> descriptors,
-                      std::vector<vk::raii::Buffer> &uniformBuffers, uint32_t maxFramesInFlight ) {
+                      std::vector<vk::raii::Buffer> &uniformBuffers,
+                      std::shared_ptr<Image::VulkanTextureImage> vulkanTextureImage,
+                      uint32_t maxFramesInFlight ) {
   Logger::log( "Creating descriptor sets...", Logger::DEBUG );
 
   // Create descriptor set layout
@@ -313,15 +328,34 @@ void descriptor_sets( std::shared_ptr<VulkanDevice> vulkanDevice,
     vk::DescriptorBufferInfo bufferInfo{
         .buffer = uniformBuffers[i], .offset = 0, .range = sizeof( UniformBufferObject ) };
 
+    // Create image info
+    vk::DescriptorImageInfo imageInfo{ .sampler = vulkanTextureImage->textureSampler,
+                                       .imageView = vulkanTextureImage->imageView,
+                                       .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal };
+
     // Create descriptor set
-    vk::WriteDescriptorSet descriptorWrite{ .dstSet = descriptors->sets[i],
-                                            .dstBinding = 0,
-                                            .dstArrayElement = 0,
-                                            .descriptorCount = 1,
-                                            .descriptorType = vk::DescriptorType::eUniformBuffer,
-                                            .pBufferInfo = &bufferInfo };
+    // vk::WriteDescriptorSet descriptorWrite{ .dstSet = descriptors->sets[i],
+    //                                         .dstBinding = 0,
+    //                                         .dstArrayElement = 0,
+    //                                         .descriptorCount = 1,
+    //                                         .descriptorType = vk::DescriptorType::eUniformBuffer,
+    //                                         .pBufferInfo = &bufferInfo };
+
+    std::array descriptorWrites{
+        vk::WriteDescriptorSet{ .dstSet = descriptors->sets[i],
+                                .dstBinding = 0,
+                                .dstArrayElement = 0,
+                                .descriptorCount = 1,
+                                .descriptorType = vk::DescriptorType::eUniformBuffer,
+                                .pBufferInfo = &bufferInfo },
+        vk::WriteDescriptorSet{ .dstSet = descriptors->sets[i],
+                                .dstBinding = 1,
+                                .dstArrayElement = 0,
+                                .descriptorCount = 1,
+                                .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+                                .pImageInfo = &imageInfo } };
     // Update descriptor sets
-    vulkanDevice->device.updateDescriptorSets( descriptorWrite, {} );
+    vulkanDevice->device.updateDescriptorSets( descriptorWrites, {} );
   }
 
   //   // std::vector<VkDescriptorSetLayout> layouts( maxFramesInFlight, descriptors->setLayout );

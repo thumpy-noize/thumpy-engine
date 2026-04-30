@@ -16,7 +16,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include <GLFW/glfw3.h>
-#include <stb_image.h>
+// #include <stb_image.h>
 #include <tiny_obj_loader.h>
 
 #include <cstring>
@@ -364,21 +364,21 @@ std::string get_shader_path() {
   return shaderPath_;
 }
 
-// std::string texturePath_;
-// std::string get_texture_path() {
-//   if ( texturePath_.empty() ) {
-//     texturePath_ = get_assets_path() + "textures/";
-//   }
-//   return texturePath_;
-// }
+std::string texturePath_;
+std::string get_texture_path() {
+  if ( texturePath_.empty() ) {
+    texturePath_ = get_assets_path() + "textures/";
+  }
+  return texturePath_;
+}
 
-// std::string modelPath_;
-// std::string get_model_path() {
-//   if ( modelPath_.empty() ) {
-//     modelPath_ = get_assets_path() + "models/";
-//   }
-//   return modelPath_;
-// }
+std::string modelPath_;
+std::string get_model_path() {
+  if ( modelPath_.empty() ) {
+    modelPath_ = get_assets_path() + "models/";
+  }
+  return modelPath_;
+}
 
 }  // namespace Vulkan
 }  // namespace Windows

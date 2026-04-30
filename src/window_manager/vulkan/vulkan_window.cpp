@@ -21,12 +21,12 @@
 #include <vector>
 
 #include "logger.hpp"
+#include "vulkan_debug.hpp"
+#include "vulkan_window.hpp"
+
 // #include "vulkan_buffers.hpp"
 // #include "vulkan_construct.hpp"
-#include "vulkan_debug.hpp"
-#include "vulkan_helper.hpp"
-// #include "vulkan_image.hpp"
-#include "vulkan_window.hpp"
+// #include "vulkan_helper.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -71,6 +71,17 @@ void VulkanWindow::init_vulkan() {
   commandPool_ = std::make_shared<Construct::CommandPool>();
   Construct::command_pool( commandPool_->pool, vulkanDevice_ );
 
+  // Create texture image
+  vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
+  Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
+                               "vj_swirl.png" );
+
+  // Create texture image view
+  Image::create_texture_image_view( vulkanTextureImage_, vulkanDevice_ );
+
+  // Create image sampler
+  Image::create_texture_sampler( vulkanTextureImage_, vulkanDevice_ );
+
   // Create vertex buffer
   vertexBuffer_ = std::make_shared<Buffer::Buffer>();
   Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_, commandPool_->pool );
@@ -87,7 +98,7 @@ void VulkanWindow::init_vulkan() {
   Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
   // Create descriptor sets
   Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers,
-                              MAX_FRAMES_IN_FLIGHT );
+                              vulkanTextureImage_, MAX_FRAMES_IN_FLIGHT );
 
   // Create command buffer
   Construct::command_buffer( commandPool_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );

@@ -16,8 +16,9 @@
 #include <vulkan/vulkan_raii.hpp>
 
 // #include "vulkan/vulkan_buffers.hpp"
-#include "vulkan/vulkan_construct.hpp"
+#include "vulkan_construct.hpp"
 #include "vulkan_helper.hpp"
+#include "vulkan_image.hpp"
 #include "vulkan_pipeline.hpp"
 #include "vulkan_render.hpp"
 #include "vulkan_swap_chain.hpp"
@@ -86,6 +87,8 @@ class VulkanWindow : public Window {
   std::shared_ptr<Buffer::UniformBuffers> uniformBuffers_ = nullptr;  // Uniform buffers
   std::shared_ptr<Descriptors> descriptors_ = nullptr;                // Descriptors
 
+  std::shared_ptr<Image::VulkanTextureImage> vulkanTextureImage_ = nullptr;  // Vulkan texture Image
+
   // TODO: This is for triangle testing. This should be moved to a child class,
   // like vulkan_triangle_example
   // const std::vector<Vertex> vertices_ = { { { 0.2f, -0.9f }, { 1.0f, 0.0f, 0.2f } },
@@ -93,10 +96,18 @@ class VulkanWindow : public Window {
   //                                         { { -0.9f, 0.5f }, { 0.0f, 0.2f, 1.0f } } };
 
   // Square vertices, move this also
-  const std::vector<Vertex> vertices_ = { { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
-                                          { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
-                                          { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f } },
-                                          { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } } };
+  // const std::vector<Vertex> vertices_ = { { { -1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f } },
+  //                                         { { 1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } },
+  //                                         { { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } },
+  //                                         { { -1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } } };
+
+  // Square texture vertices, move this also
+  const std::vector<Vertex> vertices_ = {
+      { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
+      { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
+      { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+      { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } } };
+
   // Square indices, move this also
   const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
 

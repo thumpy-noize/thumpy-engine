@@ -17,6 +17,7 @@
 #include <vulkan/vulkan_raii.hpp>
 
 #include "vulkan/vulkan_helper.hpp"
+#include "vulkan/vulkan_image.hpp"
 #include "vulkan_device.hpp"
 
 namespace Thumpy {
@@ -60,8 +61,8 @@ void descriptor_pool( std::shared_ptr<VulkanDevice> vulkanDevice,
 
 void descriptor_sets( std::shared_ptr<VulkanDevice> vulkanDevice,
                       std::shared_ptr<Descriptors> descriptors,
-                      std::vector<vk::raii::Buffer> &uniformBuffers, /*,
-                       VulkanTextureImage *textureImage,*/
+                      std::vector<vk::raii::Buffer> &uniformBuffers,
+                      std::shared_ptr<Image::VulkanTextureImage> vulkanTextureImage,
                       uint32_t maxFramesInFlight );
 
 #pragma endregion Descriptor

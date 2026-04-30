@@ -29,43 +29,99 @@ namespace Windows {
 namespace Vulkan {
 namespace Image {
 
-void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
-                   VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling,
-                   VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                   VulkanImage *textureImage, VulkanDevice *vulkanDevice );
+struct Texture {
+  unsigned char* pixels = nullptr;
+  int width = 0;
+  int height = 0;
+  int channels = 0;
+  vk::DeviceSize imageSize = 0;
+};
 
-void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage,
-                           VkCommandPool commandPool, std::string filePath );
+struct VulkanImage {
+  vk::raii::Image image = nullptr;
+  vk::raii::DeviceMemory imageMemory = nullptr;
+  vk::raii::ImageView imageView = nullptr;
+  //   VkImage image;
+  //   VkDeviceMemory imageMemory;
+  //   VkImageView imageView;
 
-void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
-                              VkImageLayout newLayout, VulkanDevice *vulkanDevice,
-                              VkCommandPool commandPool, uint32_t mipLevels );
+  //   void destroy( VkDevice device ) {
+  //     vkDestroyImageView( device, imageView, nullptr );
+  //     vkDestroyImage( device, image, nullptr );
+  //     vkFreeMemory( device, imageMemory, nullptr );
+  //   }
+};
 
-void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
-                           VulkanDevice *vulkanDevice, VkCommandPool commandPool );
+struct VulkanTextureImage : VulkanImage {
+  vk::raii::Sampler textureSampler = nullptr;
+  //   VkSampler sampler;
+  //   uint32_t mipLevels;
 
-VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
-                               VkImageAspectFlags aspectFlags, uint32_t mipLevels );
+  //   void destroy( VkDevice device ) {
+  //     vkDestroySampler( device, sampler, nullptr );
+  //     VulkanImage::destroy( device );
+  //   }
+};
 
-void create_texture_image_view( VkDevice device, VulkanTextureImage *textureImage );
+void create_image( uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
+                   vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
+                   std::shared_ptr<VulkanImage> vulkanImage );
+// void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
+//                    VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling,
+//                    VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+//                    VulkanImage *textureImage, VulkanDevice *vulkanDevice );
 
-void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage );
+void create_texture_image( std::shared_ptr<VulkanDevice> vulkanDevice,
+                           vk::raii::CommandPool& commandPool,
+                           std::shared_ptr<Image::VulkanImage> vulkanImage, std::string filePath );
+// void create_texture_image( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage,
+//                            VkCommandPool commandPool, std::string filePath );
 
-void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevice,
-                             VkExtent2D swapChainExtent );
+void transition_image_layout( vk::raii::Image& image, vk::ImageLayout oldLayout,
+                              vk::ImageLayout newLayout, std::shared_ptr<VulkanDevice> vulkanDevice,
+                              vk::raii::CommandPool& commandPool );
+// void transition_image_layout( VkImage image, VkFormat format, VkImageLayout oldLayout,
+//                               VkImageLayout newLayout, VulkanDevice *vulkanDevice,
+//                               VkCommandPool commandPool, uint32_t mipLevels );
 
-VkFormat find_supported_format( const std::vector<VkFormat> &candidates, VkImageTiling tiling,
-                                VkFormatFeatureFlags features, VkPhysicalDevice physicalDevice );
+void copy_buffer_to_image( const vk::raii::Buffer& buffer, vk::raii::Image& image, uint32_t width,
+                           uint32_t height, std::shared_ptr<VulkanDevice> vulkanDevice,
+                           vk::raii::CommandPool& commandPool );
+// void copy_buffer_to_image( VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
+//                            VulkanDevice *vulkanDevice, VkCommandPool commandPool );
 
-VkFormat find_depth_format( VkPhysicalDevice physicalDevice );
+vk::raii::ImageView create_image_view( vk::raii::Image& image, vk::Format format,
+                                       std::shared_ptr<VulkanDevice> vulkanDevice );
+// VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
+//                                VkImageAspectFlags aspectFlags, uint32_t mipLevels );
 
-bool has_stencil_component( VkFormat format );
+void create_texture_image_view( std::shared_ptr<Image::VulkanImage> vulkanImage,
+                                std::shared_ptr<VulkanDevice> vulkanDevice );
+// void create_texture_image_view( VkDevice device, VulkanTextureImage *textureImage );
 
-void generate_mipmaps( VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight,
-                       uint32_t mipLevels, VulkanDevice *vulkanDevice, VkCommandPool commandPool );
+void create_texture_sampler( std::shared_ptr<Image::VulkanTextureImage> vulkanTextureImage,
+                             std::shared_ptr<VulkanDevice> vulkanDevice );
+// void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage );
 
-void create_color_resources( VulkanImage *msaaColorBuffer, VulkanDevice *vulkanDevice,
-                             VulkanSwapChain *swapChain );
+// void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevice,
+//                              VkExtent2D swapChainExtent );
+
+// VkFormat find_supported_format( const std::vector<VkFormat> &candidates, VkImageTiling tiling,
+//                                 VkFormatFeatureFlags features, VkPhysicalDevice physicalDevice
+//                                 );
+
+// VkFormat find_depth_format( VkPhysicalDevice physicalDevice );
+
+// bool has_stencil_component( VkFormat format );
+
+// void generate_mipmaps( VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t
+// texHeight,
+//                        uint32_t mipLevels, VulkanDevice *vulkanDevice, VkCommandPool
+//                        commandPool
+//                        );
+
+// void create_color_resources( VulkanImage *msaaColorBuffer, VulkanDevice *vulkanDevice,
+//                              VulkanSwapChain *swapChain );
 
 }  // namespace Image
 }  // namespace Vulkan

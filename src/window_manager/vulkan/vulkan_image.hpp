@@ -19,7 +19,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "vulkan/vulkan_swap_chain.hpp"
+// #include "vulkan/vulkan_swap_chain.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
 
@@ -65,6 +65,7 @@ struct VulkanTextureImage : VulkanImage {
 
 void create_image( uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling,
                    vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
+                   std::shared_ptr<VulkanDevice> vulkanDevice,
                    std::shared_ptr<VulkanImage> vulkanImage );
 // void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
 //                    VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling,
@@ -91,6 +92,7 @@ void copy_buffer_to_image( const vk::raii::Buffer& buffer, vk::raii::Image& imag
 //                            VulkanDevice *vulkanDevice, VkCommandPool commandPool );
 
 vk::raii::ImageView create_image_view( vk::raii::Image& image, vk::Format format,
+                                       vk::ImageAspectFlags aspectFlags,
                                        std::shared_ptr<VulkanDevice> vulkanDevice );
 // VkImageView create_image_view( VkDevice device, VkImage image, VkFormat format,
 //                                VkImageAspectFlags aspectFlags, uint32_t mipLevels );
@@ -103,15 +105,23 @@ void create_texture_sampler( std::shared_ptr<Image::VulkanTextureImage> vulkanTe
                              std::shared_ptr<VulkanDevice> vulkanDevice );
 // void create_texture_sampler( VulkanDevice *vulkanDevice, VulkanTextureImage *textureImage );
 
+void create_depth_resources( std::shared_ptr<Image::VulkanImage> depthBuffer,
+                             std::shared_ptr<VulkanDevice> vulkanDevice,
+                             vk::Extent2D& swapChainExtent );
 // void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevice,
 //                              VkExtent2D swapChainExtent );
 
+vk::Format find_supported_format( const std::vector<vk::Format>& candidates, vk::ImageTiling tiling,
+                                  vk::FormatFeatureFlags features,
+                                  vk::raii::PhysicalDevice& physicalDevice );
 // VkFormat find_supported_format( const std::vector<VkFormat> &candidates, VkImageTiling tiling,
 //                                 VkFormatFeatureFlags features, VkPhysicalDevice physicalDevice
 //                                 );
 
+vk::Format find_depth_format( vk::raii::PhysicalDevice& physicalDevice );
 // VkFormat find_depth_format( VkPhysicalDevice physicalDevice );
 
+bool has_stencil_component( vk::Format format );
 // bool has_stencil_component( VkFormat format );
 
 // void generate_mipmaps( VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t

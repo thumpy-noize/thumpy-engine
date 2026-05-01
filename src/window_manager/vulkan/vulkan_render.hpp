@@ -43,13 +43,16 @@ class VulkanRender {
 
   void record_command_buffer( uint32_t imageIndex, std::shared_ptr<Buffer::Buffer> vertexBuffer,
                               uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
-                              uint16_t indexCount, std::shared_ptr<Descriptors> descriptors );
+                              uint16_t indexCount, std::shared_ptr<Image::VulkanImage> depthImage,
+                              std::shared_ptr<Descriptors> descriptors );
 
-  void transition_image_layout( uint32_t imageIndex, vk::ImageLayout old_layout,
+  // NOTE: vulkan_image has a function with the same name as this. I don't like that...
+  void transition_image_layout( vk::Image image, vk::ImageLayout old_layout,
                                 vk::ImageLayout new_layout, vk::AccessFlags2 src_access_mask,
                                 vk::AccessFlags2 dst_access_mask,
                                 vk::PipelineStageFlags2 src_stage_mask,
-                                vk::PipelineStageFlags2 dst_stage_mask );
+                                vk::PipelineStageFlags2 dst_stage_mask,
+                                vk::ImageAspectFlags image_aspect_flags );
 
   // /**
   //  * @brief Destroy render
@@ -66,10 +69,12 @@ class VulkanRender {
   void draw_frame( bool& framebufferResized, std::shared_ptr<Buffer::Buffer> vertexBuffer,
                    uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
                    uint16_t indexCount, std::vector<void*> uniformBuffersMapped,
+                   std::shared_ptr<Image::VulkanImage> depthImage,
                    std::shared_ptr<Descriptors> descriptors );
+
   // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
   //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
-  //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
+  //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *,
   //                  VulkanImage *colorImage );
 
   // void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,

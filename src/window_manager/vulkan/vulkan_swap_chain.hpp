@@ -19,6 +19,7 @@
 
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
+#include "vulkan_image.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -40,7 +41,7 @@ class VulkanSwapChain {
   /**
    * @brief Recreate swap chain
    */
-  void recreate_swap_chain();
+  void recreate_swap_chain( std::shared_ptr<Image::VulkanImage> depthImage );
 
   /**
    * @brief Clear the swap chain

@@ -60,7 +60,7 @@ struct Descriptors {
 };
 
 struct Vertex {
-  glm::vec2 pos;  // Convert to vec3 for 3D
+  glm::vec3 pos;
   glm::vec3 color;
   glm::vec2 texCoord;
 
@@ -75,7 +75,7 @@ struct Vertex {
   }
 
   static std::array<vk::VertexInputAttributeDescription, 3> get_attribute_descriptions() {
-    return { vk::VertexInputAttributeDescription( 0, 0, vk::Format::eR32G32Sfloat,
+    return { vk::VertexInputAttributeDescription( 0, 0, vk::Format::eR32G32B32Sfloat,
                                                   offsetof( Vertex, pos ) ),
              vk::VertexInputAttributeDescription( 1, 0, vk::Format::eR32G32B32Sfloat,
                                                   offsetof( Vertex, color ) ),

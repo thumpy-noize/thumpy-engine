@@ -333,13 +333,13 @@ void copy_buffer_to_image( const vk::raii::Buffer& buffer, vk::raii::Image& imag
 // }
 
 vk::raii::ImageView create_image_view( vk::raii::Image& image, vk::Format format,
+                                       vk::ImageAspectFlags aspectFlags,
                                        std::shared_ptr<VulkanDevice> vulkanDevice ) {
   // Create image view info
-  vk::ImageViewCreateInfo viewInfo{
-      .image = image,
-      .viewType = vk::ImageViewType::e2D,
-      .format = format,
-      .subresourceRange = { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } };
+  vk::ImageViewCreateInfo viewInfo{ .image = image,
+                                    .viewType = vk::ImageViewType::e2D,
+                                    .format = format,
+                                    .subresourceRange = { aspectFlags, 0, 1, 0, 1 } };
 
   // Create image view
   return vk::raii::ImageView( vulkanDevice->device, viewInfo );
@@ -368,8 +368,8 @@ vk::raii::ImageView create_image_view( vk::raii::Image& image, vk::Format format
 void create_texture_image_view( std::shared_ptr<Image::VulkanImage> vulkanImage,
                                 std::shared_ptr<VulkanDevice> vulkanDevice ) {
   // Create image view
-  vulkanImage->imageView =
-      create_image_view( vulkanImage->image, vk::Format::eR8G8B8A8Srgb, vulkanDevice );
+  vulkanImage->imageView = create_image_view( vulkanImage->image, vk::Format::eR8G8B8A8Srgb,
+                                              vk::ImageAspectFlagBits::eColor, vulkanDevice );
 }
 // void create_texture_image_view( VkDevice device, VulkanTextureImage *textureImage ) {
 //   // Create image view info
@@ -433,6 +433,21 @@ void create_texture_sampler( std::shared_ptr<Image::VulkanTextureImage> vulkanTe
 //   }
 // }
 
+void create_depth_resources( std::shared_ptr<Image::VulkanImage> depthBuffer,
+                             std::shared_ptr<VulkanDevice> vulkanDevice,
+                             vk::Extent2D& swapChainExtent ) {
+  // Find depth format
+  vk::Format depthFormat = find_depth_format( vulkanDevice->physicalDevice );
+
+  // Create depth image
+  create_image( swapChainExtent.width, swapChainExtent.height, depthFormat,
+                vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
+                vk::MemoryPropertyFlagBits::eDeviceLocal, vulkanDevice, depthBuffer );
+
+  // Create depth image view
+  depthBuffer->imageView = create_image_view( depthBuffer->image, depthFormat,
+                                              vk::ImageAspectFlagBits::eDepth, vulkanDevice );
+}
 // void create_depth_resources( VulkanImage *depthBuffer, VulkanDevice *vulkanDevice,
 //                              VkExtent2D swapChainExtent ) {
 //   VkFormat depthFormat = find_depth_format( vulkanDevice->physicalDevice );
@@ -447,6 +462,29 @@ void create_texture_sampler( std::shared_ptr<Image::VulkanTextureImage> vulkanTe
 //                                               VK_IMAGE_ASPECT_DEPTH_BIT, 1 );
 // }
 
+vk::Format find_supported_format( const std::vector<vk::Format>& candidates, vk::ImageTiling tiling,
+                                  vk::FormatFeatureFlags features,
+                                  vk::raii::PhysicalDevice& physicalDevice ) {
+  // Find format candidates
+  auto formatIt = std::ranges::find_if( candidates, [&]( auto const format ) {
+    // Get properties from device
+    vk::FormatProperties properties = physicalDevice.getFormatProperties( format );
+
+    return ( ( ( tiling == vk::ImageTiling::eLinear ) &&
+               ( ( properties.linearTilingFeatures & features ) == features ) ) ||
+             ( ( tiling == vk::ImageTiling::eOptimal ) &&
+               ( ( properties.optimalTilingFeatures & features ) == features ) ) );
+  } );
+
+  // Failed to find supported format
+  if ( formatIt == candidates.end() ) {
+    Logger::log( "Failed to find supported format!", Logger::CRITICAL );
+    throw std::runtime_error( "failed to find supported format!" );
+  }
+
+  // return format iterator
+  return *formatIt;
+}
 // VkFormat find_supported_format( const std::vector<VkFormat> &candidates, VkImageTiling tiling,
 //                                 VkFormatFeatureFlags features, VkPhysicalDevice physicalDevice )
 //                                 {
@@ -467,12 +505,23 @@ void create_texture_sampler( std::shared_ptr<Image::VulkanTextureImage> vulkanTe
 //   throw std::runtime_error( "Failed to find supported format!" );
 // }
 
+vk::Format find_depth_format( vk::raii::PhysicalDevice& physicalDevice ) {
+  // Find supported format
+  return find_supported_format(
+      { vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
+      vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment,
+      physicalDevice );
+}
 // VkFormat find_depth_format( VkPhysicalDevice physicalDevice ) {
 //   return find_supported_format(
 //       { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 //       VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, physicalDevice );
 // }
 
+bool has_stencil_component( vk::Format format ) {
+  // Check for stencil component
+  return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+}
 // bool has_stencil_component( VkFormat format ) {
 //   return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 // }

@@ -71,6 +71,10 @@ void VulkanWindow::init_vulkan() {
   commandPool_ = std::make_shared<Construct::CommandPool>();
   Construct::command_pool( commandPool_->pool, vulkanDevice_ );
 
+  // Create depth image
+  depthBuffer_ = std::make_shared<Image::VulkanImage>();
+  Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
+
   // Create texture image
   vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
   Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
@@ -240,7 +244,7 @@ void VulkanWindow::loop() {
 
   if ( vulkanDevice_ ) {
     render_->draw_frame( framebufferResized, vertexBuffer_, vertices_.size(), indexBuffer_,
-                         indices_.size(), uniformBuffers_->mapped, descriptors_ );
+                         indices_.size(), uniformBuffers_->mapped, depthBuffer_, descriptors_ );
     //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size()
     //   ),
     //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),

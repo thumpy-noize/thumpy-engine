@@ -19,6 +19,7 @@
 
 #include "logger.hpp"
 #include "vulkan_helper.hpp"
+#include "vulkan_image.hpp"
 #include "vulkan_initializers.hpp"
 
 namespace Thumpy {
@@ -103,6 +104,13 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   vk::PipelineMultisampleStateCreateInfo multisampling{
       .rasterizationSamples = vk::SampleCountFlagBits::e1, .sampleShadingEnable = vk::False };
 
+  // Depth stencil info
+  vk::PipelineDepthStencilStateCreateInfo depthStencil{ .depthTestEnable = vk::True,
+                                                        .depthWriteEnable = vk::True,
+                                                        .depthCompareOp = vk::CompareOp::eLess,
+                                                        .depthBoundsTestEnable = vk::False,
+                                                        .stencilTestEnable = vk::False };
+
   // Color blending
   vk::PipelineColorBlendAttachmentState colorBlendAttachment{
       .blendEnable = vk::False,
@@ -131,6 +139,9 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   // Create pipeline layout
   pipeline->pipelineLayout = vk::raii::PipelineLayout( vulkanDevice->device, pipelineLayoutInfo );
 
+  // Find depth format
+  vk::Format depthFormat = Image::find_depth_format( vulkanDevice->physicalDevice );
+
   // Create graphics pipeline info
   vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo>
       pipelineCreateInfoChain = {
@@ -141,12 +152,14 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
             .pViewportState = &viewportState,
             .pRasterizationState = &rasterizer,
             .pMultisampleState = &multisampling,
+            .pDepthStencilState = &depthStencil,
             .pColorBlendState = &colorBlending,
             .pDynamicState = &dynamicState,
             .layout = pipeline->pipelineLayout,
             .renderPass = nullptr },
           { .colorAttachmentCount = 1,
-            .pColorAttachmentFormats = &swapChain->swapChainSurfaceFormat.format } };
+            .pColorAttachmentFormats = &swapChain->swapChainSurfaceFormat.format,
+            .depthAttachmentFormat = depthFormat } };
 
   Logger::log( "Constructing graphics pipeline...", Logger::DEBUG );
 

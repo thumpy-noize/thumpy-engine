@@ -18,7 +18,6 @@
 
 #include "logger.hpp"
 // #include "vulkan_buffers.hpp"
-// #include "vulkan_image.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -148,12 +147,12 @@ void VulkanSwapChain::create_swap_chain() {
   //   extent = chosen_extent;
 }
 
-void VulkanSwapChain::recreate_swap_chain() {
+void VulkanSwapChain::recreate_swap_chain( std::shared_ptr<Image::VulkanImage> depthImage ) {
   Logger::log( "Recreating swap chain...", Logger::DEBUG );
 
   // Get new window dimensions
   int width = 0, height = 0;
-  glfwGetFramebufferSize( window_, &width, &height );
+  // glfwGetFramebufferSize( window_, &width, &height );
   while ( width == 0 || height == 0 ) {
     glfwGetFramebufferSize( window_, &width, &height );
     glfwWaitEvents();
@@ -171,6 +170,8 @@ void VulkanSwapChain::recreate_swap_chain() {
   // Create image views
   create_image_views();
 
+  // create depth resources
+  Image::create_depth_resources( depthImage, vulkanDevice_.lock(), swapChainExtent );
   //   Logger::log( "Recreating swap chain...", Logger::INFO );
   //   int width = 0, height = 0;
   //   glfwGetFramebufferSize( window_, &width, &height );

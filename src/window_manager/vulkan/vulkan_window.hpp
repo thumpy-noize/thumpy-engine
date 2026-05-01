@@ -88,6 +88,7 @@ class VulkanWindow : public Window {
   std::shared_ptr<Descriptors> descriptors_ = nullptr;                // Descriptors
 
   std::shared_ptr<Image::VulkanTextureImage> vulkanTextureImage_ = nullptr;  // Vulkan texture Image
+  std::shared_ptr<Image::VulkanImage> depthBuffer_ = nullptr;                // Depth buffer
 
   // TODO: This is for triangle testing. This should be moved to a child class,
   // like vulkan_triangle_example
@@ -102,14 +103,29 @@ class VulkanWindow : public Window {
   //                                         { { -1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } } };
 
   // Square texture vertices, move this also
+  // const std::vector<Vertex> vertices_ = {
+  //     { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
+  //     { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
+  //     { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+  //     { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } } };
+
+  // 2 Squares with textures
   const std::vector<Vertex> vertices_ = {
-      { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
-      { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
-      { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-      { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } } };
+      { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+      { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+      { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+      { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
+
+      { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+      { { 0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+      { { 0.5f, 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+      { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } } };
 
   // Square indices, move this also
-  const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
+  // const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
+
+  // 2 Square indices
+  const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4 };
 
   // ### None RAII variables (Deprecated) ###
 

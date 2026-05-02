@@ -131,7 +131,7 @@ void VulkanRender::record_command_buffer(
   commandBuffer.bindVertexBuffers( 0, *vertexBuffer->buffer, { 0 } );
 
   // Bind Index buffer
-  commandBuffer.bindIndexBuffer( *indexBuffer->buffer, 0, vk::IndexType::eUint16 );
+  commandBuffer.bindIndexBuffer( *indexBuffer->buffer, 0, vk::IndexType::eUint32 );
 
   // Bind descriptor sets
   commandBuffer.bindDescriptorSets( vk::PipelineBindPoint::eGraphics,

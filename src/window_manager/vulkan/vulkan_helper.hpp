@@ -122,19 +122,19 @@ struct UniformBufferObject {
   glm::mat4 proj;
 };
 
-struct VulkanImage {
-  vk::raii::Image textureImage = nullptr;
-  vk::raii::DeviceMemory textureImageMemory = nullptr;
-  //   VkImage image;
-  //   VkDeviceMemory imageMemory;
-  //   VkImageView imageView;
+// struct VulkanImage {
+//   vk::raii::Image textureImage = nullptr;
+//   vk::raii::DeviceMemory textureImageMemory = nullptr;
+//   //   VkImage image;
+//   //   VkDeviceMemory imageMemory;
+//   //   VkImageView imageView;
 
-  //   void destroy( VkDevice device ) {
-  //     vkDestroyImageView( device, imageView, nullptr );
-  //     vkDestroyImage( device, image, nullptr );
-  //     vkFreeMemory( device, imageMemory, nullptr );
-  //   }
-};
+//   //   void destroy( VkDevice device ) {
+//   //     vkDestroyImageView( device, imageView, nullptr );
+//   //     vkDestroyImage( device, image, nullptr );
+//   //     vkFreeMemory( device, imageMemory, nullptr );
+//   //   }
+// };
 
 // struct VulkanTextureImage : VulkanImage {
 //   VkSampler sampler;
@@ -157,25 +157,35 @@ uint32_t find_memory_type( vk::raii::PhysicalDevice physicalDevice, uint32_t typ
 
 // VkSampleCountFlagBits get_max_usable_sample_count( VkPhysicalDevice physicalDevice );
 
-// #pragma region Asset loading
+#pragma region Asset loading
 
+// TODO: add textures here
+// Currently we are loading textures in vulkan)image, and its hard coded
 // struct Texture {
 //   unsigned char *pixels;
 //   int width, height, channels;
 //   VkDeviceSize imageSize;
 // };
 
-// Texture *load_texture( std::string filePath );
-// void free_texture( Texture *texture );
+struct Texture {
+  unsigned char *pixels = nullptr;
+  int width = 0;
+  int height = 0;
+  int channels = 0;
+  vk::DeviceSize imageSize = 0;
+};
 
-// struct Mesh {
-//   std::vector<Vertex> vertices;
-//   std::vector<uint16_t> indices;
-// };
+std::shared_ptr<Texture> load_texture( std::string filePath );
+void free_texture( std::shared_ptr<Texture> texture );
 
-// Mesh *load_mesh( std::string filePath );
+struct Mesh {
+  std::vector<Vertex> vertices;
+  std::vector<uint32_t> indices;
+};
 
-// #pragma endregion Asset loading
+std::shared_ptr<Mesh> load_mesh( std::string filePath );
+
+#pragma endregion Asset loading
 
 // #pragma region Shapes
 
@@ -224,13 +234,13 @@ std::string get_model_path();
 }  // namespace Core
 }  // namespace Thumpy
 
-// namespace std {
-// template <>
-// struct hash<Thumpy::Core::Windows::Vulkan::Vertex> {
-//   size_t operator()( Thumpy::Core::Windows::Vulkan::Vertex const &vertex ) const {
-//     return ( ( hash<glm::vec3>()( vertex.pos ) ^ ( hash<glm::vec3>()( vertex.color ) << 1 ) ) >>
-//              1 ) ^
-//            ( hash<glm::vec2>()( vertex.texCoord ) << 1 );
-//   }
-// };
-// }  // namespace std
+namespace std {
+template <>
+struct hash<Thumpy::Core::Windows::Vulkan::Vertex> {
+  size_t operator()( Thumpy::Core::Windows::Vulkan::Vertex const &vertex ) const {
+    return ( ( hash<glm::vec3>()( vertex.pos ) ^ ( hash<glm::vec3>()( vertex.color ) << 1 ) ) >>
+             1 ) ^
+           ( hash<glm::vec2>()( vertex.texCoord ) << 1 );
+  }
+};
+}  // namespace std

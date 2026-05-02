@@ -65,8 +65,8 @@ class VulkanWindow : public Window {
 
   // const std::string TEXTURE_PATH = "vj_swirl.png";
 
-  // const std::string MODEL_PATH = "viking_room.obj";
-  // const std::string TEXTURE_PATH = "viking_room.png";
+  const std::string MODEL_PATH = "viking_room.obj";
+  const std::string TEXTURE_PATH = "viking_room.png";
 
  protected:
   const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
@@ -90,6 +90,8 @@ class VulkanWindow : public Window {
   std::shared_ptr<Image::VulkanTextureImage> vulkanTextureImage_ = nullptr;  // Vulkan texture Image
   std::shared_ptr<Image::VulkanImage> depthBuffer_ = nullptr;                // Depth buffer
 
+  std::shared_ptr<Mesh> mesh_ = nullptr;  // Mesh object
+
   // TODO: This is for triangle testing. This should be moved to a child class,
   // like vulkan_triangle_example
   // const std::vector<Vertex> vertices_ = { { { 0.2f, -0.9f }, { 1.0f, 0.0f, 0.2f } },
@@ -110,22 +112,22 @@ class VulkanWindow : public Window {
   //     { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } } };
 
   // 2 Squares with textures
-  const std::vector<Vertex> vertices_ = {
-      { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
-      { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-      { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-      { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
+  // const std::vector<Vertex> vertices_ = {
+  //     { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+  //     { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+  //     { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+  //     { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
 
-      { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
-      { { 0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-      { { 0.5f, 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-      { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } } };
+  //     { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+  //     { { 0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+  //     { { 0.5f, 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+  //     { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } } };
 
   // Square indices, move this also
   // const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0 };
 
   // 2 Square indices
-  const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4 };
+  // const std::vector<uint16_t> indices_ = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4 };
 
   // ### None RAII variables (Deprecated) ###
 

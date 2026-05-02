@@ -29,13 +29,13 @@ namespace Windows {
 namespace Vulkan {
 namespace Image {
 
-struct Texture {
-  unsigned char* pixels = nullptr;
-  int width = 0;
-  int height = 0;
-  int channels = 0;
-  vk::DeviceSize imageSize = 0;
-};
+// struct Texture {
+//   unsigned char* pixels = nullptr;
+//   int width = 0;
+//   int height = 0;
+//   int channels = 0;
+//   vk::DeviceSize imageSize = 0;
+// };
 
 struct VulkanImage {
   vk::raii::Image image = nullptr;

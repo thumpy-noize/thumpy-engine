@@ -14,8 +14,8 @@
 #include <sys/types.h>
 #include <vulkan/vulkan_core.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+// #define STB_IMAGE_IMPLEMENTATION
+// #include <stb_image.h>
 
 #include <cstdint>
 #include <stdexcept>
@@ -100,21 +100,21 @@ void create_image( uint32_t width, uint32_t height, vk::Format format, vk::Image
 void create_texture_image( std::shared_ptr<VulkanDevice> vulkanDevice,
                            vk::raii::CommandPool& commandPool,
                            std::shared_ptr<Image::VulkanImage> vulkanImage, std::string filePath ) {
-  // TODO: Create load texture function
-
   // Load texture
-  std::shared_ptr<Texture> texture = std::make_shared<Texture>();
+  // std::shared_ptr<Texture> texture = std::make_shared<Texture>();
+  std::shared_ptr<Texture> texture = load_texture( filePath );
+
   // int texWidth, texHeight, texChannels;
-  texture->pixels = stbi_load( ( get_texture_path() + filePath ).c_str(), &texture->width,
-                               &texture->height, &texture->channels, STBI_rgb_alpha );
+  // texture->pixels = stbi_load( ( get_texture_path() + filePath ).c_str(), &texture->width,
+  //                              &texture->height, &texture->channels, STBI_rgb_alpha );
   // Set image size
-  texture->imageSize = texture->width * texture->height * 4;
+  // texture->imageSize = texture->width * texture->height * 4;
 
   // Validate texture loaded
-  if ( !texture->pixels ) {
-    Logger::log( "Failed to load texture image!", Logger::ERROR_LOG );
-    // TODO: Use a missing texture if we failed to load texture
-  }
+  // if ( !texture->pixels ) {
+  //   Logger::log( "Failed to load texture image!", Logger::ERROR_LOG );
+  //   // TODO: Use a missing texture if we failed to load texture
+  // }
 
   // Create staging buffer
   std::shared_ptr<Buffer::Buffer> stagingBuffer = std::make_shared<Buffer::Buffer>();
@@ -129,7 +129,8 @@ void create_texture_image( std::shared_ptr<VulkanDevice> vulkanDevice,
   stagingBuffer->memory.unmapMemory();
 
   // Free pixel array
-  stbi_image_free( texture->pixels );
+  // stbi_image_free( texture->pixels );
+  free_texture( texture );
 
   // Create image
   create_image( texture->width, texture->height, vk::Format::eR8G8B8A8Srgb,

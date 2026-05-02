@@ -148,7 +148,7 @@ void VulkanSwapChain::create_swap_chain() {
 }
 
 void VulkanSwapChain::recreate_swap_chain( std::shared_ptr<Image::VulkanImage> depthImage ) {
-  Logger::log( "Recreating swap chain...", Logger::DEBUG );
+  // Logger::log( "Recreating swap chain...", Logger::DEBUG );
 
   // Get new window dimensions
   int width = 0, height = 0;

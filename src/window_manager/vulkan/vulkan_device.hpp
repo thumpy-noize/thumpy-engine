@@ -60,6 +60,8 @@ class VulkanDevice {
 
   // SwapChainSupportDetails query_swap_chain_support( VkPhysicalDevice device );
 
+  vk::SampleCountFlagBits get_max_usable_sample_count();
+
   // Device variables
   vk::raii::PhysicalDevice physicalDevice = nullptr;
   vk::raii::Device device = nullptr;
@@ -67,6 +69,9 @@ class VulkanDevice {
   // Graphics queue
   vk::raii::Queue graphicsQueue = nullptr;
   uint32_t queueIndex = ~0;
+
+  // Multisample antialiasing
+  vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
 
   // VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   // VkDevice device;

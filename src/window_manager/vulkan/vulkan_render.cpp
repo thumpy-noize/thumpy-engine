@@ -56,7 +56,8 @@ VulkanRender::VulkanRender( std::shared_ptr<VulkanDevice> vulkanDevice,
 void VulkanRender::record_command_buffer(
     uint32_t imageIndex, std::shared_ptr<Buffer::Buffer> vertexBuffer, uint32_t vertexCount,
     std::shared_ptr<Buffer::Buffer> indexBuffer, uint16_t indexCount,
-    std::shared_ptr<Image::VulkanImage> depthImage, std::shared_ptr<Descriptors> descriptors ) {
+    std::shared_ptr<Image::VulkanImage> depthImage, std::shared_ptr<Image::VulkanImage> colorImage,
+    std::shared_ptr<Descriptors> descriptors ) {
   // Get current buffer
   auto &commandBuffer = commandPool_->buffers[frameIndex_];
 
@@ -72,6 +73,13 @@ void VulkanRender::record_command_buffer(
                            vk::PipelineStageFlagBits2::eColorAttachmentOutput,  // dstStage
                            vk::ImageAspectFlagBits::eColor                      // Aspect flags
   );
+
+  // Transition the multisampled color image to COLOR_ATTACHMENT_OPTIMAL
+  transition_image_layout(
+      *colorImage->image, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal,
+      vk::AccessFlagBits2::eColorAttachmentWrite, vk::AccessFlagBits2::eColorAttachmentWrite,
+      vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+      vk::PipelineStageFlagBits2::eColorAttachmentOutput, vk::ImageAspectFlagBits::eColor );
 
   // Transition depth image to depth attachment optimal layout
   transition_image_layout( *depthImage->image, vk::ImageLayout::eUndefined,
@@ -90,8 +98,11 @@ void VulkanRender::record_command_buffer(
 
   // Create color attachment info
   vk::RenderingAttachmentInfo colorAttachmentInfo = {
-      .imageView = swapChain_.lock()->swapChainImageViews[imageIndex],
+      .imageView = colorImage->imageView,
       .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+      .resolveMode = vk::ResolveModeFlagBits::eAverage,
+      .resolveImageView = swapChain_.lock()->swapChainImageViews[imageIndex],
+      .resolveImageLayout = vk::ImageLayout::eColorAttachmentOptimal,
       .loadOp = vk::AttachmentLoadOp::eClear,
       .storeOp = vk::AttachmentStoreOp::eStore,
       .clearValue = clearColor };
@@ -190,6 +201,7 @@ void VulkanRender::draw_frame( bool &framebufferResized,
                                std::shared_ptr<Buffer::Buffer> indexBuffer, uint16_t indexCount,
                                std::vector<void *> uniformBuffersMapped,
                                std::shared_ptr<Image::VulkanImage> depthImage,
+                               std::shared_ptr<Image::VulkanImage> colorImage,
                                std::shared_ptr<Descriptors> descriptors ) {
   // Wait for fence
   auto fenceResult = vulkanDevice_.lock()->device.waitForFences( *inFlightFences[frameIndex_],
@@ -214,7 +226,7 @@ void VulkanRender::draw_frame( bool &framebufferResized,
   // Check for out of date swapchain
   if ( result == vk::Result::eErrorOutOfDateKHR ) {
     // Logger::log( "Out of date KHR, recreating swapchain", Logger::INFO );
-    swapChain_.lock()->recreate_swap_chain( depthImage );
+    swapChain_.lock()->recreate_swap_chain( depthImage, colorImage );
     return;
   }
 
@@ -237,7 +249,7 @@ void VulkanRender::draw_frame( bool &framebufferResized,
 
   // Record buffer
   record_command_buffer( imageIndex, vertexBuffer, vertexCount, indexBuffer, indexCount, depthImage,
-                         descriptors );
+                         colorImage, descriptors );
 
   // Wait for queue
   vulkanDevice_.lock()
@@ -281,7 +293,7 @@ void VulkanRender::draw_frame( bool &framebufferResized,
   if ( ( result == vk::Result::eSuboptimalKHR ) || ( result == vk::Result::eErrorOutOfDateKHR ) ||
        framebufferResized ) {
     framebufferResized = false;
-    swapChain_.lock()->recreate_swap_chain( depthImage );
+    swapChain_.lock()->recreate_swap_chain( depthImage, colorImage );
   } else {
     // There are no other success codes than eSuccess; on any error code, presentKHR already threw
     // an exception.

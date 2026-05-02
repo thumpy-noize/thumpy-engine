@@ -147,7 +147,8 @@ void VulkanSwapChain::create_swap_chain() {
   //   extent = chosen_extent;
 }
 
-void VulkanSwapChain::recreate_swap_chain( std::shared_ptr<Image::VulkanImage> depthImage ) {
+void VulkanSwapChain::recreate_swap_chain( std::shared_ptr<Image::VulkanImage> depthImage,
+                                           std::shared_ptr<Image::VulkanImage> colorImage ) {
   // Logger::log( "Recreating swap chain...", Logger::DEBUG );
 
   // Get new window dimensions
@@ -170,8 +171,13 @@ void VulkanSwapChain::recreate_swap_chain( std::shared_ptr<Image::VulkanImage> d
   // Create image views
   create_image_views();
 
-  // create depth resources
+  // Create msaa resources
+  Image::create_color_resources( colorImage, vulkanDevice_.lock(), shared_from_this() );
+
+  // Create depth resources
   Image::create_depth_resources( depthImage, vulkanDevice_.lock(), swapChainExtent );
+
+  // Deprecated
   //   Logger::log( "Recreating swap chain...", Logger::INFO );
   //   int width = 0, height = 0;
   //   glfwGetFramebufferSize( window_, &width, &height );

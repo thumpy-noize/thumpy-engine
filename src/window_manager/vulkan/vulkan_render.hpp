@@ -44,6 +44,7 @@ class VulkanRender {
   void record_command_buffer( uint32_t imageIndex, std::shared_ptr<Buffer::Buffer> vertexBuffer,
                               uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
                               uint16_t indexCount, std::shared_ptr<Image::VulkanImage> depthImage,
+                              std::shared_ptr<Image::VulkanImage> colorImage,
                               std::shared_ptr<Descriptors> descriptors );
 
   // NOTE: vulkan_image has a function with the same name as this. I don't like that...
@@ -70,11 +71,12 @@ class VulkanRender {
                    uint32_t vertexCount, std::shared_ptr<Buffer::Buffer> indexBuffer,
                    uint16_t indexCount, std::vector<void*> uniformBuffersMapped,
                    std::shared_ptr<Image::VulkanImage> depthImage,
+                   std::shared_ptr<Image::VulkanImage> colorImage,
                    std::shared_ptr<Descriptors> descriptors );
 
   // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
   //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
-  //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *,
+  //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
   //                  VulkanImage *colorImage );
 
   // void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,

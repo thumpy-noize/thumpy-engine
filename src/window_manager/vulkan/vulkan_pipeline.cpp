@@ -100,9 +100,9 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
       .depthBiasEnable = vk::False,
       .lineWidth = 1.0f };
 
-  // Multisampling info (currently disabled)
+  // Multisampling info
   vk::PipelineMultisampleStateCreateInfo multisampling{
-      .rasterizationSamples = vk::SampleCountFlagBits::e1, .sampleShadingEnable = vk::False };
+      .rasterizationSamples = vulkanDevice->msaaSamples, .sampleShadingEnable = vk::False };
 
   // Depth stencil info
   vk::PipelineDepthStencilStateCreateInfo depthStencil{ .depthTestEnable = vk::True,

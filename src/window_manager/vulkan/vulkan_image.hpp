@@ -27,6 +27,9 @@ namespace Thumpy {
 namespace Core {
 namespace Windows {
 namespace Vulkan {
+
+class VulkanSwapChain;
+
 namespace Image {
 
 // struct Texture {
@@ -65,9 +68,10 @@ struct VulkanTextureImage : VulkanImage {
   //   }
 };
 
-void create_image( uint32_t width, uint32_t height, uint32_t mipLevels, vk::Format format,
-                   vk::ImageTiling tiling, vk::ImageUsageFlags usage,
-                   vk::MemoryPropertyFlags properties, std::shared_ptr<VulkanDevice> vulkanDevice,
+void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
+                   vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling,
+                   vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
+                   std::shared_ptr<VulkanDevice> vulkanDevice,
                    std::shared_ptr<VulkanImage> vulkanImage );
 // void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
 //                    VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling,
@@ -138,6 +142,9 @@ void generate_mipmaps( vk::raii::Image& image, vk::Format imageFormat, int32_t t
 //                        commandPool
 //                        );
 
+void create_color_resources( std::shared_ptr<VulkanImage> vulkanImage,
+                             std::shared_ptr<VulkanDevice> vulkanDevice,
+                             std::shared_ptr<VulkanSwapChain> swapChain );
 // void create_color_resources( VulkanImage *msaaColorBuffer, VulkanDevice *vulkanDevice,
 //                              VulkanSwapChain *swapChain );
 

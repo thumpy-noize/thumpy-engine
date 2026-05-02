@@ -26,7 +26,7 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-class VulkanSwapChain {
+class VulkanSwapChain : public std::enable_shared_from_this<VulkanSwapChain> {
  public:
   VulkanSwapChain( std::shared_ptr<VulkanDevice> vulkanDevice, GLFWwindow *window,
                    std::shared_ptr<vk::raii::SurfaceKHR> surface );
@@ -41,7 +41,8 @@ class VulkanSwapChain {
   /**
    * @brief Recreate swap chain
    */
-  void recreate_swap_chain( std::shared_ptr<Image::VulkanImage> depthImage );
+  void recreate_swap_chain( std::shared_ptr<Image::VulkanImage> depthImage,
+                            std::shared_ptr<Image::VulkanImage> colorImage );
 
   /**
    * @brief Clear the swap chain

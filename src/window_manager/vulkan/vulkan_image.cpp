@@ -33,9 +33,10 @@ namespace Vulkan {
 
 namespace Image {
 
-void create_image( uint32_t width, uint32_t height, uint32_t mipLevels, vk::Format format,
-                   vk::ImageTiling tiling, vk::ImageUsageFlags usage,
-                   vk::MemoryPropertyFlags properties, std::shared_ptr<VulkanDevice> vulkanDevice,
+void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
+                   vk::SampleCountFlagBits numSamples, vk::Format format, vk::ImageTiling tiling,
+                   vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties,
+                   std::shared_ptr<VulkanDevice> vulkanDevice,
                    std::shared_ptr<VulkanImage> vulkanImage ) {
   // Create image info
   vk::ImageCreateInfo imageInfo{ .imageType = vk::ImageType::e2D,
@@ -43,7 +44,7 @@ void create_image( uint32_t width, uint32_t height, uint32_t mipLevels, vk::Form
                                  .extent = { width, height, 1 },
                                  .mipLevels = mipLevels,
                                  .arrayLayers = 1,
-                                 .samples = vk::SampleCountFlagBits::e1,
+                                 .samples = numSamples,
                                  .tiling = tiling,
                                  .usage = usage,
                                  .sharingMode = vk::SharingMode::eExclusive };
@@ -140,7 +141,7 @@ void create_texture_image( std::shared_ptr<VulkanDevice> vulkanDevice,
 
   // Create image
   create_image( texture->width, texture->height, vulkanTextureImage->mipLevels,
-                vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
+                vk::SampleCountFlagBits::e1, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal,
                 vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst |
                     vk::ImageUsageFlagBits::eSampled,
                 vk::MemoryPropertyFlagBits::eDeviceLocal, vulkanDevice, vulkanTextureImage );
@@ -459,8 +460,9 @@ void create_depth_resources( std::shared_ptr<Image::VulkanImage> depthBuffer,
   vk::Format depthFormat = find_depth_format( vulkanDevice->physicalDevice );
 
   // Create depth image
-  create_image( swapChainExtent.width, swapChainExtent.height, 1, depthFormat,
-                vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
+  create_image( swapChainExtent.width, swapChainExtent.height, 1, vulkanDevice->msaaSamples,
+                depthFormat, vk::ImageTiling::eOptimal,
+                vk::ImageUsageFlagBits::eDepthStencilAttachment,
                 vk::MemoryPropertyFlagBits::eDeviceLocal, vulkanDevice, depthBuffer );
 
   // Create depth image view
@@ -726,6 +728,23 @@ void generate_mipmaps( vk::raii::Image& image, vk::Format imageFormat, int32_t t
   //   Buffer::end_single_time_commands( vulkanDevice, commandBuffer, commandPool );
 }
 
+void create_color_resources( std::shared_ptr<VulkanImage> vulkanImage,
+                             std::shared_ptr<VulkanDevice> vulkanDevice,
+                             std::shared_ptr<VulkanSwapChain> swapChain ) {
+  // Get color format
+  vk::Format colorFormat = swapChain->swapChainSurfaceFormat.format;
+
+  // Create msaa image
+  create_image(
+      swapChain->swapChainExtent.width, swapChain->swapChainExtent.height, 1,
+      vulkanDevice->msaaSamples, colorFormat, vk::ImageTiling::eOptimal,
+      vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
+      vk::MemoryPropertyFlagBits::eDeviceLocal, vulkanDevice, vulkanImage );
+
+  // Create msaa image view
+  vulkanImage->imageView = create_image_view( vulkanImage->image, colorFormat,
+                                              vk::ImageAspectFlagBits::eColor, 1, vulkanDevice );
+}
 // void create_color_resources( VulkanImage *msaaColorBuffer, VulkanDevice *vulkanDevice,
 //                              VulkanSwapChain *swapChain ) {
 //   VkFormat colorFormat = swapChain->swapChainImageFormat;

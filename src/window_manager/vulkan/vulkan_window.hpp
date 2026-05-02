@@ -89,6 +89,7 @@ class VulkanWindow : public Window {
 
   std::shared_ptr<Image::VulkanTextureImage> vulkanTextureImage_ = nullptr;  // Vulkan texture Image
   std::shared_ptr<Image::VulkanImage> depthBuffer_ = nullptr;                // Depth buffer
+  std::shared_ptr<Image::VulkanImage> colorImage_ = nullptr;                 // Msaa color image
 
   std::shared_ptr<Mesh> mesh_ = nullptr;  // Mesh object
 

@@ -71,6 +71,10 @@ void VulkanWindow::init_vulkan() {
   commandPool_ = std::make_shared<Construct::CommandPool>();
   Construct::command_pool( commandPool_->pool, vulkanDevice_ );
 
+  // Create msaa color image
+  colorImage_ = std::make_shared<Image::VulkanImage>();
+  Image::create_color_resources( colorImage_, vulkanDevice_, swapChain_ );
+
   // Create depth image
   depthBuffer_ = std::make_shared<Image::VulkanImage>();
   Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
@@ -247,7 +251,7 @@ void VulkanWindow::loop() {
 
   if ( vulkanDevice_ ) {
     render_->draw_frame( framebufferResized, vertexBuffer_, mesh_->vertices.size(), indexBuffer_,
-                         mesh_->indices.size(), uniformBuffers_->mapped, depthBuffer_,
+                         mesh_->indices.size(), uniformBuffers_->mapped, depthBuffer_, colorImage_,
                          descriptors_ );
     //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size()
     //   ),

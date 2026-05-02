@@ -34,7 +34,11 @@ VulkanDevice::VulkanDevice( vk::raii::Instance &instance, vk::raii::SurfaceKHR &
 }
 
 void VulkanDevice::setup_device( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface ) {
+  // Pick physical device
   pick_physical_device( instance );
+  // Get max sample count
+  msaaSamples = get_max_usable_sample_count();
+  // Create logical device
   create_logical_device( surface );
 }
 
@@ -49,7 +53,7 @@ void VulkanDevice::pick_physical_device( vk::raii::Instance &instance ) {
 
   // Validate suitable gpu exist
   if ( devIter == physicalDevices.end() ) {
-    throw std::runtime_error( "failed to find a suitable GPU!" );
+    throw std::runtime_error( "Failed to find a suitable GPU!" );
   }
 
   // Set physical device
@@ -228,6 +232,38 @@ bool VulkanDevice::is_device_suitable( vk::raii::PhysicalDevice const &physicalD
 
 //   return details;
 // }
+
+vk::SampleCountFlagBits VulkanDevice::get_max_usable_sample_count() {
+  // Get physical device properties
+  vk::PhysicalDeviceProperties physicalDeviceProperties = physicalDevice.getProperties();
+
+  // Set device flags
+  vk::SampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts &
+                                physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+
+  // Return max sample count // TODO: Look into converting this to a switch statement
+  if ( counts & vk::SampleCountFlagBits::e64 ) {
+    return vk::SampleCountFlagBits::e64;
+  }
+  if ( counts & vk::SampleCountFlagBits::e32 ) {
+    return vk::SampleCountFlagBits::e32;
+  }
+  if ( counts & vk::SampleCountFlagBits::e16 ) {
+    return vk::SampleCountFlagBits::e16;
+  }
+  if ( counts & vk::SampleCountFlagBits::e8 ) {
+    return vk::SampleCountFlagBits::e8;
+  }
+  if ( counts & vk::SampleCountFlagBits::e4 ) {
+    return vk::SampleCountFlagBits::e4;
+  }
+  if ( counts & vk::SampleCountFlagBits::e2 ) {
+    return vk::SampleCountFlagBits::e2;
+  }
+
+  // Return default
+  return vk::SampleCountFlagBits::e1;
+}
 
 }  // namespace Vulkan
 }  // namespace Windows

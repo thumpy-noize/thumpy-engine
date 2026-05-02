@@ -58,7 +58,7 @@ void create_vertex_buffer( std::vector<Vertex> vertices, std::shared_ptr<VulkanD
                            std::shared_ptr<Buffer> vertexBuffer,
                            vk::raii::CommandPool &commandPool );
 
-void create_index_buffer( std::vector<uint16_t> indices, std::shared_ptr<VulkanDevice> vulkanDevice,
+void create_index_buffer( std::vector<uint32_t> indices, std::shared_ptr<VulkanDevice> vulkanDevice,
                           std::shared_ptr<Buffer> indexBuffer, vk::raii::CommandPool &commandPool );
 
 void create_uniform_buffers( std::shared_ptr<UniformBuffers> uniformBuffers,

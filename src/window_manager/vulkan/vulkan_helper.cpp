@@ -9,14 +9,15 @@
  * @copyright Copyright (c) 2024
  *
  */
-// #define STB_IMAGE_IMPLEMENTATION
 
 #include <string>
 #include <vector>
+
 #define TINYOBJLOADER_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 
 #include <GLFW/glfw3.h>
-// #include <stb_image.h>
+#include <stb_image.h>
 #include <tiny_obj_loader.h>
 
 #include <cstring>
@@ -256,67 +257,127 @@ uint32_t find_memory_type( vk::raii::PhysicalDevice physicalDevice, uint32_t typ
 
 // #pragma endregion Shape generation
 
-// #pragma region Asset loading
+#pragma region Asset loading
 
-// Texture *load_texture( std::string filePath ) {
-//   Logger::log( "Loading texture: " + get_texture_path() + filePath, Logger::DEBUG );
-//   Texture *texture = new Texture();
+std::shared_ptr<Texture> load_texture( std::string filePath ) {
+  // Get textures path
+  std::string texturePath = ( get_texture_path() + filePath ).c_str();
 
-//   texture->pixels =
-//       stbi_load( std::string( get_texture_path() + filePath ).c_str(), &texture->width,
-//                  &texture->height, &texture->channels, STBI_rgb_alpha );
-//   texture->imageSize = texture->width * texture->height * 4;
+  Logger::log( "Loading texture: " + texturePath, Logger::DEBUG );
 
-//   if ( !texture->pixels ) {
-//     Logger::log( "Failed to load texture image!", Logger::ERROR_LOG );
-//   }
+  // Create texture ptr
+  std::shared_ptr<Texture> texture = std::make_shared<Texture>();
 
-//   return texture;
-// }
+  // Load texture
+  texture->pixels = stbi_load( texturePath.c_str(), &texture->width, &texture->height,
+                               &texture->channels, STBI_rgb_alpha );
 
-// void free_texture( Texture *texture ) { stbi_image_free( texture->pixels ); }
+  // Set image size
+  texture->imageSize = texture->width * texture->height * 4;
 
-// Mesh *load_mesh( std::string filePath ) {
-//   std::string modelPath = get_model_path() + filePath;
+  // Validate texture loaded
+  if ( !texture->pixels ) {
+    Logger::log( "Failed to load texture image!", Logger::ERROR_LOG );
+    // TODO: Add missing texture
+  }
 
-//   Logger::log( "Loading model: " + modelPath, Logger::DEBUG );
+  return texture;
+}
 
-//   tinyobj::attrib_t attrib;
-//   std::vector<tinyobj::shape_t> shapes;
-//   std::vector<tinyobj::material_t> materials;
-//   std::string err;
+void free_texture( std::shared_ptr<Texture> texture ) { stbi_image_free( texture->pixels ); }
 
-//   if ( !tinyobj::LoadObj( &attrib, &shapes, &materials, &err, modelPath.c_str() ) ) {
-//     Logger::log( err, Logger::ERROR_LOG );
-//   }
+std::shared_ptr<Mesh> load_mesh( std::string filePath ) {
+  // Append model path to file path
+  std::string modelPath = get_model_path() + filePath;
 
-//   Mesh *mesh = new Mesh();
-//   std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-//   for ( const auto &shape : shapes ) {
-//     for ( const auto &index : shape.mesh.indices ) {
-//       Vertex vertex{};
+  Logger::log( "Loading model: " + modelPath, Logger::DEBUG );
 
-//       vertex.pos = { attrib.vertices[3 * index.vertex_index + 0],
-//                      attrib.vertices[3 * index.vertex_index + 1],
-//                      attrib.vertices[3 * index.vertex_index + 2] };
+  // Create tinyobj variables
+  tinyobj::attrib_t attrib;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+  std::string warn, err;
 
-//       vertex.texCoord = { attrib.texcoords[2 * index.texcoord_index + 0],
-//                           1.0f - attrib.texcoords[2 * index.texcoord_index + 1] };
+  // Load Obj using tinyObj
+  if ( !tinyobj::LoadObj( &attrib, &shapes, &materials, &err, modelPath.c_str() ) ) {
+    Logger::log( "Error loading obj: " + err, Logger::ERROR_LOG );
+    throw std::runtime_error( err );
+  }
 
-//       vertex.color = { 1.0f, 1.0f, 1.0f };
+  // Create mesh ptr
+  std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 
-//       if ( uniqueVertices.count( vertex ) == 0 ) {
-//         uniqueVertices[vertex] = static_cast<uint32_t>( mesh->vertices.size() );
-//         mesh->vertices.push_back( vertex );
-//       }
+  // Create unique vertices list
+  std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-//       mesh->indices.push_back( uniqueVertices[vertex] );
-//     }
-//   }
-//   return mesh;
-// }
+  // For each shape
+  for ( const auto &shape : shapes ) {
+    // For each index
+    for ( const auto &index : shape.mesh.indices ) {
+      // Create vertex
+      Vertex vertex{};
 
-// #pragma endregion Asset loading
+      // Set vertex pos
+      vertex.pos = { attrib.vertices[3 * index.vertex_index + 0],
+                     attrib.vertices[3 * index.vertex_index + 1],
+                     attrib.vertices[3 * index.vertex_index + 2] };
+
+      // Set vertex texture coords
+      vertex.texCoord = { attrib.texcoords[2 * index.texcoord_index + 0],
+                          1.0f - attrib.texcoords[2 * index.texcoord_index + 1] };
+
+      // Set vertex colo
+      vertex.color = { 1.0f, 1.0f, 1.0f };
+
+      // Check for unique vertices
+      if ( uniqueVertices.count( vertex ) == 0 ) {
+        uniqueVertices[vertex] = static_cast<uint32_t>( mesh->vertices.size() );
+        mesh->vertices.push_back( vertex );
+      }
+
+      // Index unique vertices
+      mesh->indices.push_back( uniqueVertices[vertex] );
+    }
+  }
+
+  return mesh;
+
+  //   tinyobj::attrib_t attrib;
+  //   std::vector<tinyobj::shape_t> shapes;
+  //   std::vector<tinyobj::material_t> materials;
+  //   std::string err;
+
+  //   if ( !tinyobj::LoadObj( &attrib, &shapes, &materials, &err, modelPath.c_str() ) ) {
+  //     Logger::log( err, Logger::ERROR_LOG );
+  //   }
+
+  //   Mesh *mesh = new Mesh();
+  //   std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+  //   for ( const auto &shape : shapes ) {
+  //     for ( const auto &index : shape.mesh.indices ) {
+  //       Vertex vertex{};
+
+  //       vertex.pos = { attrib.vertices[3 * index.vertex_index + 0],
+  //                      attrib.vertices[3 * index.vertex_index + 1],
+  //                      attrib.vertices[3 * index.vertex_index + 2] };
+
+  //       vertex.texCoord = { attrib.texcoords[2 * index.texcoord_index + 0],
+  //                           1.0f - attrib.texcoords[2 * index.texcoord_index + 1] };
+
+  //       vertex.color = { 1.0f, 1.0f, 1.0f };
+
+  //       if ( uniqueVertices.count( vertex ) == 0 ) {
+  //         uniqueVertices[vertex] = static_cast<uint32_t>( mesh->vertices.size() );
+  //         mesh->vertices.push_back( vertex );
+  //       }
+
+  //       mesh->indices.push_back( uniqueVertices[vertex] );
+  //     }
+  //   }
+  //   return mesh;
+}
+
+#pragma endregion Asset loading
 
 // #pragma region Paths
 

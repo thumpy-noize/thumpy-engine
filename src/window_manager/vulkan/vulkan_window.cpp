@@ -78,7 +78,7 @@ void VulkanWindow::init_vulkan() {
   // Create texture image
   vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
   Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
-                               "vj_swirl.png" );
+                               TEXTURE_PATH );
 
   // Create texture image view
   Image::create_texture_image_view( vulkanTextureImage_, vulkanDevice_ );
@@ -86,13 +86,16 @@ void VulkanWindow::init_vulkan() {
   // Create image sampler
   Image::create_texture_sampler( vulkanTextureImage_, vulkanDevice_ );
 
+  // Load model
+  mesh_ = load_mesh( MODEL_PATH );
+
   // Create vertex buffer
   vertexBuffer_ = std::make_shared<Buffer::Buffer>();
-  Buffer::create_vertex_buffer( vertices_, vulkanDevice_, vertexBuffer_, commandPool_->pool );
+  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool );
 
   // Create index buffer
   indexBuffer_ = std::make_shared<Buffer::Buffer>();
-  Buffer::create_index_buffer( indices_, vulkanDevice_, indexBuffer_, commandPool_->pool );
+  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
 
   // Create uniform buffers
   uniformBuffers_ = std::make_shared<Buffer::UniformBuffers>();
@@ -243,8 +246,9 @@ void VulkanWindow::loop() {
   Window::loop();
 
   if ( vulkanDevice_ ) {
-    render_->draw_frame( framebufferResized, vertexBuffer_, vertices_.size(), indexBuffer_,
-                         indices_.size(), uniformBuffers_->mapped, depthBuffer_, descriptors_ );
+    render_->draw_frame( framebufferResized, vertexBuffer_, mesh_->vertices.size(), indexBuffer_,
+                         mesh_->indices.size(), uniformBuffers_->mapped, depthBuffer_,
+                         descriptors_ );
     //   render_->draw_frame( vertexBuffer_->buffer, static_cast<uint32_t>( mesh_->vertices.size()
     //   ),
     //                        indexBuffer_->buffer, static_cast<uint32_t>( mesh_->indices.size() ),

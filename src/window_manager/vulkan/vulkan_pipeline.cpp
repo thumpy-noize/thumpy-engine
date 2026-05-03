@@ -53,8 +53,6 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
     vk::raii::DescriptorSetLayout &descriptorSetLayout ) {
   Logger::log( "Constructing Vulkan pipeline...", Logger::DEBUG );
 
-  Logger::log( "Loading shaders from: " + get_shader_path(), Logger::INFO );
-
   // Read shader file
   std::vector<char> slagShaderCode = read_file( get_shader_path() + "texture_shader.slang.spv" );
 
@@ -91,18 +89,11 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
   vk::PipelineViewportStateCreateInfo viewportState{ .viewportCount = 1, .scissorCount = 1 };
 
   // Create rasterizer info
-  vk::PipelineRasterizationStateCreateInfo rasterizer{
-      .depthClampEnable = vk::False,
-      .rasterizerDiscardEnable = vk::False,
-      .polygonMode = vk::PolygonMode::eFill,
-      .cullMode = vk::CullModeFlagBits::eBack,
-      .frontFace = vk::FrontFace::eCounterClockwise,
-      .depthBiasEnable = vk::False,
-      .lineWidth = 1.0f };
+  vk::PipelineRasterizationStateCreateInfo rasterizer = Initializer::rasterizer();
 
   // Multisampling info
-  vk::PipelineMultisampleStateCreateInfo multisampling{
-      .rasterizationSamples = vulkanDevice->msaaSamples, .sampleShadingEnable = vk::False };
+  vk::PipelineMultisampleStateCreateInfo multisampling =
+      Initializer::multisampling( vulkanDevice->msaaSamples );
 
   // Depth stencil info
   vk::PipelineDepthStencilStateCreateInfo depthStencil{ .depthTestEnable = vk::True,
@@ -112,10 +103,8 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
                                                         .stencilTestEnable = vk::False };
 
   // Color blending
-  vk::PipelineColorBlendAttachmentState colorBlendAttachment{
-      .blendEnable = vk::False,
-      .colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                        vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA };
+  vk::PipelineColorBlendAttachmentState colorBlendAttachment =
+      Initializer::color_blend_attachment();
 
   vk::PipelineColorBlendStateCreateInfo colorBlending{ .logicOpEnable = vk::False,
                                                        .logicOp = vk::LogicOp::eCopy,
@@ -130,8 +119,8 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
       .pDynamicStates = dynamicStates.data() };
 
   // Pipeline layout info
-  vk::PipelineLayoutCreateInfo pipelineLayoutInfo{
-      .setLayoutCount = 1, .pSetLayouts = &*descriptorSetLayout, .pushConstantRangeCount = 0 };
+  vk::PipelineLayoutCreateInfo pipelineLayoutInfo =
+      Initializer::pipeline_layout_info( descriptorSetLayout );
 
   // Create pipeline
   std::shared_ptr<VulkanPipeline> pipeline = std::make_shared<VulkanPipeline>();
@@ -174,9 +163,7 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
 [[nodiscard]] vk::raii::ShaderModule create_shader_module(
     const std::vector<char> &code, std::shared_ptr<VulkanDevice> vulkanDevice ) {
   // Create shader module info
-  vk::ShaderModuleCreateInfo createInfo{
-      .codeSize = code.size() * sizeof( char ),
-      .pCode = reinterpret_cast<const uint32_t *>( code.data() ) };
+  vk::ShaderModuleCreateInfo createInfo = Initializer::shader_module_create_info( code );
 
   // Create shader module
   vk::raii::ShaderModule shaderModule{ vulkanDevice->device, createInfo };

@@ -154,9 +154,8 @@ void create_uniform_buffers( std::shared_ptr<UniformBuffers> uniformBuffers,
 std::unique_ptr<vk::raii::CommandBuffer> begin_single_time_commands(
     std::shared_ptr<VulkanDevice> vulkanDevice, vk::raii::CommandPool &commandPool ) {
   // Create command buffer allocation info
-  vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool,
-                                           .level = vk::CommandBufferLevel::ePrimary,
-                                           .commandBufferCount = 1 };
+  vk::CommandBufferAllocateInfo allocInfo =
+      Initializer::command_buffer_allocate_info( commandPool, 1 );
 
   // Allocate command buffer
   std::unique_ptr<vk::raii::CommandBuffer> commandBuffer =

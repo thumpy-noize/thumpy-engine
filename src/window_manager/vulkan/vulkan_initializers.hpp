@@ -16,6 +16,7 @@
 #include <array>
 #include <cstdint>
 #include <vector>
+#include <vulkan/vulkan_raii.hpp>
 
 #include "logger.hpp"
 
@@ -25,247 +26,242 @@ namespace Windows {
 namespace Vulkan {
 namespace Initializer {
 
-inline VkApplicationInfo application_info() {
-  VkApplicationInfo appInfo{};
-  appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  appInfo.pApplicationName = "Thumpy Engine Vulkan Window";
-  appInfo.applicationVersion = VK_MAKE_VERSION( 1, 0, 0 );
-  appInfo.pEngineName = "Thumpy Engine";
-  appInfo.engineVersion = VK_MAKE_VERSION( 1, 0, 0 );
-  appInfo.apiVersion = VK_API_VERSION_1_0;
+/**
+ * @brief Creates application info.
+ *
+ * @return constexpr vk::ApplicationInfo
+ */
+inline constexpr vk::ApplicationInfo application_info() {
+  constexpr vk::ApplicationInfo appInfo{
+      .pApplicationName = "Thumpy Engine Editor",  // TODO: Convert to variable
+      .applicationVersion = VK_MAKE_VERSION( 1, 0, 0 ),
+      .pEngineName = "Thumpy Engine",  // TODO: Convert to variable
+      .engineVersion = VK_MAKE_VERSION( 1, 0, 0 ),
+      .apiVersion = vk::ApiVersion14 };
+
   return appInfo;
 }
 
-inline VkPipelineShaderStageCreateInfo vert_shader_stage_info( VkShaderModule vertShaderModule ) {
-  VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-  vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+inline vk::PipelineRasterizationStateCreateInfo rasterizer() {
+  vk::PipelineRasterizationStateCreateInfo rasterizer{
+      .depthClampEnable = vk::False,
+      .rasterizerDiscardEnable = vk::False,
+      .polygonMode = vk::PolygonMode::eFill,
+      .cullMode = vk::CullModeFlagBits::eBack,
+      .frontFace = vk::FrontFace::eCounterClockwise,
+      .depthBiasEnable = vk::False,
+      .lineWidth = 1.0f };
 
-  vertShaderStageInfo.module = vertShaderModule;
-  vertShaderStageInfo.pName = "main";
-  return vertShaderStageInfo;
+  return rasterizer;
 }
 
-inline VkPipelineShaderStageCreateInfo frag_shader_stage_info( VkShaderModule fragShaderModule ) {
-  VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-  fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-  fragShaderStageInfo.module = fragShaderModule;
-  fragShaderStageInfo.pName = "main";
-  return fragShaderStageInfo;
+inline vk::PipelineMultisampleStateCreateInfo multisampling( vk::SampleCountFlagBits msaaSamples ) {
+  vk::PipelineMultisampleStateCreateInfo multisampling{ .rasterizationSamples = msaaSamples,
+                                                        .sampleShadingEnable = vk::False };
+
+  return multisampling;
 }
+
+inline vk::PipelineColorBlendAttachmentState color_blend_attachment() {
+  vk::PipelineColorBlendAttachmentState colorBlendAttachment{
+      .blendEnable = vk::False,
+      .colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                        vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA };
+
+  return colorBlendAttachment;
+}
+
+inline vk::PipelineLayoutCreateInfo pipeline_layout_info(
+    vk::raii::DescriptorSetLayout &descriptorSetLayout ) {
+  vk::PipelineLayoutCreateInfo pipelineLayoutInfo{
+      .setLayoutCount = 1, .pSetLayouts = &*descriptorSetLayout, .pushConstantRangeCount = 0 };
+
+  return pipelineLayoutInfo;
+}
+
+inline vk::ShaderModuleCreateInfo shader_module_create_info( const std::vector<char> &code ) {
+  vk::ShaderModuleCreateInfo createInfo{
+      .codeSize = code.size() * sizeof( char ),
+      .pCode = reinterpret_cast<const uint32_t *>( code.data() ) };
+
+  return createInfo;
+}
+
+inline vk::CommandPoolCreateInfo pool_info( uint32_t queueIndex ) {
+  vk::CommandPoolCreateInfo poolInfo{ .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                                      .queueFamilyIndex = queueIndex };
+
+  return poolInfo;
+}
+
+inline vk::CommandBufferAllocateInfo command_buffer_allocate_info(
+    vk::raii::CommandPool &commandPool, uint32_t bufferCount ) {
+  vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool,
+                                           .level = vk::CommandBufferLevel::ePrimary,
+                                           .commandBufferCount = bufferCount };
+
+  return allocInfo;
+}
+
+inline vk::ImageCreateInfo image_info( uint32_t width, uint32_t height, vk::Format format,
+                                       vk::ImageTiling tiling, vk::ImageUsageFlags usage,
+                                       uint32_t mipLevels, vk::SampleCountFlagBits numSamples ) {
+  vk::ImageCreateInfo imageInfo{ .imageType = vk::ImageType::e2D,
+                                 .format = format,
+                                 .extent = { width, height, 1 },
+                                 .mipLevels = mipLevels,
+                                 .arrayLayers = 1,
+                                 .samples = numSamples,
+                                 .tiling = tiling,
+                                 .usage = usage,
+                                 .sharingMode = vk::SharingMode::eExclusive };
+
+  return imageInfo;
+}
+
+// Note: This is not currently use when creating mipmaps
+inline vk::ImageMemoryBarrier image_memory_barrier( vk::raii::Image &image,
+                                                    vk::ImageLayout oldLayout,
+                                                    vk::ImageLayout newLayout,
+                                                    uint32_t mipLevels ) {
+  vk::ImageMemoryBarrier barrier{
+      .oldLayout = oldLayout,
+      .newLayout = newLayout,
+      .image = image,
+      .subresourceRange = { vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 1 } };
+
+  return barrier;
+}
+
+// ######################
+// ##### Deprecated #####
+// ######################
+
+// We don't currently need this
+// inline VkPipelineShaderStageCreateInfo vert_shader_stage_info( VkShaderModule vertShaderModule )
+// {
+//   VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+//   vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+//   vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+//   vertShaderStageInfo.module = vertShaderModule;
+//   vertShaderStageInfo.pName = "main";
+//   return vertShaderStageInfo;
+// }
+
+// We don't currently need this
+// inline VkPipelineShaderStageCreateInfo frag_shader_stage_info( VkShaderModule fragShaderModule )
+// {
+//   VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+//   fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+//   fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+//   fragShaderStageInfo.module = fragShaderModule;
+//   fragShaderStageInfo.pName = "main";
+//   return fragShaderStageInfo;
+// }
 
 /**
  * @brief deprecated
  *
  * @return VkPipelineVertexInputStateCreateInfo
  */
-inline VkPipelineVertexInputStateCreateInfo vertex_input_info() {
-  VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-  vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  Logger::log( "vertex_input_info is deprecated", Logger::WARNING );
-  return vertexInputInfo;
-}
-
-inline VkPipelineInputAssemblyStateCreateInfo input_assembly() {
-  VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-  inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-  inputAssembly.primitiveRestartEnable = VK_FALSE;
-  return inputAssembly;
-}
-
-inline VkViewport viewport( float hight, float width ) {
-  VkViewport viewport{};
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.height = hight;
-  viewport.width = width;
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
-  return viewport;
-}
-
-inline VkRect2D scissor( VkExtent2D extent ) {
-  VkRect2D scissor{};
-  scissor.offset = { 0, 0 };
-  scissor.extent = extent;
-  return scissor;
-}
-
-inline VkPipelineViewportStateCreateInfo viewport_state( VkViewport &viewport, VkRect2D &scissor ) {
-  VkPipelineViewportStateCreateInfo viewportState{};
-  viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-  viewportState.viewportCount = 1;
-  viewportState.pViewports = &viewport;
-  viewportState.scissorCount = 1;
-  viewportState.pScissors = &scissor;
-  return viewportState;
-}
-
-inline VkPipelineRasterizationStateCreateInfo rasterizer() {
-  VkPipelineRasterizationStateCreateInfo rasterizer{};
-  rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-  rasterizer.depthClampEnable = VK_FALSE;
-  rasterizer.rasterizerDiscardEnable = VK_FALSE;
-  rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-  rasterizer.lineWidth = 1.0f;
-  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-  rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-  rasterizer.depthBiasEnable = VK_FALSE;
-  rasterizer.depthBiasConstantFactor = 0.0f;  // Optional
-  rasterizer.depthBiasClamp = 0.0f;           // Optional
-  rasterizer.depthBiasSlopeFactor = 0.0f;     // Optional
-  return rasterizer;
-}
-
-inline VkPipelineMultisampleStateCreateInfo multisampling( VkSampleCountFlagBits msaaSamples ) {
-  VkPipelineMultisampleStateCreateInfo multisampling{};
-  multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-  multisampling.rasterizationSamples = msaaSamples;
-  multisampling.sampleShadingEnable = VK_FALSE;
-  multisampling.minSampleShading = 1.0f;           // Optional
-  multisampling.pSampleMask = nullptr;             // Optional
-  multisampling.alphaToCoverageEnable = VK_FALSE;  // Optional
-  multisampling.alphaToOneEnable = VK_FALSE;       // Optional
-  return multisampling;
-}
-
-inline VkPipelineColorBlendAttachmentState color_blend_attachment() {
-  VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-  colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-  colorBlendAttachment.blendEnable = VK_FALSE;
-  colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;   // Optional
-  colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;  // Optional
-  colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;              // Optional
-  colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;   // Optional
-  colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;  // Optional
-  colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-  return colorBlendAttachment;
-}
-
-inline VkPipelineLayoutCreateInfo pipeline_layout_info(
-    VkDescriptorSetLayout &descriptorSetLayout ) {
-  VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-  pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 1;                  // Optional
-  pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;  // Optional
-  pipelineLayoutInfo.pushConstantRangeCount = 0;          // Optional
-  pipelineLayoutInfo.pPushConstantRanges = nullptr;       // Optional
-  return pipelineLayoutInfo;
-}
-
-// inline VkShaderModuleCreateInfo shader_module_create_info( const std::vector<char> &code ) {
-//   VkShaderModuleCreateInfo createInfo{};
-//   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-//   createInfo.codeSize = code.size();
-//   createInfo.pCode = reinterpret_cast<const uint32_t *>( code.data() );
-//   return createInfo;
+// inline VkPipelineVertexInputStateCreateInfo vertex_input_info() {
+//   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+//   vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+//   Logger::log( "vertex_input_info is deprecated", Logger::WARNING );
+//   return vertexInputInfo;
 // }
 
-inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass, VkExtent2D extent,
-                                                 std::array<VkImageView, 3> &attachments ) {
-  VkFramebufferCreateInfo framebufferInfo{};
-  framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-  framebufferInfo.renderPass = renderPass;
-  framebufferInfo.attachmentCount = static_cast<uint32_t>( attachments.size() );
-  framebufferInfo.pAttachments = attachments.data();
-  framebufferInfo.width = extent.width;
-  framebufferInfo.height = extent.height;
-  framebufferInfo.layers = 1;
-  return framebufferInfo;
-}
+// This feels unnecessary
+// inline VkPipelineInputAssemblyStateCreateInfo input_assembly() {
+//   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+//   inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+//   inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+//   inputAssembly.primitiveRestartEnable = VK_FALSE;
+//   return inputAssembly;
+// }
 
-inline VkCommandPoolCreateInfo pool_info( uint32_t queueFamilyIndex ) {
-  VkCommandPoolCreateInfo poolInfo{};
-  poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-  poolInfo.queueFamilyIndex = queueFamilyIndex;
-  return poolInfo;
-}
+// This feels unnecessary
+// inline VkViewport viewport( float hight, float width ) {
+//   VkViewport viewport{};
+//   viewport.x = 0.0f;
+//   viewport.y = 0.0f;
+//   viewport.height = hight;
+//   viewport.width = width;
+//   viewport.minDepth = 0.0f;
+//   viewport.maxDepth = 1.0f;
+//   return viewport;
+// }
 
-inline VkCommandBufferAllocateInfo command_buffer_allocate_info( VkCommandPool commandPool,
-                                                                 uint32_t bufferCount ) {
-  VkCommandBufferAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  allocInfo.commandPool = commandPool;
-  allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  allocInfo.commandBufferCount = bufferCount;
-  return allocInfo;
-}
+// This feels unnecessary
+// inline VkRect2D scissor( VkExtent2D extent ) {
+//   VkRect2D scissor{};
+//   scissor.offset = { 0, 0 };
+//   scissor.extent = extent;
+//   return scissor;
+// }
 
-inline VkCommandBufferBeginInfo command_buffer_begin_info() {
-  VkCommandBufferBeginInfo beginInfo{};
-  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  beginInfo.flags = 0;                   // Optional
-  beginInfo.pInheritanceInfo = nullptr;  // Optional
-  return beginInfo;
-}
+// This feels unnecessary
+// inline VkPipelineViewportStateCreateInfo viewport_state( VkViewport &viewport, VkRect2D &scissor
+// ) {
+//   VkPipelineViewportStateCreateInfo viewportState{};
+//   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+//   viewportState.viewportCount = 1;
+//   viewportState.pViewports = &viewport;
+//   viewportState.scissorCount = 1;
+//   viewportState.pScissors = &scissor;
+//   return viewportState;
+// }
 
-inline VkRenderPassBeginInfo render_pass_info( VkRenderPass renderPass, VkFramebuffer frameBuffer,
-                                               VkExtent2D extent ) {
-  VkRenderPassBeginInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = renderPass;
-  renderPassInfo.framebuffer = frameBuffer;
-  renderPassInfo.renderArea.offset = { 0, 0 };
-  renderPassInfo.renderArea.extent = extent;
-  return renderPassInfo;
-}
+// RAII implementation is not currently using frame buffers
+// inline VkFramebufferCreateInfo framebuffer_info( VkRenderPass renderPass, VkExtent2D extent,
+//                                                  std::array<VkImageView, 3> &attachments ) {
+//   VkFramebufferCreateInfo framebufferInfo{};
+//   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//   framebufferInfo.renderPass = renderPass;
+//   framebufferInfo.attachmentCount = static_cast<uint32_t>( attachments.size() );
+//   framebufferInfo.pAttachments = attachments.data();
+//   framebufferInfo.width = extent.width;
+//   framebufferInfo.height = extent.height;
+//   framebufferInfo.layers = 1;
+//   return framebufferInfo;
+// }
 
-inline VkSemaphoreCreateInfo semaphore_info() {
-  VkSemaphoreCreateInfo semaphoreInfo{};
-  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  return semaphoreInfo;
-}
+// This feels unnecessary
+// inline VkCommandBufferBeginInfo command_buffer_begin_info() {
+//   VkCommandBufferBeginInfo beginInfo{};
+//   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+//   beginInfo.flags = 0;                   // Optional
+//   beginInfo.pInheritanceInfo = nullptr;  // Optional
+//   return beginInfo;
+// }
 
-inline VkFenceCreateInfo fence_info() {
-  VkFenceCreateInfo fenceInfo{};
-  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-  return fenceInfo;
-}
+// RAII implementation is not currently using render pass
+// inline VkRenderPassBeginInfo render_pass_info( VkRenderPass renderPass, VkFramebuffer
+// frameBuffer,
+//                                                VkExtent2D extent ) {
+//   VkRenderPassBeginInfo renderPassInfo{};
+//   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+//   renderPassInfo.renderPass = renderPass;
+//   renderPassInfo.framebuffer = frameBuffer;
+//   renderPassInfo.renderArea.offset = { 0, 0 };
+//   renderPassInfo.renderArea.extent = extent;
+//   return renderPassInfo;
+// }
 
-inline VkImageCreateInfo image_info( uint32_t width, uint32_t height, VkFormat format,
-                                     VkImageTiling tiling, VkImageUsageFlags usage,
-                                     uint32_t mipLevels, VkSampleCountFlagBits numSamples ) {
-  VkImageCreateInfo imageInfo{};
-  imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  imageInfo.imageType = VK_IMAGE_TYPE_2D;
-  imageInfo.extent.width = width;
-  imageInfo.extent.height = height;
-  imageInfo.extent.depth = 1;
-  imageInfo.mipLevels = mipLevels;
-  imageInfo.arrayLayers = 1;
-  imageInfo.format = format;
-  imageInfo.tiling = tiling;
-  imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  imageInfo.usage = usage;
-  imageInfo.samples = numSamples;
-  imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-  return imageInfo;
-}
+// This feels unnecessary
+// inline VkSemaphoreCreateInfo semaphore_info() {
+//   VkSemaphoreCreateInfo semaphoreInfo{};
+//   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+//   return semaphoreInfo;
+// }
 
-inline VkImageMemoryBarrier image_memory_barrier( VkImage image, VkImageLayout oldLayout,
-                                                  VkImageLayout newLayout, uint32_t mipLevels ) {
-  VkImageMemoryBarrier barrier{};
-  barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  barrier.oldLayout = oldLayout;
-  barrier.newLayout = newLayout;
-
-  barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-  barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
-  barrier.image = image;
-  barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  barrier.subresourceRange.baseMipLevel = 0;
-  barrier.subresourceRange.levelCount = mipLevels;
-  barrier.subresourceRange.baseArrayLayer = 0;
-  barrier.subresourceRange.layerCount = 1;
-
-  return barrier;
-}
+// This feels unnecessary
+// inline VkFenceCreateInfo fence_info() {
+//   VkFenceCreateInfo fenceInfo{};
+//   fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+//   fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+//   return fenceInfo;
+// }
 
 }  // namespace Initializer
 }  // namespace Vulkan

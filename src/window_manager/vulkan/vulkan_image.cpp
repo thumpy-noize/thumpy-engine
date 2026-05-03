@@ -39,15 +39,8 @@ void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
                    std::shared_ptr<VulkanDevice> vulkanDevice,
                    std::shared_ptr<VulkanImage> vulkanImage ) {
   // Create image info
-  vk::ImageCreateInfo imageInfo{ .imageType = vk::ImageType::e2D,
-                                 .format = format,
-                                 .extent = { width, height, 1 },
-                                 .mipLevels = mipLevels,
-                                 .arrayLayers = 1,
-                                 .samples = numSamples,
-                                 .tiling = tiling,
-                                 .usage = usage,
-                                 .sharingMode = vk::SharingMode::eExclusive };
+  vk::ImageCreateInfo imageInfo =
+      Initializer::image_info( width, height, format, tiling, usage, mipLevels, numSamples );
 
   // Create image
   vulkanImage->image = vk::raii::Image( vulkanDevice->device, imageInfo );
@@ -55,7 +48,7 @@ void create_image( uint32_t width, uint32_t height, uint32_t mipLevels,
   // Get memory requirements
   vk::MemoryRequirements memRequirements = vulkanImage->image.getMemoryRequirements();
 
-  // Get memory allocation inof
+  // Get memory allocation info
   vk::MemoryAllocateInfo allocInfo{
       .allocationSize = memRequirements.size,
       .memoryTypeIndex = find_memory_type( vulkanDevice->physicalDevice,
@@ -93,7 +86,6 @@ void create_texture_image( std::shared_ptr<VulkanDevice> vulkanDevice,
   stagingBuffer->memory.unmapMemory();
 
   // Free pixel array
-  // stbi_image_free( texture->pixels );
   free_texture( texture );
 
   // Create image
@@ -127,11 +119,8 @@ void transition_image_layout( vk::raii::Image& image, vk::ImageLayout oldLayout,
       Buffer::begin_single_time_commands( vulkanDevice, commandPool );
 
   // Create image barrier
-  vk::ImageMemoryBarrier barrier{
-      .oldLayout = oldLayout,
-      .newLayout = newLayout,
-      .image = image,
-      .subresourceRange = { vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 1 } };
+  vk::ImageMemoryBarrier barrier =
+      Initializer::image_memory_barrier( image, oldLayout, newLayout, mipLevels );
 
   // Create pipeline stage flags
   vk::PipelineStageFlags sourceStage;

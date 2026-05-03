@@ -72,14 +72,8 @@ void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
                               std::string( *unsupportedPropertyIt ) );
   }
 
-  // Create app info
-  Logger::log( "Constructing app info...", Logger::DEBUG );
-  constexpr vk::ApplicationInfo appInfo{
-      .pApplicationName = "Thumpy Engine Editor",  // TODO: Convert to variable
-      .applicationVersion = VK_MAKE_VERSION( 1, 0, 0 ),
-      .pEngineName = "Thumpy Engine",  // TODO: Convert to variable
-      .engineVersion = VK_MAKE_VERSION( 1, 0, 0 ),
-      .apiVersion = vk::ApiVersion14 };
+  // Create application info
+  constexpr vk::ApplicationInfo appInfo = Initializer::application_info();
 
   // Create instance info
   Logger::log( "Constructing instance info...", Logger::DEBUG );
@@ -120,8 +114,8 @@ void command_pool( vk::raii::CommandPool &commandPool,
   Logger::log( "Creating command pool...", Logger::DEBUG );
 
   // Create pool info
-  vk::CommandPoolCreateInfo poolInfo{ .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-                                      .queueFamilyIndex = vulkanDevice->queueIndex };
+  vk::CommandPoolCreateInfo poolInfo = Initializer::pool_info( vulkanDevice->queueIndex );
+
   // Create pool
   commandPool = vk::raii::CommandPool( vulkanDevice->device, poolInfo );
 }
@@ -131,9 +125,9 @@ void command_buffer( std::shared_ptr<Construct::CommandPool> commandPool,
   Logger::log( "Creating command buffer...", Logger::DEBUG );
 
   // Create allocation info
-  vk::CommandBufferAllocateInfo allocInfo{ .commandPool = commandPool->pool,
-                                           .level = vk::CommandBufferLevel::ePrimary,
-                                           .commandBufferCount = maxFramesInFlight };
+  vk::CommandBufferAllocateInfo allocInfo =
+      Initializer::command_buffer_allocate_info( commandPool->pool, maxFramesInFlight );
+
   // Create command buffer
   commandPool->buffers = vk::raii::CommandBuffers( vulkanDevice->device, allocInfo );
 }
@@ -164,7 +158,6 @@ void descriptor_pool( std::shared_ptr<VulkanDevice> vulkanDevice,
   Logger::log( "Creating descriptor pool...", Logger::DEBUG );
 
   // Get pool size
-  // vk::DescriptorPoolSize poolSize( vk::DescriptorType::eUniformBuffer, maxFramesInFlight );
   std::array poolSize{
       vk::DescriptorPoolSize( vk::DescriptorType::eUniformBuffer, maxFramesInFlight ),
       vk::DescriptorPoolSize( vk::DescriptorType::eCombinedImageSampler, maxFramesInFlight ) };

@@ -19,24 +19,29 @@ namespace Examples {
 
 class VulkanMeshExample : public VulkanWindow {
  public:
-  VulkanMeshExample( std::string title ) : VulkanWindow( title ) { init_vulkan(); }
+  VulkanMeshExample( std::string title );
 
+  ~VulkanMeshExample() override { deconstruct_window(); };
   /**
    * @brief Setup vulkan
    *
    */
-  void init_vulkan() override;
+  // void init_vulkan() override;
+
+  virtual void init_texture() override;
+
+  virtual void init_mesh() override;
 
   /**
    * @brief deconstruct vulkan window
    *
    */
-  void deconstruct_window() override;
+  // void deconstruct_window() override;
 
-  //   /**
-  //    * @brief Render loop
-  //    *
-  //    */
+  /**
+   * @brief Render loop
+   *
+   */
   //   virtual void loop() override;
 };
 

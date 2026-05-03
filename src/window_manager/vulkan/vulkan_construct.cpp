@@ -17,11 +17,11 @@
 
 #include "logger.hpp"
 #include "logger_helper.hpp"
-// #include "vulkan_buffers.hpp"
 #include "vulkan_debug.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_initializers.hpp"
+// #include "vulkan_buffers.hpp"
 
 namespace Thumpy {
 namespace Core {
@@ -29,7 +29,7 @@ namespace Windows {
 namespace Vulkan {
 namespace Construct {
 
-void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
+void instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
   Logger::log( "Constructing RAII Vulkan instance...", Logger::DEBUG );
 
   // Get the required layers

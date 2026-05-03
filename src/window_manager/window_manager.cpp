@@ -4,7 +4,7 @@
 #define GLFW_INCLUDE_VULKAN
 
 #include "logger.hpp"
-// #include "vulkan/examples/vulkan_mesh_example.hpp"
+#include "vulkan/examples/vulkan_mesh_example.hpp"
 // #include "vulkan/examples/vulkan_triangle_example.hpp"
 #include "vulkan/vulkan_window.hpp"
 #include "window_manager.hpp"
@@ -32,8 +32,9 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
 
       // Create vulkan window
       // std::unique_ptr<Vulkan::VulkanWindow> window( new Vulkan::VulkanWindow( title ) );
-      windows_.push_back(
-          std::make_unique<Vulkan::VulkanWindow>( title ) );  // std::move( window ) );
+      windows_.push_back( std::make_unique<Vulkan::Examples::VulkanMeshExample>(
+          title ) );  // std::move( window ) );
+      dynamic_cast<Vulkan::VulkanWindow*>( windows_.back().get() )->init_vulkan();
       break;
     }
 

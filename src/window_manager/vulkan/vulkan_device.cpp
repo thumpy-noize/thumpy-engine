@@ -23,11 +23,6 @@ namespace Core {
 namespace Windows {
 namespace Vulkan {
 
-// VulkanDevice::VulkanDevice( VkInstance instance, VkSurfaceKHR surface ) {
-//   surface_ = surface;
-//   setup_device( instance );
-// }
-
 VulkanDevice::VulkanDevice( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface ) {
   Logger::log( "Constructing Vulkan device...", Logger::DEBUG );
   setup_device( instance, surface );
@@ -154,84 +149,6 @@ bool VulkanDevice::is_device_suitable( vk::raii::PhysicalDevice const &physicalD
   return supportsVulkan1_3 && supportsGraphics && supportsAllRequiredExtensions &&
          supportsRequiredFeatures;
 }
-
-// QueueFamilyIndices VulkanDevice::find_queue_families( VkPhysicalDevice device ) {
-//   // QueueFamilyIndices indices;
-
-//   // uint32_t queueFamilyCount = 0;
-//   // vkGetPhysicalDeviceQueueFamilyProperties( device, &queueFamilyCount, nullptr );
-
-//   // std::vector<VkQueueFamilyProperties> queueFamilies( queueFamilyCount );
-//   // vkGetPhysicalDeviceQueueFamilyProperties( device, &queueFamilyCount, queueFamilies.data() );
-
-//   // int i = 0;
-//   // for ( const auto &queueFamily : queueFamilies ) {
-//   //   if ( queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT ) {
-//   //     indices.graphicsFamily = i;
-//   //   }
-
-//   //   VkBool32 presentSupport = false;
-//   //   vkGetPhysicalDeviceSurfaceSupportKHR( device, i, surface_, &presentSupport );
-
-//   //   if ( presentSupport ) {
-//   //     indices.presentFamily = i;
-//   //   }
-
-//   //   if ( indices.is_complete() ) {
-//   //     break;
-//   //   }
-
-//   //   i++;
-//   // }
-
-//   // return indices;
-// }
-
-// bool VulkanDevice::check_device_extension_support( VkPhysicalDevice device ) {
-//   // uint32_t extensionCount;
-//   // vkEnumerateDeviceExtensionProperties( device, nullptr, &extensionCount, nullptr );
-
-//   // std::vector<VkExtensionProperties> availableExtensions( extensionCount );
-//   // vkEnumerateDeviceExtensionProperties( device, nullptr, &extensionCount,
-//   //                                       availableExtensions.data() );
-
-//   // std::set<std::string> requiredExtensions( deviceExtensions.begin(), deviceExtensions.end()
-//   );
-
-//   // for ( const auto &extension : availableExtensions ) {
-//   //   requiredExtensions.erase( extension.extensionName );
-//   // }
-
-//   // return requiredExtensions.empty();
-//   return false;
-// }
-
-// SwapChainSupportDetails VulkanDevice::query_swap_chain_support( VkPhysicalDevice device ) {
-//   SwapChainSupportDetails details;
-
-//   // vkGetPhysicalDeviceSurfaceCapabilitiesKHR( device, surface_, &details.capabilities );
-
-//   // uint32_t formatCount;
-//   // vkGetPhysicalDeviceSurfaceFormatsKHR( device, surface_, &formatCount, nullptr );
-
-//   // if ( formatCount != 0 ) {
-//   //   details.formats.resize( formatCount );
-//   //   vkGetPhysicalDeviceSurfaceFormatsKHR( device, surface_, &formatCount,
-//   details.formats.data()
-//   //   );
-//   // }
-
-//   // uint32_t presentModeCount;
-//   // vkGetPhysicalDeviceSurfacePresentModesKHR( device, surface_, &presentModeCount, nullptr );
-
-//   // if ( presentModeCount != 0 ) {
-//   //   details.presentModes.resize( presentModeCount );
-//   //   vkGetPhysicalDeviceSurfacePresentModesKHR( device, surface_, &presentModeCount,
-//   //                                              details.presentModes.data() );
-//   // }
-
-//   return details;
-// }
 
 vk::SampleCountFlagBits VulkanDevice::get_max_usable_sample_count() {
   // Get physical device properties

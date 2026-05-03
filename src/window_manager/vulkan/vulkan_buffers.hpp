@@ -23,11 +23,6 @@ namespace Buffer {
 struct Buffer {
   vk::raii::Buffer buffer = nullptr;
   vk::raii::DeviceMemory memory = nullptr;
-
-  // void destroy( VkDevice device ) {
-  //   vkDestroyBuffer( device, buffer, nullptr );
-  //   vkFreeMemory( device, memory, nullptr );
-  // }
 };
 
 struct UniformBuffers {
@@ -51,9 +46,6 @@ void copy_buffer( std::shared_ptr<Buffer> srcBuffer, std::shared_ptr<Buffer> dst
                   vk::DeviceSize size, std::shared_ptr<VulkanDevice> vulkanDevice,
                   vk::raii::CommandPool &commandPool );
 
-// void create_framebuffers( VulkanSwapChain *swapChain, VkImageView depthImageView,
-//                           VkImageView colorImageView, VkDevice device );
-
 void create_vertex_buffer( std::vector<Vertex> vertices, std::shared_ptr<VulkanDevice> vulkanDevice,
                            std::shared_ptr<Buffer> vertexBuffer,
                            vk::raii::CommandPool &commandPool );
@@ -67,9 +59,8 @@ void create_uniform_buffers( std::shared_ptr<UniformBuffers> uniformBuffers,
 std::unique_ptr<vk::raii::CommandBuffer> begin_single_time_commands(
     std::shared_ptr<VulkanDevice> vulkanDevice, vk::raii::CommandPool &commandPool );
 
-void end_single_time_commands(
-    std::shared_ptr<VulkanDevice> vulkanDevice,
-    vk::raii::CommandBuffer &commandBuffer /*, VkCommandPool commandPool*/ );
+void end_single_time_commands( std::shared_ptr<VulkanDevice> vulkanDevice,
+                               vk::raii::CommandBuffer &commandBuffer );
 
 }  // namespace Buffer
 }  // namespace Vulkan

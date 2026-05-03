@@ -83,19 +83,8 @@ class VulkanSwapChain : public std::enable_shared_from_this<VulkanSwapChain> {
   uint32_t choose_swap_min_image_count( vk::SurfaceCapabilitiesKHR const &surfaceCapabilities );
 
   void create_image_views();
-  //   void create_framebuffers();
-  //   void create_render_pass();
 
  public:
-  //   VkSwapchainKHR swapChain;
-
-  //   VkFormat swapChainImageFormat;
-  //   VkExtent2D extent;
-  //   VkRenderPass renderPass;
-
-  //   std::vector<VkImageView> swapChainImageViews;
-  //   std::vector<VkFramebuffer> swapChainFramebuffers;
-
   vk::raii::SwapchainKHR swapChain = nullptr;
   vk::SurfaceFormatKHR swapChainSurfaceFormat;
   vk::Extent2D swapChainExtent;
@@ -104,12 +93,8 @@ class VulkanSwapChain : public std::enable_shared_from_this<VulkanSwapChain> {
   std::vector<vk::Image> swapChainImages;
 
  private:
-  //   VkInstance instance_;
-  //   VkSurfaceKHR surface_;
   std::weak_ptr<vk::raii::SurfaceKHR> surface_;  // ptr to surface
-
-  // External ptrs
-  GLFWwindow *window_;  // ptr to existing window // TODO: Make weak ptr
+  GLFWwindow *window_;                           // ptr to existing window // TODO: Make weak ptr
   std::weak_ptr<VulkanDevice> vulkanDevice_;
 
   //   std::vector<VkImage> swapChainImages_;

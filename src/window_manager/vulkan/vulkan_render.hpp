@@ -74,23 +74,11 @@ class VulkanRender {
                    std::shared_ptr<Image::VulkanImage> colorImage,
                    std::shared_ptr<Descriptors> descriptors );
 
-  // void draw_frame( VkBuffer vertexBuffer, uint32_t vertexCount, VkBuffer indexBuffer,
-  //                  uint32_t indexCount, std::vector<void *> uniformBuffersMapped,
-  //                  std::vector<VkDescriptorSet> descriptorSets, VulkanImage *depthImage,
-  //                  VulkanImage *colorImage );
-
-  // void record_command_buffer( VkCommandBuffer commandBuffer, uint32_t imageIndex,
-  //                             VulkanSwapChain *swapChain, VkBuffer vertexBuffer,
-  //                             uint32_t vertexCount, VkBuffer indexBuffer, uint32_t indexCount,
-  //                             std::vector<VkDescriptorSet> descriptorSets );
-
   void update_uniform_buffer( uint32_t currentImage, std::vector<void*> uniformBuffersMapped );
 
  protected:
   uint32_t maxFramesInFlight_;  // Max frames in flight
   uint32_t frameIndex_ = 0;     // Current frame index
-
-  // std::shared_ptr<bool> framebufferResized_;  // Resize callback ptr
 
   std::weak_ptr<VulkanDevice> vulkanDevice_;             // prt to vulkan device
   std::weak_ptr<VulkanSwapChain> swapChain_;             // ptr to swap chain
@@ -100,23 +88,6 @@ class VulkanRender {
   std::vector<vk::raii::Semaphore> presentCompleteSemaphores;  // Present sync object
   std::vector<vk::raii::Semaphore> renderFinishedSemaphores;   // Render sync object
   std::vector<vk::raii::Fence> inFlightFences;                 // In flight fences
-
-  // int maxFramesInFlight_;
-  // uint32_t currentFrame_ = 0;
-
-  // VulkanDevice *vulkanDevice_;
-  // VulkanSwapChain *swapChain_;
-  // VulkanPipeline *pipeline_;
-  // bool framebufferResized_;
-
-  // std::vector<VkCommandBuffer> commandBuffers_;
-
-  // std::vector<VkSemaphore> imageAvailableSemaphores_;
-  // std::vector<VkSemaphore> renderFinishedSemaphores_;
-  // std::vector<VkFence> inFlightFences_;
-
-  // VkSemaphore imageAvailableSemaphore_;
-  // VkSemaphore renderFinishedSemaphore_;
 };
 }  // namespace Vulkan
 }  // namespace Windows

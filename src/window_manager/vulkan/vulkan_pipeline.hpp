@@ -32,8 +32,6 @@ std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
     std::shared_ptr<VulkanDevice> vulkanDevice, std::shared_ptr<VulkanSwapChain> swapChain,
     vk::raii::DescriptorSetLayout& descriptorSetLayout );
 
-// void destroy_graphics_pipeline( VkDevice vulkanDevice, VulkanPipeline *pipeline );
-
 [[nodiscard]] vk::raii::ShaderModule create_shader_module(
     const std::vector<char>& code, std::shared_ptr<VulkanDevice> vulkanDevice );
 

@@ -30,7 +30,6 @@ class VulkanDevice {
   // Require KHRSwapchian extention
   std::vector<const char *> requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
 
-  // VulkanDevice( VkInstance instance, VkSurfaceKHR surface );
   VulkanDevice( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface );
 
   /**
@@ -38,10 +37,8 @@ class VulkanDevice {
    *
    * @param instance
    */
-  // void setup_device( VkInstance instance );
   void setup_device( vk::raii::Instance &instance, vk::raii::SurfaceKHR &surface );
 
-  // void pick_physical_device( VkInstance instance );
   void pick_physical_device( vk::raii::Instance &instance );
 
   void create_logical_device( vk::raii::SurfaceKHR &surface );
@@ -52,13 +49,7 @@ class VulkanDevice {
    * @param device device to check
    * @return Checks true if device is compatible
    */
-  // bool is_device_suitable( VkPhysicalDevice device );
   bool is_device_suitable( vk::raii::PhysicalDevice const &physicalDevice );
-
-  // QueueFamilyIndices find_queue_families( VkPhysicalDevice device );
-  // bool check_device_extension_support( VkPhysicalDevice device );
-
-  // SwapChainSupportDetails query_swap_chain_support( VkPhysicalDevice device );
 
   vk::SampleCountFlagBits get_max_usable_sample_count();
 
@@ -72,17 +63,6 @@ class VulkanDevice {
 
   // Multisample antialiasing
   vk::SampleCountFlagBits msaaSamples = vk::SampleCountFlagBits::e1;
-
-  // VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  // VkDevice device;
-
-  // VkQueue graphicsQueue;
-  // VkQueue presentQueue;
-
-  // VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-
- private:
-  // VkSurfaceKHR surface_;
 };
 
 }  // namespace Vulkan

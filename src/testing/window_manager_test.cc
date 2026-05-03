@@ -94,13 +94,13 @@ class WindowManagerVulkanTest : public testing::Test {
     // Try and create vulkan vulkan_window
     // This will fail if there is no devices that are vulkan compatible.
     // ( git workflow servers are not compatible )
-    // try {
-    window_manager =
-        new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::VULKAN );
-    // } catch ( Vulkan::VulkanNotCompatible &ex ) { // TODO: Re-implement exception
-    //   APPLICATION_RUNNING = false;
-    //   return;
-    // }
+    try {
+      window_manager =
+          new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::VULKAN );
+    } catch ( Vulkan::VulkanNotCompatible &ex ) {
+      APPLICATION_RUNNING = false;
+      return;
+    }
 
     EXPECT_TRUE( APPLICATION_RUNNING );
   }

@@ -48,7 +48,7 @@ void VulkanDevice::pick_physical_device( vk::raii::Instance &instance ) {
 
   // Validate suitable gpu exist
   if ( devIter == physicalDevices.end() ) {
-    throw std::runtime_error( "Failed to find a suitable GPU!" );
+    throw VulkanNotCompatible( "Failed to find a suitable GPU!" );
   }
 
   // Set physical device
@@ -72,7 +72,7 @@ void VulkanDevice::create_logical_device( vk::raii::SurfaceKHR &surface ) {
     }
   }
   if ( queueIndex == ~0 ) {
-    throw std::runtime_error( "Could not find a queue for graphics and present -> terminating" );
+    throw VulkanNotCompatible( "Could not find a queue for graphics and present -> terminating" );
   }
 
   // Create structure chain

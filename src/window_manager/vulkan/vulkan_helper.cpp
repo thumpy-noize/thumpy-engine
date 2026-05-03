@@ -92,7 +92,7 @@ uint32_t find_memory_type( vk::raii::PhysicalDevice physicalDevice, uint32_t typ
     }
   }
 
-  throw std::runtime_error( "failed to find suitable memory type!" );
+  throw VulkanNotCompatible( "Failed to find suitable memory type!" );
 }
 // uint32_t find_memory_type( VkPhysicalDevice physicalDevice, uint32_t typeFilter,
 //                            VkMemoryPropertyFlags properties ) {
@@ -301,7 +301,7 @@ std::shared_ptr<Mesh> load_mesh( std::string filePath ) {
   // Load Obj using tinyObj
   if ( !tinyobj::LoadObj( &attrib, &shapes, &materials, &err, modelPath.c_str() ) ) {
     Logger::log( "Error loading obj: " + err, Logger::ERROR_LOG );
-    throw std::runtime_error( err );
+    throw VulkanRuntimeError( err.c_str() );
   }
 
   // Create mesh ptr

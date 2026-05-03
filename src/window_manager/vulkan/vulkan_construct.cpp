@@ -50,8 +50,8 @@ void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
 
   // Validate layers are supported
   if ( unsupportedLayerIt != requiredLayers.end() ) {
-    throw std::runtime_error( "Required layer not supported: " +
-                              std::string( *unsupportedLayerIt ) );
+    throw VulkanNotCompatible(
+        ( "Required layer not supported: " + std::string( *unsupportedLayerIt ) ).c_str() );
   }
 
   // Get the required extensions.
@@ -68,8 +68,8 @@ void raii_instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
       } );
 
   if ( unsupportedPropertyIt != requiredExtensions.end() ) {
-    throw std::runtime_error( "Required extension not supported: " +
-                              std::string( *unsupportedPropertyIt ) );
+    throw VulkanNotCompatible(
+        ( "Required extension not supported: " + std::string( *unsupportedPropertyIt ) ).c_str() );
   }
 
   // Create application info

@@ -147,7 +147,7 @@ void VulkanWindow::create_surface() {
   if ( glfwCreateWindowSurface( *raiiInstance_, window_, nullptr, &_surface ) != 0 ) {
     // Validate surface creation
     Logger::log( "Failed to create window surface.", Logger::ERROR_LOG );
-    throw std::runtime_error( "Failed to create window surface!" );
+    throw VulkanRuntimeError( "Failed to create window surface!" );
   }
 
   // Set surface to instance

@@ -210,24 +210,39 @@ std::string get_model_path();
 
 // #pragma endregion
 
-// #pragma region Exceptions
+#pragma region Exceptions
 
-// class VulkanNotCompatible : public std::exception {
-//  private:
-//   std::string message_;
+class VulkanNotCompatible : public std::exception {
+ private:
+  std::string message_;
 
-//  public:
-//   // Constructor accepts a const char* that is used to set
-//   // the exception message
-//   VulkanNotCompatible( const char *msg ) : message_( msg ) {
-//     Logger::log( "Failed to find GPUs with Vulkan support!", Logger::ERROR_LOG );
-//   }
+ public:
+  // Constructor accepts a const char* that is used to set
+  // the exception message
+  VulkanNotCompatible( const char *msg ) : message_( msg ) {
+    Logger::log( "Failed to find GPUs with Vulkan support! - " + message_, Logger::ERROR_LOG );
+  }
 
-//   // Override the what() method to return our message
-//   const char *what() const throw() { return message_.c_str(); }
-// };
+  // Override the what() method to return our message
+  const char *what() const throw() { return message_.c_str(); }
+};
 
-// #pragma endregion
+class VulkanRuntimeError : public std::exception {
+ private:
+  std::string message_;
+
+ public:
+  // Constructor accepts a const char* that is used to set
+  // the exception message
+  VulkanRuntimeError( const char *msg ) : message_( msg ) {
+    Logger::log( "Vulkan encountered a runtime error! - " + message_, Logger::ERROR_LOG );
+  }
+
+  // Override the what() method to return our message
+  const char *what() const throw() { return message_.c_str(); }
+};
+
+#pragma endregion Exceptions
 
 }  // namespace Vulkan
 }  // namespace Windows

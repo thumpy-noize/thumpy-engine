@@ -31,9 +31,8 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
       Logger::log( "Using Vulkan.", Logger::INFO );
 
       // Create vulkan window
-      // std::unique_ptr<Vulkan::VulkanWindow> window( new Vulkan::VulkanWindow( title ) );
-      windows_.push_back( std::make_unique<Vulkan::Examples::VulkanMeshExample>(
-          title ) );  // std::move( window ) );
+      windows_.push_back( std::make_unique<Vulkan::Examples::VulkanMeshExample>( title ) );
+      // Init vulkan
       dynamic_cast<Vulkan::VulkanWindow*>( windows_.back().get() )->init_vulkan();
       break;
     }
@@ -43,7 +42,6 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
       Logger::log( "No rendering api selected.", Logger::WARNING );
 
       // Create empty glfw window
-      // std::unique_ptr<Window> window( new Window( title ) );
       windows_.push_back( std::make_unique<Window>( title ) );
     }
   }

@@ -9,10 +9,10 @@
  *
  */
 
-#include <cstddef>
-
 // #include <vulkan/vulkan_core.h>
+#include "vulkan_window.hpp"
 
+#include <cstddef>
 #include <cstdint>  // Necessary for uint32_t
 #include <cstring>
 #include <glm/ext/vector_float2.hpp>
@@ -22,7 +22,6 @@
 
 #include "logger.hpp"
 #include "vulkan_debug.hpp"
-#include "vulkan_window.hpp"
 
 // #include "vulkan_buffers.hpp"
 // #include "vulkan_construct.hpp"
@@ -35,27 +34,28 @@ namespace Vulkan {
 
 #pragma region Core
 
-VulkanWindow::VulkanWindow( std::string title ) : Window( title ) { init_vulkan(); }
+VulkanWindow::VulkanWindow( std::string title ) : Window( title ) {}  // init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
   if ( glfwVulkanSupported() == GLFW_FALSE ) {
-    Logger::log( "glfw does not have Vulkan support.", Logger::CRITICAL );
+    Logger::log( "GLFW does not have Vulkan support!", Logger::ERROR_LOG );
+    throw VulkanNotCompatible( "GLFW does not have Vulkan support!" );
     return;
   }
 
   Logger::log( "Constructing Vulkan window...", Logger::DEBUG );
 
   // Construct instance
-  Construct::raii_instance( raiiInstance_, raiiContext_ );
+  Construct::instance( instance_, context_ );
 
   // Setup debug messenger
-  Debug::setup_debug_messenger( raiiInstance_, raiiDebugMessenger_ );
+  Debug::setup_debug_messenger( instance_, debugMessenger_ );
 
   // Create surface
   create_surface();
 
   // Construct Vulkan device
-  vulkanDevice_ = std::make_shared<VulkanDevice>( raiiInstance_, *surface_ );
+  vulkanDevice_ = std::make_shared<VulkanDevice>( instance_, *surface_ );
 
   // Construct swap chain
   swapChain_ = std::make_shared<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
@@ -80,9 +80,10 @@ void VulkanWindow::init_vulkan() {
   Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
 
   // Create texture image
-  vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
-  Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
-                               TEXTURE_PATH );
+  // vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
+  // Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
+  //                              TEXTURE_PATH );
+  init_texture();
 
   // Create texture image view
   Image::create_texture_image_view( vulkanTextureImage_, vulkanDevice_ );
@@ -91,7 +92,8 @@ void VulkanWindow::init_vulkan() {
   Image::create_texture_sampler( vulkanTextureImage_, vulkanDevice_ );
 
   // Load model
-  mesh_ = load_mesh( MODEL_PATH );
+  // mesh_ = load_mesh( MODEL_PATH );
+  init_mesh();
 
   // Create vertex buffer
   vertexBuffer_ = std::make_shared<Buffer::Buffer>();
@@ -119,6 +121,22 @@ void VulkanWindow::init_vulkan() {
                                             MAX_FRAMES_IN_FLIGHT );
 }
 
+void VulkanWindow::init_texture() {
+  Logger::log( "Initialing texture...", Logger::DEBUG );
+
+  // Setup texture
+  vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
+  Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
+                               TEXTURE_PATH );
+}
+
+void VulkanWindow::init_mesh() {
+  Logger::log( "Initialing mesh...", Logger::DEBUG );
+
+  // Setup mesh
+  mesh_ = load_mesh( MODEL_PATH );
+}
+
 void VulkanWindow::deconstruct_window() {
   Logger::log( "Destroying Vulkan window...", Logger::DEBUG );
 
@@ -144,14 +162,14 @@ void VulkanWindow::loop() {
 void VulkanWindow::create_surface() {
   // Create surface
   VkSurfaceKHR _surface;
-  if ( glfwCreateWindowSurface( *raiiInstance_, window_, nullptr, &_surface ) != 0 ) {
+  if ( glfwCreateWindowSurface( *instance_, window_, nullptr, &_surface ) != 0 ) {
     // Validate surface creation
     Logger::log( "Failed to create window surface.", Logger::ERROR_LOG );
     throw VulkanRuntimeError( "Failed to create window surface!" );
   }
 
   // Set surface to instance
-  surface_ = std::make_shared<vk::raii::SurfaceKHR>( raiiInstance_, _surface );
+  surface_ = std::make_shared<vk::raii::SurfaceKHR>( instance_, _surface );
 }
 
 #pragma endregion Core

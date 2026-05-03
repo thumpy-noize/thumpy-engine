@@ -10,12 +10,13 @@
  */
 
 #pragma once
+#define GLFW_INCLUDE_VULKAN
 
 // #include <vulkan/vulkan_core.h>
+// #include "vulkan/vulkan_buffers.hpp"
 
 #include <vulkan/vulkan_raii.hpp>
 
-// #include "vulkan/vulkan_buffers.hpp"
 #include "vulkan_construct.hpp"
 #include "vulkan_helper.hpp"
 #include "vulkan_image.hpp"
@@ -23,8 +24,6 @@
 #include "vulkan_render.hpp"
 #include "vulkan_swap_chain.hpp"
 #include "window.hpp"
-
-#define GLFW_INCLUDE_VULKAN
 
 class VulkanDevice;
 
@@ -46,8 +45,12 @@ class VulkanWindow : public Window {
    */
   virtual void init_vulkan();
 
+  virtual void init_texture();
+
+  virtual void init_mesh();
+
   /**
-   * @brief deconstruct vulkan window
+   * @brief Deconstruct vulkan window
    *
    */
   virtual void deconstruct_window();
@@ -58,7 +61,10 @@ class VulkanWindow : public Window {
    */
   virtual void loop();
 
-  // move this to vulkan_construct
+  /**
+   * @brief Create surface
+   *
+   */
   void create_surface();
 
 #pragma endregion Core
@@ -71,10 +77,10 @@ class VulkanWindow : public Window {
  protected:
   const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
-  vk::raii::Context raiiContext_;                                  // Context
-  vk::raii::Instance raiiInstance_ = nullptr;                      // Instance
-  vk::raii::DebugUtilsMessengerEXT raiiDebugMessenger_ = nullptr;  // Debug messenger
-  std::shared_ptr<vk::raii::SurfaceKHR> surface_ = nullptr;        // Surface
+  vk::raii::Instance instance_ = nullptr;                      // Instance
+  vk::raii::Context context_;                                  // Context
+  vk::raii::DebugUtilsMessengerEXT debugMessenger_ = nullptr;  // Debug messenger
+  std::shared_ptr<vk::raii::SurfaceKHR> surface_ = nullptr;    // Surface
 
   std::shared_ptr<VulkanDevice> vulkanDevice_ = nullptr;  // Vulkan device
   std::shared_ptr<VulkanSwapChain> swapChain_ = nullptr;  // Swap chain

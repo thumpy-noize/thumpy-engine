@@ -200,7 +200,7 @@ std::shared_ptr<Mesh> load_mesh( std::string filePath );
 
 // #pragma endregion Shapes
 
-// #pragma region Paths
+#pragma region Paths
 
 std::string get_exe_path();
 std::string get_assets_path();
@@ -208,7 +208,7 @@ std::string get_shader_path();
 std::string get_texture_path();
 std::string get_model_path();
 
-// #pragma endregion
+#pragma endregion
 
 #pragma region Exceptions
 

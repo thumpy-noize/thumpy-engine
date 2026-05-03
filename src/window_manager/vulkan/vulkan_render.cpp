@@ -199,7 +199,7 @@ void VulkanRender::draw_frame( bool &framebufferResized,
   auto fenceResult = vulkanDevice_.lock()->device.waitForFences( *inFlightFences[frameIndex_],
                                                                  vk::True, UINT64_MAX );
   if ( fenceResult != vk::Result::eSuccess ) {
-    throw std::runtime_error( "Failed to wait for fence!" );
+    throw VulkanRuntimeError( "Failed to wait for fence!" );
   }
 
   vk::Result result;
@@ -227,7 +227,7 @@ void VulkanRender::draw_frame( bool &framebufferResized,
     Logger::log( "Failed to acquire swap chain image!", Logger::INFO );
 
     assert( result == vk::Result::eTimeout || result == vk::Result::eNotReady );
-    throw std::runtime_error( "Failed to acquire swap chain image!" );
+    throw VulkanRuntimeError( "Failed to acquire swap chain image!" );
   }
 
   // Update uniform buffers

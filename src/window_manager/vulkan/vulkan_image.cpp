@@ -145,7 +145,7 @@ void transition_image_layout( vk::raii::Image& image, vk::ImageLayout oldLayout,
 
   } else {
     Logger::log( "Unsupported layout transition!", Logger::CRITICAL );
-    throw std::invalid_argument( "unsupported layout transition!" );
+    throw std::invalid_argument( "Unsupported layout transition!" );
   }
 
   // Set pipline barrier
@@ -257,7 +257,7 @@ vk::Format find_supported_format( const std::vector<vk::Format>& candidates, vk:
   // Failed to find supported format
   if ( formatIt == candidates.end() ) {
     Logger::log( "Failed to find supported format!", Logger::CRITICAL );
-    throw std::runtime_error( "failed to find supported format!" );
+    throw VulkanRuntimeError( "Failed to find supported format!" );
   }
 
   // return format iterator
@@ -288,7 +288,7 @@ void generate_mipmaps( vk::raii::Image& image, vk::Format imageFormat, int32_t t
   if ( !( formatProperties.optimalTilingFeatures &
           vk::FormatFeatureFlagBits::eSampledImageFilterLinear ) ) {
     Logger::log( "Texture image format does not support linear blitting!", Logger::ERROR_LOG );
-    throw std::runtime_error( "texture image format does not support linear blitting!" );
+    throw VulkanRuntimeError( "Texture image format does not support linear blitting!" );
   }
 
   // Start command buffer

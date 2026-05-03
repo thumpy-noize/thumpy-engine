@@ -3,16 +3,16 @@
 
 #include <GLFW/glfw3.h>
 
+#include <memory>
 #include <string>
 
-#define GLFW_INCLUDE_VULKAN
-
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 const uint32_t WIDTH = 1024;
 const uint32_t HEIGHT = 576;
+
 namespace Thumpy {
 namespace Core {
 namespace Windows {
+
 class Window {
  public:
   Window( std::string title );
@@ -26,11 +26,10 @@ class Window {
   bool framebufferResized = false;
 
  protected:
-  GLFWwindow *window_;
+  GLFWwindow *window_;  // TODO: Make shared ptr, this will be passed around a bit
   std::string title_;
 };
+
 }  // namespace Windows
-
 }  // namespace Core
-
 }  // namespace Thumpy

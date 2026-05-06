@@ -59,7 +59,7 @@ target_include_directories(window_manager
   PUBLIC
     "${CMAKE_SOURCE_DIR}/include"
     ${CMAKE_CURRENT_LIST_DIR}
-    # ${GLFW_LIBRARIES}
+    ${GLFW_LIBRARIES}
   )
 
 target_link_libraries(window_manager

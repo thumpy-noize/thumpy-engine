@@ -4,7 +4,6 @@
 #include <cstddef>
 
 #include "iostream"
-#include "logger.hpp"
 #include "logger_helper.hpp"
 #include "window_manager.hpp"
 namespace Thumpy {
@@ -20,6 +19,7 @@ void Window::init_window() {
   Logger::log( "Constructing window...", Logger::DEBUG );
   if ( !glfwInit() ) {
     Logger::log( "Failed to initialize glfw.", Logger::ERROR_LOG );
+    throw GLFWNotCompatible( "Failed to initialize glfw.\n" );
   }
 
   glfwWindowHint( GLFW_CLIENT_API, GLFW_NO_API );
@@ -29,7 +29,7 @@ void Window::init_window() {
 
   if ( window_ == NULL ) {
     Logger::log( "Failed to create window!", Logger::ERROR_LOG );
-    throw std::runtime_error( "Failed to create window!\n" );
+    throw GLFWNotCompatible( "Failed to create window!\n" );
   } else {
     Logger::log( "Constructed window...", Logger::DEBUG );
   }

@@ -19,7 +19,12 @@ include("assets/textures/migrate_textures.cmake")
 # Migrate models
 include("assets/models/migrate_models.cmake")
 
-set_target_properties(engine PROPERTIES LINKER_LANGUAGE CXX)
+
+
+set_target_properties(engine PROPERTIES 
+  LINKER_LANGUAGE CXX  
+  ENVIRONMENT "LSAN_OPTIONS=suppressions=../../asan.supp"
+)
 
 add_subdirectory(io)
 add_subdirectory(logger)
@@ -34,9 +39,3 @@ target_link_libraries(engine
 
 # Unit testing
 include(testing.cmake)
-
-
-
-
-
-

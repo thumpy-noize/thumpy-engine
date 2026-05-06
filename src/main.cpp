@@ -8,7 +8,8 @@ bool DEBUG_MODE = true;
 
 bool APPLICATION_RUNNING = true;
 
-Thumpy::Core::Windows::WindowManager *window_manager;
+Thumpy::Core::Windows::WindowManager *window_manager;  // TODO: convert to unique ptr,
+// And make propertie of Engine
 
 // TODO: Move engine to separate file
 class Engine {

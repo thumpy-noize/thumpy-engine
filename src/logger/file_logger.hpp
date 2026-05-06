@@ -48,6 +48,13 @@ void log_to_file( const std::string &message, LogLevel level );
  */
 std::ofstream *get_log_file();
 
+/**
+ * @brief Trim old logs from file
+ *
+ * @param maxSize
+ */
+void trim_log_file( uint32_t max_size );
+
 }  // namespace Logger
 
 }  // namespace Core

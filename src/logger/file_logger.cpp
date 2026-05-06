@@ -34,11 +34,11 @@ void start_log_file() {
 }
 
 void close_log_file() {
+  trim_log_file( 100000 );  // TODO: Finish trim and use variable
+
   // Close file
   if ( log_file->is_open() ) {
-    log( "Dumping log to " + std::filesystem::current_path().string() + "/" +
-             log_path,
-         DEBUG );
+    log( "Dumping log to " + std::filesystem::current_path().string() + "/" + log_path, DEBUG );
     log_file->close();
   }
 }
@@ -53,6 +53,33 @@ void log_to_file( const std::string &message, LogLevel level ) {
 }
 
 std::ofstream *get_log_file() { return log_file; }
+
+void trim_log_file( uint32_t max_size ) {
+  // Ignore trim is size is 0
+  if ( max_size == 0 ) {
+    return;
+  }
+
+  // Compare current file size to max size
+  int64_t log_size = static_cast<int64_t>( std::filesystem::file_size( log_path ) );
+
+  int64_t trim = log_size - static_cast<int64_t>( max_size );
+
+  if ( trim <= 0 ) {
+    // Log is not at max size, skiping trim
+    return;
+  }
+
+  log( "Trimming log...", DEBUG );
+  log( "LogSize: " + std::to_string( log_size ), DEBUG );
+  log( "MaxSize: " + std::to_string( max_size ), DEBUG );
+  log( "Trim: " + std::to_string( trim ), DEBUG );
+
+  // TODO: Implement auto trim
+  // We will need to open the file in write or out mode.
+  log( "The log file has exceeded its maximum size. But automatic trim is not yet implemented.",
+       WARNING );
+}
 
 }  // namespace Logger
 

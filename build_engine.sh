@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# asan suppression 
+export LSAN_OPTIONS=suppressions=$(pwd)/asan.supp
+
 # init submodules
 git submodule init
 git submodule update
@@ -15,7 +18,6 @@ mkdir build
 cd build
 cmake ../
 cmake --build .
-
 
 echo "Executing Build..."
 ./src/engine

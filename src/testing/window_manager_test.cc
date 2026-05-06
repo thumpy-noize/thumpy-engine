@@ -102,6 +102,9 @@ class WindowManagerVulkanTest : public testing::Test {
     try {
       window_manager =
           new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::VULKAN );
+    } catch ( GLFWNotCompatible &ex ) {
+      APPLICATION_RUNNING = false;
+      return;
     } catch ( Vulkan::VulkanNotCompatible &ex ) {
       APPLICATION_RUNNING = false;
       return;

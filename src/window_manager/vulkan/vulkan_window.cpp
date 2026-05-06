@@ -80,9 +80,6 @@ void VulkanWindow::init_vulkan() {
   Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
 
   // Create texture image
-  // vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
-  // Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
-  //                              TEXTURE_PATH );
   init_texture();
 
   // Create texture image view
@@ -92,7 +89,6 @@ void VulkanWindow::init_vulkan() {
   Image::create_texture_sampler( vulkanTextureImage_, vulkanDevice_ );
 
   // Load model
-  // mesh_ = load_mesh( MODEL_PATH );
   init_mesh();
 
   // Create vertex buffer

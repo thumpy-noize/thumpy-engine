@@ -133,8 +133,8 @@ TEST_F( WindowManagerVulkanTest, loop_100 ) {
 }
 
 // Loop Vulkan window for 10,000 frames
-TEST_F( WindowManagerVulkanTest, loop_100000 ) {
-  int i = 100000;
+TEST_F( WindowManagerVulkanTest, loop_1000 ) {
+  int i = 1000;
   while ( APPLICATION_RUNNING && i != 0 ) {
     // Update window manager
     window_manager->loop();

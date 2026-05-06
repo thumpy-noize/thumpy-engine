@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 
+#include "logger.hpp"
+
 const uint32_t WIDTH = 1024;
 const uint32_t HEIGHT = 576;
 
@@ -28,6 +30,21 @@ class Window {
  protected:
   GLFWwindow *window_;  // TODO: Make shared ptr, this will be passed around a bit
   std::string title_;
+};
+
+class GLFWNotCompatible : public std::exception {
+ private:
+  std::string message_;
+
+ public:
+  // Constructor accepts a const char* that is used to set
+  // the exception message
+  GLFWNotCompatible( const char *msg ) : message_( msg ) {
+    Logger::log( "GLFW is not compatible! - " + message_, Logger::ERROR_LOG );
+  }
+
+  // Override the what() method to return our message
+  const char *what() const throw() { return message_.c_str(); }
 };
 
 }  // namespace Windows

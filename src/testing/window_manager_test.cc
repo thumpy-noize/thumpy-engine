@@ -35,8 +35,13 @@ class WindowManagerTest : public testing::Test {
     // Code here will be called immediately after the constructor (right
     // before each test).
 
-    window_manager =
-        new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::NONE );
+    try {
+      window_manager =
+          new Thumpy::Core::Windows::WindowManager( Thumpy::Core::Windows::RenderAPI::NONE );
+    } catch ( GLFWNotCompatible &ex ) {
+      APPLICATION_RUNNING = false;
+      return;
+    }
 
     EXPECT_TRUE( APPLICATION_RUNNING );
   }

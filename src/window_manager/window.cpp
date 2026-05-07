@@ -44,7 +44,7 @@ void Window::deconstruct_window() {
     return;
   }
 
-  Logger::log( "Destroying window - " + title_ + "", Logger::INFO );
+  Logger::log( "Destroying window - " + title_, Logger::INFO );
   glfwDestroyWindow( window_ );
 }
 

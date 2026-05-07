@@ -50,8 +50,7 @@ void instance( vk::raii::Instance &instance, vk::raii::Context &context ) {
 
   // Validate layers are supported
   if ( unsupportedLayerIt != requiredLayers.end() ) {
-    throw VulkanNotCompatible(
-        ( "Required layer not supported: " + std::string( *unsupportedLayerIt ) ).c_str() );
+    throw VulkanNotCompatible( "Required layer not supported..." );
   }
 
   // Get the required extensions.

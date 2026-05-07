@@ -24,7 +24,7 @@ int term_log_vision = INFO | DEBUG | WARNING | ERROR_LOG | CRITICAL;
 
 void log_to_terminal( const std::string &message, LogLevel level ) {
   if ( ( level & term_log_vision ) != 0 ) {
-    if ( ( ( level & CRITICAL ) != 0 ) || ( level & ERROR_LOG != 0 ) ) {
+    if ( ( ( level & CRITICAL ) != 0 ) || ( ( level & ERROR_LOG ) != 0 ) ) {
       std::cerr << terminal_color_from_level( level ) << message << std::endl;
       return;
     }

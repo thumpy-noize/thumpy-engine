@@ -30,7 +30,7 @@ struct VulkanPipeline {
 
 std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
     std::shared_ptr<VulkanDevice> vulkanDevice, std::shared_ptr<VulkanSwapChain> swapChain,
-    vk::raii::DescriptorSetLayout& descriptorSetLayout );
+    vk::raii::DescriptorSetLayout& descriptorSetLayout, std::string shaderFile );
 
 [[nodiscard]] vk::raii::ShaderModule create_shader_module(
     const std::vector<char>& code, std::shared_ptr<VulkanDevice> vulkanDevice );

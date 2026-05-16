@@ -187,18 +187,18 @@ std::shared_ptr<Mesh> load_mesh( std::string filePath );
 
 #pragma endregion Asset loading
 
-// #pragma region Shapes
+#pragma region Shapes
 
-// namespace Shapes {
+namespace Shapes {
 
-// Mesh *generate_triangle();
+std::shared_ptr<Mesh> generate_triangle();
 
-// Mesh *generate_square();
+std::shared_ptr<Mesh> generate_square();
 
 // Mesh *generate_sierpinski_triangle( Mesh *startingMesh, uint32_t recursions );
-// }  // namespace Shapes
+}  // namespace Shapes
 
-// #pragma endregion Shapes
+#pragma endregion Shapes
 
 #pragma region Paths
 

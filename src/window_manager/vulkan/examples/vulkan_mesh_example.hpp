@@ -21,7 +21,7 @@ class VulkanMeshExample : public VulkanWindow {
  public:
   VulkanMeshExample( std::string title );
 
-  ~VulkanMeshExample() override { deconstruct_window(); };
+  ~VulkanMeshExample() override {};  // deconstruct_window(); };
   /**
    * @brief Setup vulkan
    *
@@ -31,6 +31,8 @@ class VulkanMeshExample : public VulkanWindow {
   virtual void init_texture() override;
 
   virtual void init_mesh() override;
+
+  virtual void init_shader() override;
 
   /**
    * @brief deconstruct vulkan window

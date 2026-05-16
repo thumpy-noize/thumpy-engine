@@ -27,122 +27,145 @@ namespace Windows {
 namespace Vulkan {
 namespace Examples {
 
-void VulkanTriangleExample::init_vulkan() {
-  // Find & create vulkan device
-  vulkanDevice_ = new VulkanDevice( instance_, surface_ );
+VulkanTriangleExample::VulkanTriangleExample( std::string title ) : VulkanWindow( title ) {}
 
-  // Create swap chain / image views / render pass
-  swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
+void VulkanTriangleExample::init_texture() {
+  // TODO: remove texture, we will be using shaders for this
+  Logger::log( "Initialing example texture...", Logger::DEBUG );
 
-  // Todo: Update this
-  // Create descriptor layouts
-  descriptors_ = new Descriptors();
-  Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
+  // Setup texture
+  vulkanTextureImage_ = std::make_shared<Image::VulkanTextureImage>();
+  Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
+                               TEXTURE_PATH );
+}
 
-  // Todo: Update this
-  // Create graphics pipeline
-  pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_, descriptors_->setLayout );
+void VulkanTriangleExample::init_mesh() {
+  Logger::log( "Initialing example mesh...", Logger::DEBUG );
 
-  // Multisampling
-  msaaColorBuffer_ = new VulkanImage();
-  Image::create_color_resources( msaaColorBuffer_, vulkanDevice_, swapChain_ );
-
-  // Depth buffer / Not required for this example
-  depthBuffer_ = new VulkanImage();
-  Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->extent );
-
-  // Create frame buffers
-  Buffer::create_framebuffers( swapChain_, depthBuffer_->imageView, msaaColorBuffer_->imageView,
-                               vulkanDevice_->device );
-
-  // Create command pool
-  commandPool_ = new Construct::CommandPool();
-  Construct::command_pool( vulkanDevice_, commandPool_->pool );
-
-  // Todo: Remove this
-  // Create texture image / view / sampler
-  textureImage_ = new VulkanTextureImage();
-  Image::create_texture_image( vulkanDevice_, textureImage_, commandPool_->pool, TEXTURE_PATH );
-  Image::create_texture_image_view( vulkanDevice_->device, textureImage_ );
-  Image::create_texture_sampler( vulkanDevice_, textureImage_ );
-
-  // Create vertex buffer
-
+  // Setup mesh
   mesh_ = Shapes::generate_triangle();
-  // mesh_ = Shapes::generate_square();
-  // mesh_ = load_mesh( MODEL_PATH );
-
-  mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 6 );
-
-  vertexBuffer_ = new Buffer::Buffer();
-  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool );
-
-  // Create Index Buffer
-  indexBuffer_ = new Buffer::Buffer();
-  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
-
-  // Create uniform buffers
-  uniformBuffers_ = new Construct::UniformBuffers();
-  Construct::uniform_buffers( vulkanDevice_, uniformBuffers_, MAX_FRAMES_IN_FLIGHT );
-
-  // Create descriptor pool
-  Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
-
-  // Todo: Update this
-  // Create descriptor sets
-  Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers, textureImage_,
-                              MAX_FRAMES_IN_FLIGHT );
-
-  // Create command buffer
-  Construct::command_buffer( commandPool_->buffers, commandPool_->pool, vulkanDevice_->device,
-                             MAX_FRAMES_IN_FLIGHT );
-
-  // Create render
-  render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,
-                              &commandPool_->buffers, pipeline_ );
 }
 
-void VulkanTriangleExample::deconstruct_window() {
-  Logger::log( "Destroying vulkan..." );
+void VulkanTriangleExample::init_shader() { SHADER_PATH = "uniform_shader.slang.spv"; }
 
-  swapChain_->clear_swap_chain();
+// void VulkanTriangleExample::init_vulkan() {
+//   // Find & create vulkan device
+//   vulkanDevice_ = new VulkanDevice( instance_, surface_ );
 
-  destroy_graphics_pipeline( vulkanDevice_->device, pipeline_ );
+//   // Create swap chain / image views / render pass
+//   swapChain_ = new VulkanSwapChain( vulkanDevice_, window_, surface_ );
 
-  vkDestroyRenderPass( vulkanDevice_->device, swapChain_->renderPass, nullptr );
+//   // Todo: Update this
+//   // Create descriptor layouts
+//   descriptors_ = new Descriptors();
+//   Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
 
-  render_->destroy();
+//   // Todo: Update this
+//   // Create graphics pipeline
+//   pipeline_ = create_graphics_pipeline( swapChain_, vulkanDevice_, descriptors_->setLayout );
 
-  for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
-    vkDestroyBuffer( vulkanDevice_->device, uniformBuffers_->buffers[i], nullptr );
-    vkFreeMemory( vulkanDevice_->device, uniformBuffers_->memory[i], nullptr );
-  }
+//   // Multisampling
+//   msaaColorBuffer_ = new VulkanImage();
+//   Image::create_color_resources( msaaColorBuffer_, vulkanDevice_, swapChain_ );
 
-  vkDestroyDescriptorPool( vulkanDevice_->device, descriptors_->pool, nullptr );
+//   // Depth buffer / Not required for this example
+//   depthBuffer_ = new VulkanImage();
+//   Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->extent );
 
-  textureImage_->destroy( vulkanDevice_->device );
-  depthBuffer_->destroy( vulkanDevice_->device );
-  msaaColorBuffer_->destroy( vulkanDevice_->device );
+//   // Create frame buffers
+//   Buffer::create_framebuffers( swapChain_, depthBuffer_->imageView, msaaColorBuffer_->imageView,
+//                                vulkanDevice_->device );
 
-  vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptors_->setLayout, nullptr );
+//   // Create command pool
+//   commandPool_ = new Construct::CommandPool();
+//   Construct::command_pool( vulkanDevice_, commandPool_->pool );
 
-  indexBuffer_->destroy( vulkanDevice_->device );
+//   // Todo: Remove this
+//   // Create texture image / view / sampler
+//   textureImage_ = new VulkanTextureImage();
+//   Image::create_texture_image( vulkanDevice_, textureImage_, commandPool_->pool, TEXTURE_PATH );
+//   Image::create_texture_image_view( vulkanDevice_->device, textureImage_ );
+//   Image::create_texture_sampler( vulkanDevice_, textureImage_ );
 
-  vertexBuffer_->destroy( vulkanDevice_->device );
+//   // Create vertex buffer
 
-  // vkDestroyCommandPool( vulkanDevice_->device, commandPool_, nullptr );
-  commandPool_->destroy( vulkanDevice_->device );
+//   mesh_ = Shapes::generate_triangle();
+//   // mesh_ = Shapes::generate_square();
+//   // mesh_ = load_mesh( MODEL_PATH );
 
-  vkDestroyDevice( vulkanDevice_->device, nullptr );
+//   mesh_ = Shapes::generate_sierpinski_triangle( mesh_, 6 );
 
-  if ( enableValidationLayers ) {
-    Debug::destroy_debug_utils_messenger_ext( instance_, &debugMessenger_, nullptr );
-  }
+//   vertexBuffer_ = new Buffer::Buffer();
+//   Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool
+//   );
 
-  vkDestroySurfaceKHR( instance_, surface_, nullptr );
+//   // Create Index Buffer
+//   indexBuffer_ = new Buffer::Buffer();
+//   Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
 
-  Window::deconstruct_window();
-}
+//   // Create uniform buffers
+//   uniformBuffers_ = new Construct::UniformBuffers();
+//   Construct::uniform_buffers( vulkanDevice_, uniformBuffers_, MAX_FRAMES_IN_FLIGHT );
+
+//   // Create descriptor pool
+//   Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
+
+//   // Todo: Update this
+//   // Create descriptor sets
+//   Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers,
+//   textureImage_,
+//                               MAX_FRAMES_IN_FLIGHT );
+
+//   // Create command buffer
+//   Construct::command_buffer( commandPool_->buffers, commandPool_->pool, vulkanDevice_->device,
+//                              MAX_FRAMES_IN_FLIGHT );
+
+//   // Create render
+//   render_ = new VulkanRender( MAX_FRAMES_IN_FLIGHT, vulkanDevice_, swapChain_,
+//                               &commandPool_->buffers, pipeline_ );
+// }
+
+// void VulkanTriangleExample::deconstruct_window() {
+//   Logger::log( "Destroying vulkan..." );
+
+//   swapChain_->clear_swap_chain();
+
+//   destroy_graphics_pipeline( vulkanDevice_->device, pipeline_ );
+
+//   vkDestroyRenderPass( vulkanDevice_->device, swapChain_->renderPass, nullptr );
+
+//   render_->destroy();
+
+//   for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+//     vkDestroyBuffer( vulkanDevice_->device, uniformBuffers_->buffers[i], nullptr );
+//     vkFreeMemory( vulkanDevice_->device, uniformBuffers_->memory[i], nullptr );
+//   }
+
+//   vkDestroyDescriptorPool( vulkanDevice_->device, descriptors_->pool, nullptr );
+
+//   textureImage_->destroy( vulkanDevice_->device );
+//   depthBuffer_->destroy( vulkanDevice_->device );
+//   msaaColorBuffer_->destroy( vulkanDevice_->device );
+
+//   vkDestroyDescriptorSetLayout( vulkanDevice_->device, descriptors_->setLayout, nullptr );
+
+//   indexBuffer_->destroy( vulkanDevice_->device );
+
+//   vertexBuffer_->destroy( vulkanDevice_->device );
+
+//   // vkDestroyCommandPool( vulkanDevice_->device, commandPool_, nullptr );
+//   commandPool_->destroy( vulkanDevice_->device );
+
+//   vkDestroyDevice( vulkanDevice_->device, nullptr );
+
+//   if ( enableValidationLayers ) {
+//     Debug::destroy_debug_utils_messenger_ext( instance_, &debugMessenger_, nullptr );
+//   }
+
+//   vkDestroySurfaceKHR( instance_, surface_, nullptr );
+
+//   Window::deconstruct_window();
+// }
 
 }  // namespace Examples
 }  // namespace Vulkan

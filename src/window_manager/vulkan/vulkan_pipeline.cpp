@@ -50,11 +50,11 @@ static std::vector<char> read_file( const std::string &filename ) {
 
 std::shared_ptr<VulkanPipeline> create_graphics_pipeline(
     std::shared_ptr<VulkanDevice> vulkanDevice, std::shared_ptr<VulkanSwapChain> swapChain,
-    vk::raii::DescriptorSetLayout &descriptorSetLayout ) {
+    vk::raii::DescriptorSetLayout &descriptorSetLayout, std::string shaderFile ) {
   Logger::log( "Constructing Vulkan pipeline...", Logger::DEBUG );
 
   // Read shader file
-  std::vector<char> slagShaderCode = read_file( get_shader_path() + "texture_shader.slang.spv" );
+  std::vector<char> slagShaderCode = read_file( get_shader_path() + shaderFile );
 
   // Create shader module
   vk::raii::ShaderModule shaderModule = create_shader_module( slagShaderCode, vulkanDevice );

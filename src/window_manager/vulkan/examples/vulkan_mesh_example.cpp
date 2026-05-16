@@ -42,6 +42,8 @@ void VulkanMeshExample::init_mesh() {
   mesh_ = load_mesh( MODEL_PATH );
 }
 
+void VulkanMeshExample::init_shader() { SHADER_PATH = "texture_shader.slang.spv"; }
+
 }  // namespace Examples
 }  // namespace Vulkan
 }  // namespace Windows

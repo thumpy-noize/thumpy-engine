@@ -64,8 +64,12 @@ void VulkanWindow::init_vulkan() {
   descriptors_ = std::make_shared<Descriptors>();
   Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
 
+  // Set shader
+  init_shader();
+
   // Construct pipeline
-  pipeline_ = create_graphics_pipeline( vulkanDevice_, swapChain_, descriptors_->setLayout );
+  pipeline_ =
+      create_graphics_pipeline( vulkanDevice_, swapChain_, descriptors_->setLayout, SHADER_PATH );
 
   // Construct command pool
   commandPool_ = std::make_shared<Construct::CommandPool>();
@@ -133,14 +137,20 @@ void VulkanWindow::init_mesh() {
   mesh_ = load_mesh( MODEL_PATH );
 }
 
+void VulkanWindow::init_shader() { SHADER_PATH = "texture_shader.slang.spv"; }
+
 void VulkanWindow::deconstruct_window() {
   Logger::log( "Destroying Vulkan window...", Logger::DEBUG );
 
   // Wait for vulkan device
-  vulkanDevice_->device.waitIdle();
+  if ( vulkanDevice_ ) {
+    vulkanDevice_->device.waitIdle();
+  }
 
   // Clear swap chain
-  swapChain_->clear_swap_chain();
+  if ( swapChain_ ) {
+    swapChain_->clear_swap_chain();
+  }
 }
 
 void VulkanWindow::loop() {

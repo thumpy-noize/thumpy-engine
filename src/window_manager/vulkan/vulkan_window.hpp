@@ -49,6 +49,8 @@ class VulkanWindow : public Window {
 
   virtual void init_mesh();
 
+  virtual void init_shader();
+
   /**
    * @brief Deconstruct vulkan window
    *
@@ -73,6 +75,7 @@ class VulkanWindow : public Window {
 
   const std::string MODEL_PATH = "viking_room.obj";
   const std::string TEXTURE_PATH = "viking_room.png";
+  std::string SHADER_PATH = "texture_shader.slang.spv";
 
  protected:
   const uint32_t MAX_FRAMES_IN_FLIGHT = 2;

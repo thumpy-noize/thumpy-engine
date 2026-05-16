@@ -145,30 +145,29 @@ uint32_t find_memory_type( vk::raii::PhysicalDevice physicalDevice, uint32_t typ
 //   return VK_SAMPLE_COUNT_1_BIT;
 // }
 
-// #pragma region Shape generation
+#pragma region Shape generation
 
-// namespace Shapes {
+namespace Shapes {
 
-// Mesh *generate_triangle() {
-//   Mesh *mesh = new Mesh();
-//   mesh->vertices = { { { 0.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-//                      { { 0.5f, 0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-//                      { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } } };
-//   mesh->indices = { 0, 1, 2 };
-//   return mesh;
+std::shared_ptr<Mesh> generate_triangle() {
+  std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+  mesh->vertices = { { { 0.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+                     { { 0.5f, 0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+                     { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } } };
+  mesh->indices = { 0, 1, 2 };
+  return mesh;
+}
 
-// }  // namespace Shapes
+std::shared_ptr<Mesh> generate_square() {
+  std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+  mesh->vertices = { { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
+                     { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
+                     { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+                     { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } } };
+  mesh->indices = { 0, 1, 2, 2, 3, 0 };
 
-// Mesh *generate_square() {
-//   Mesh *mesh = new Mesh();
-//   mesh->vertices = { { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
-//                      { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
-//                      { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-//                      { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } } };
-//   mesh->indices = { 0, 1, 2, 2, 3, 0 };
-
-//   return mesh;
-// }
+  return mesh;
+}
 
 // /**
 //  * @brief Creates a sierpinski triangle from list of triangles
@@ -253,9 +252,9 @@ uint32_t find_memory_type( vk::raii::PhysicalDevice physicalDevice, uint32_t typ
 //   return generate_sierpinski_triangle( finalMesh, recursions );
 // }
 
-// }  // namespace Shapes
+}  // namespace Shapes
 
-// #pragma endregion Shape generation
+#pragma endregion Shape generation
 
 #pragma region Asset loading
 

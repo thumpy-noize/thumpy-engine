@@ -38,6 +38,10 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: macos-latest
 
+    # Output artifact
+    outputs:
+      build-artifact: ${{ steps.upload.outputs.artifact-name }}
+      
     steps:
     - uses: actions/checkout@v4
       with:
@@ -61,6 +65,25 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{github.workspace}}/build --config Release
 
+    - name: Upload build
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifact
+        path: build
+
+
+  test:
+    runs-on: macos-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download build
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifact
+        path: ./build
+
+    # Run test
     - name: Test
       working-directory: ${{github.workspace}}/build/src
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).

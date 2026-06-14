@@ -120,7 +120,10 @@ class WindowManagerVulkanTest : public testing::Test {
     // Code here will be called immediately after each test (right
     // before the destructor).
     // Terminate systems
-    delete window_manager;
+    if(window_manager != nullptr)
+    {
+      delete window_manager;
+    }
     // window_manager->terminate();
   }
 

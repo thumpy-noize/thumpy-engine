@@ -9,6 +9,7 @@
 #include "file_logger.hpp"
 #include "logger_helper.hpp"
 #include "term_logger.hpp"
+#include <filesystem>
 
 namespace Thumpy {
 namespace Core {
@@ -34,12 +35,15 @@ TEST( logger, test_file_logger_write ) {
   Logger::log_to_file( test_string, Logger::LogLevel::DEBUG );
 
   // Open File
-  std::ifstream file_stream( Logger::log_path, std::ios::in );
+  std::ifstream file_stream( std::filesystem::current_path().string() + "\\" + Logger::log_path, std::ios::in );
   EXPECT_TRUE( file_stream.is_open() );
 
   // Go to EOF
-  file_stream.seekg( -2, std::ios_base::end );
+  file_stream.seekg( -4, std::ios_base::end );
 
+  // Set max seeks
+  int max_seeks = 100;
+  
   // Seek back to "\n"
   while ( true ) {
     // Get current char
@@ -54,13 +58,20 @@ TEST( logger, test_file_logger_write ) {
 
     // If new line found, break out
     if ( character == '\n' ) {
-      break;
+        break;
     }
 
     // Seek backwards
     file_stream.seekg( -2, std::ios_base::cur );
-  }
+    max_seeks--;
 
+    // Check for max seeks
+    if(max_seeks <= 0)
+    {
+      EXPECT_TRUE(max_seeks > 0);
+    }
+  }
+  
   // Read file
   std::string line;
   std::getline( file_stream, line );

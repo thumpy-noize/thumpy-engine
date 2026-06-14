@@ -61,6 +61,10 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{github.workspace}}/build --config Release
 
+  test:
+    runs-on: windows-latest
+    
+    steps:
     - name: Test
       working-directory: ${{github.workspace}}/build/src
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).

@@ -63,7 +63,7 @@ jobs:
 
   test:
     runs-on: windows-latest
-    
+    needs: build
     steps:
     - name: Test
       working-directory: ${{github.workspace}}/build/src

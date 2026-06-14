@@ -77,11 +77,11 @@ jobs:
         name: build-artifact
         path: build
 
-    - name: Test
-      working-directory: ${{github.workspace}}/build/src
-      # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config Release --output-on-failure
+    # - name: Test
+    #   working-directory: ${{github.workspace}}/build/src
+    #   # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+    #   # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+    #   run: ctest --build-config Release --output-on-failure
 
   test:
     runs-on: ubuntu-latest
@@ -93,6 +93,10 @@ jobs:
       with:
         name: build-artifact
         path: ./build
+
+    # Restore executable permissions
+    - name: Restore executable permissions    
+      run: find ./build -type f -executable -name '*test*' -o -name 'engine_unit_test' | xargs chmod +x
 
     # Run test
     - name: Test

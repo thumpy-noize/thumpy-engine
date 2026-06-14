@@ -41,6 +41,9 @@ class WindowManagerTest : public testing::Test {
     } catch ( GLFWNotCompatible &ex ) {
       APPLICATION_RUNNING = false;
       return;
+    } catch ( Vulkan::VulkanNotCompatible &ex ) {
+      APPLICATION_RUNNING = false;
+      return;
     }
 
     EXPECT_TRUE( APPLICATION_RUNNING );

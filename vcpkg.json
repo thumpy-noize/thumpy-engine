@@ -4,5 +4,14 @@
     "glfw3",
     "glm",
     "vulkan"
+  ],
+  
+  "builtin-baseline": "81e3c888ef717a026eb57bb2f3cb0dbd30246271",
+
+  "overrides": [
+    {
+      "name": "glm",
+      "version": "1.0.0"
+    }
   ]
 }

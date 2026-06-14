@@ -32,7 +32,7 @@ void WindowManager::create_new_window( RenderAPI api, std::string title ) {
 
       // Create vulkan window
       // windows_.push_back( std::make_unique<Vulkan::Examples::VulkanMeshExample>( title ) );
-      windows_.push_back( std::make_unique<Vulkan::Examples::VulkanTriangleExample>( title ) );
+      windows_.push_back( std::make_unique<Vulkan::Examples::VulkanMeshExample>( title ) );
       // Init vulkan after construction (insures we use overriden functions)
       dynamic_cast<Vulkan::VulkanWindow*>( windows_.back().get() )->init_vulkan();
       break;

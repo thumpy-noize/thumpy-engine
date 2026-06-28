@@ -45,6 +45,10 @@ class VulkanWindow : public Window {
    */
   virtual void init_vulkan();
 
+  virtual void init_surface();
+
+  virtual void init_descriptors();
+
   virtual void init_texture();
 
   virtual void init_mesh();

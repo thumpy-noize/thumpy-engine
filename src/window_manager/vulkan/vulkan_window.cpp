@@ -37,22 +37,24 @@ namespace Vulkan {
 VulkanWindow::VulkanWindow( std::string title ) : Window( title ) {}  // init_vulkan(); }
 
 void VulkanWindow::init_vulkan() {
-  if ( glfwVulkanSupported() == GLFW_FALSE ) {
-    Logger::log( "GLFW does not have Vulkan support!", Logger::ERROR_LOG );
-    throw VulkanNotCompatible( "GLFW does not have Vulkan support!" );
-    return;
-  }
+  // if ( glfwVulkanSupported() == GLFW_FALSE ) {
+  //   Logger::log( "GLFW does not have Vulkan support!", Logger::ERROR_LOG );
+  //   throw VulkanNotCompatible( "GLFW does not have Vulkan support!" );
+  //   return;
+  // }
 
-  Logger::log( "Constructing Vulkan window...", Logger::DEBUG );
+  // Logger::log( "Constructing Vulkan window...", Logger::DEBUG );
 
-  // Construct instance
-  Construct::instance( instance_, context_ );
+  // // Construct instance
+  // Construct::instance( instance_, context_ );
 
-  // Setup debug messenger
-  Debug::setup_debug_messenger( instance_, debugMessenger_ );
+  // // Setup debug messenger
+  // Debug::setup_debug_messenger( instance_, debugMessenger_ );
 
-  // Create surface
-  create_surface();
+  // // Create surface
+  // create_surface();
+
+  init_surface();
 
   // Construct Vulkan device
   vulkanDevice_ = std::make_shared<VulkanDevice>( instance_, *surface_ );
@@ -61,8 +63,9 @@ void VulkanWindow::init_vulkan() {
   swapChain_ = std::make_shared<VulkanSwapChain>( vulkanDevice_, window_, surface_ );
 
   // Create descriptors
-  descriptors_ = std::make_shared<Descriptors>();
-  Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
+  // descriptors_ = std::make_shared<Descriptors>();
+  // Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
+  init_descriptors();
 
   // Set shader
   init_shader();
@@ -119,6 +122,30 @@ void VulkanWindow::init_vulkan() {
   // Construct render
   render_ = std::make_shared<VulkanRender>( vulkanDevice_, swapChain_, pipeline_, commandPool_,
                                             MAX_FRAMES_IN_FLIGHT );
+}
+
+void VulkanWindow::init_surface() {
+  if ( glfwVulkanSupported() == GLFW_FALSE ) {
+    Logger::log( "GLFW does not have Vulkan support!", Logger::ERROR_LOG );
+    throw VulkanNotCompatible( "GLFW does not have Vulkan support!" );
+    return;
+  }
+
+  Logger::log( "Constructing Vulkan window...", Logger::DEBUG );
+
+  // Construct instance
+  Construct::instance( instance_, context_ );
+
+  // Setup debug messenger
+  Debug::setup_debug_messenger( instance_, debugMessenger_ );
+
+  // Create surface
+  create_surface();
+}
+
+void VulkanWindow::init_descriptors() {
+  descriptors_ = std::make_shared<Descriptors>();
+  Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
 }
 
 void VulkanWindow::init_texture() {

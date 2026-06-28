@@ -47,13 +47,23 @@ class VulkanWindow : public Window {
 
   virtual void init_surface();
 
-  virtual void init_descriptors();
+  /**
+   * @brief Create surface
+   *
+   */
+  void create_surface();
+
+  virtual void init_descriptors_layout();
+
+  virtual void init_shader();
 
   virtual void init_texture();
 
   virtual void init_mesh();
 
-  virtual void init_shader();
+  virtual void init_buffers();
+
+  virtual void init_descriptors();
 
   /**
    * @brief Deconstruct vulkan window
@@ -66,12 +76,6 @@ class VulkanWindow : public Window {
    *
    */
   virtual void loop();
-
-  /**
-   * @brief Create surface
-   *
-   */
-  void create_surface();
 
 #pragma endregion Core
 

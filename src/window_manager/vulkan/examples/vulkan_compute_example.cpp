@@ -27,23 +27,6 @@ namespace Examples {
 VulkanComputeExample::VulkanComputeExample( std::string title ) : VulkanWindow( title ) {}
 
 void VulkanComputeExample::init_vulkan() {
-  //   if ( glfwVulkanSupported() == GLFW_FALSE ) {
-  //     Logger::log( "GLFW does not have Vulkan support!", Logger::ERROR_LOG );
-  //     throw VulkanNotCompatible( "GLFW does not have Vulkan support!" );
-  //     return;
-  //   }
-
-  //   Logger::log( "Constructing Vulkan window...", Logger::DEBUG );
-
-  //   // Construct instance
-  //   Construct::instance( instance_, context_ );
-
-  //   // Setup debug messenger
-  //   Debug::setup_debug_messenger( instance_, debugMessenger_ );
-
-  //   // Create surface
-  //   create_surface();
-
   // Create Vulkan instance and surface
   init_surface();
 
@@ -55,10 +38,8 @@ void VulkanComputeExample::init_vulkan() {
 
   // Create descriptors
   // TODO: Setup compute descriptors
-  // TODO: Make modular for future use
-  //   descriptors_ = std::make_shared<Descriptors>();
-  //   Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
-  init_descriptors();
+
+  init_descriptors_layout();
 
   // Set shader
   init_shader();
@@ -97,23 +78,11 @@ void VulkanComputeExample::init_vulkan() {
   // Load model
   init_mesh();
 
-  // Create vertex buffer
-  vertexBuffer_ = std::make_shared<Buffer::Buffer>();
-  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool );
+  // Init buffers
+  init_buffers();
 
-  // Create index buffer
-  indexBuffer_ = std::make_shared<Buffer::Buffer>();
-  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
-
-  // Create uniform buffers
-  uniformBuffers_ = std::make_shared<Buffer::UniformBuffers>();
-  Buffer::create_uniform_buffers( uniformBuffers_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
-
-  // Create descriptor pool
-  Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
-  // Create descriptor sets
-  Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers,
-                              vulkanTextureImage_, MAX_FRAMES_IN_FLIGHT );
+  // Init descriptors
+  init_descriptors();
 
   // TODO: Create compute descriptor sets
 

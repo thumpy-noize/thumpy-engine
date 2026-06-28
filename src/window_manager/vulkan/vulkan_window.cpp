@@ -65,7 +65,7 @@ void VulkanWindow::init_vulkan() {
   // Create descriptors
   // descriptors_ = std::make_shared<Descriptors>();
   // Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
-  init_descriptors();
+  init_descriptors_layout();
 
   // Set shader
   init_shader();
@@ -98,23 +98,26 @@ void VulkanWindow::init_vulkan() {
   // Load model
   init_mesh();
 
-  // Create vertex buffer
-  vertexBuffer_ = std::make_shared<Buffer::Buffer>();
-  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool );
+  // // Create vertex buffer
+  // vertexBuffer_ = std::make_shared<Buffer::Buffer>();
+  // Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool
+  // );
 
-  // Create index buffer
-  indexBuffer_ = std::make_shared<Buffer::Buffer>();
-  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
+  // // Create index buffer
+  // indexBuffer_ = std::make_shared<Buffer::Buffer>();
+  // Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
 
-  // Create uniform buffers
-  uniformBuffers_ = std::make_shared<Buffer::UniformBuffers>();
-  Buffer::create_uniform_buffers( uniformBuffers_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
+  // // Create uniform buffers
+  // uniformBuffers_ = std::make_shared<Buffer::UniformBuffers>();
+  // Buffer::create_uniform_buffers( uniformBuffers_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
+  init_buffers();
 
-  // Create descriptor pool
-  Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
-  // Create descriptor sets
-  Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers,
-                              vulkanTextureImage_, MAX_FRAMES_IN_FLIGHT );
+  // // Create descriptor pool
+  // Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
+  // // Create descriptor sets
+  // Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers,
+  //                             vulkanTextureImage_, MAX_FRAMES_IN_FLIGHT );
+  init_descriptors();
 
   // Create command buffer
   Construct::command_buffer( commandPool_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
@@ -143,7 +146,20 @@ void VulkanWindow::init_surface() {
   create_surface();
 }
 
-void VulkanWindow::init_descriptors() {
+void VulkanWindow::create_surface() {
+  // Create surface
+  VkSurfaceKHR _surface;
+  if ( glfwCreateWindowSurface( *instance_, window_, nullptr, &_surface ) != 0 ) {
+    // Validate surface creation
+    Logger::log( "Failed to create window surface.", Logger::ERROR_LOG );
+    throw VulkanRuntimeError( "Failed to create window surface!" );
+  }
+
+  // Set surface to instance
+  surface_ = std::make_shared<vk::raii::SurfaceKHR>( instance_, _surface );
+}
+
+void VulkanWindow::init_descriptors_layout() {
   descriptors_ = std::make_shared<Descriptors>();
   Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
 }
@@ -157,6 +173,8 @@ void VulkanWindow::init_texture() {
                                TEXTURE_PATH );
 }
 
+void VulkanWindow::init_shader() { SHADER_PATH = "texture_shader.slang.spv"; }
+
 void VulkanWindow::init_mesh() {
   Logger::log( "Initialing mesh...", Logger::DEBUG );
 
@@ -164,7 +182,27 @@ void VulkanWindow::init_mesh() {
   mesh_ = load_mesh( MODEL_PATH );
 }
 
-void VulkanWindow::init_shader() { SHADER_PATH = "texture_shader.slang.spv"; }
+void VulkanWindow::init_buffers() {
+  // Create vertex buffer
+  vertexBuffer_ = std::make_shared<Buffer::Buffer>();
+  Buffer::create_vertex_buffer( mesh_->vertices, vulkanDevice_, vertexBuffer_, commandPool_->pool );
+
+  // Create index buffer
+  indexBuffer_ = std::make_shared<Buffer::Buffer>();
+  Buffer::create_index_buffer( mesh_->indices, vulkanDevice_, indexBuffer_, commandPool_->pool );
+
+  // Create uniform buffers
+  uniformBuffers_ = std::make_shared<Buffer::UniformBuffers>();
+  Buffer::create_uniform_buffers( uniformBuffers_, vulkanDevice_, MAX_FRAMES_IN_FLIGHT );
+}
+
+void VulkanWindow::init_descriptors() {
+  // Create descriptor pool
+  Construct::descriptor_pool( vulkanDevice_, descriptors_->pool, MAX_FRAMES_IN_FLIGHT );
+  // Create descriptor sets
+  Construct::descriptor_sets( vulkanDevice_, descriptors_, uniformBuffers_->buffers,
+                              vulkanTextureImage_, MAX_FRAMES_IN_FLIGHT );
+}
 
 void VulkanWindow::deconstruct_window() {
   Logger::log( "Destroying Vulkan window...", Logger::DEBUG );
@@ -190,19 +228,6 @@ void VulkanWindow::loop() {
                          mesh_->indices.size(), uniformBuffers_->mapped, depthBuffer_, colorImage_,
                          descriptors_ );
   }
-}
-
-void VulkanWindow::create_surface() {
-  // Create surface
-  VkSurfaceKHR _surface;
-  if ( glfwCreateWindowSurface( *instance_, window_, nullptr, &_surface ) != 0 ) {
-    // Validate surface creation
-    Logger::log( "Failed to create window surface.", Logger::ERROR_LOG );
-    throw VulkanRuntimeError( "Failed to create window surface!" );
-  }
-
-  // Set surface to instance
-  surface_ = std::make_shared<vk::raii::SurfaceKHR>( instance_, _surface );
 }
 
 #pragma endregion Core

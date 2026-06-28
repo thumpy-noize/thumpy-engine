@@ -78,13 +78,14 @@ void VulkanWindow::init_vulkan() {
   commandPool_ = std::make_shared<Construct::CommandPool>();
   Construct::command_pool( commandPool_->pool, vulkanDevice_ );
 
-  // Create msaa color image
-  colorImage_ = std::make_shared<Image::VulkanImage>();
-  Image::create_color_resources( colorImage_, vulkanDevice_, swapChain_ );
+  // // Create msaa color image
+  // colorImage_ = std::make_shared<Image::VulkanImage>();
+  // Image::create_color_resources( colorImage_, vulkanDevice_, swapChain_ );
 
-  // Create depth image
-  depthBuffer_ = std::make_shared<Image::VulkanImage>();
-  Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
+  // // Create depth image
+  // depthBuffer_ = std::make_shared<Image::VulkanImage>();
+  // Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
+  init_image_resources();
 
   // Create texture image
   init_texture();
@@ -164,6 +165,18 @@ void VulkanWindow::init_descriptors_layout() {
   Construct::descriptor_set_layout( vulkanDevice_, descriptors_->setLayout );
 }
 
+void VulkanWindow::init_shader() { SHADER_PATH = "texture_shader.slang.spv"; }
+
+void VulkanWindow::init_image_resources() {
+  // Create msaa color image
+  colorImage_ = std::make_shared<Image::VulkanImage>();
+  Image::create_color_resources( colorImage_, vulkanDevice_, swapChain_ );
+
+  // Create depth image
+  depthBuffer_ = std::make_shared<Image::VulkanImage>();
+  Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
+}
+
 void VulkanWindow::init_texture() {
   Logger::log( "Initialing texture...", Logger::DEBUG );
 
@@ -172,8 +185,6 @@ void VulkanWindow::init_texture() {
   Image::create_texture_image( vulkanDevice_, commandPool_->pool, vulkanTextureImage_,
                                TEXTURE_PATH );
 }
-
-void VulkanWindow::init_shader() { SHADER_PATH = "texture_shader.slang.spv"; }
 
 void VulkanWindow::init_mesh() {
   Logger::log( "Initialing mesh...", Logger::DEBUG );

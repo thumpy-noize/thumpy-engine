@@ -25,6 +25,12 @@ struct Buffer {
   vk::raii::DeviceMemory memory = nullptr;
 };
 
+// TODO: used for compute shaders
+struct StorageBuffer {
+  std::vector<vk::raii::Buffer> buffer;
+  std::vector<vk::raii::DeviceMemory> memory;
+};
+
 struct UniformBuffers {
   // We may be able to use a vector of buffers to replace these first 2 variables
   std::vector<vk::raii::Buffer> buffers;

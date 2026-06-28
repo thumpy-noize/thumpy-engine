@@ -35,6 +35,7 @@ std::vector<const char *> getRequiredInstanceExtensions();
 struct CommandPool {
   vk::raii::CommandPool pool = nullptr;
   std::vector<vk::raii::CommandBuffer> buffers;
+  std::vector<vk::raii::CommandBuffer> computeBuffers;  // TODO: used for compute shaders
 };
 
 void command_pool( vk::raii::CommandPool &commandPool, std::shared_ptr<VulkanDevice> vulkanDevice );

@@ -58,13 +58,8 @@ void VulkanComputeExample::init_vulkan() {
 
   // TODO: Remove unnecessary buffers ( texture / vertex / index )
 
-  // Create msaa color image
-  colorImage_ = std::make_shared<Image::VulkanImage>();
-  Image::create_color_resources( colorImage_, vulkanDevice_, swapChain_ );
-
-  // Create depth image
-  depthBuffer_ = std::make_shared<Image::VulkanImage>();
-  Image::create_depth_resources( depthBuffer_, vulkanDevice_, swapChain_->swapChainExtent );
+  // Init image resources
+  init_image_resources();
 
   // Create texture image
   init_texture();

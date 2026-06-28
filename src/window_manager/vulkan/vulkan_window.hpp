@@ -59,6 +59,8 @@ class VulkanWindow : public Window {
 
   virtual void init_texture();
 
+  virtual void init_image_resources();
+
   virtual void init_mesh();
 
   virtual void init_buffers();
